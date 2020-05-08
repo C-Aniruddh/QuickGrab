@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "319860204500",
+    "firebase_url": "https://impetusindia2020.firebaseio.com",
+    "project_id": "impetusindia2020",
+    "storage_bucket": "impetusindia2020.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319860204500:android:f21e667b5890a1d31a2c41",
+        "android_client_info": {
+          "package_name": "com.impetus.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319860204500-bblj9dossjveit22rebhichjlpkt46dt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW8FUAfx1mDtON4JVmkv4wwhDcQt8-XX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319860204500-bblj9dossjveit22rebhichjlpkt46dt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
