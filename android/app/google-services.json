@@ -1,35 +1,186 @@
 {
   "project_info": {
-    "project_number": "319860204500",
-    "firebase_url": "https://impetusindia2020.firebaseio.com",
-    "project_id": "impetusindia2020",
-    "storage_bucket": "impetusindia2020.appspot.com"
+    "project_number": "765431265467",
+    "firebase_url": "https://shopapp-15d39.firebaseio.com",
+    "project_id": "shopapp-15d39",
+    "storage_bucket": "shopapp-15d39.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:319860204500:android:f21e667b5890a1d31a2c41",
+        "mobilesdk_app_id": "1:765431265467:android:17a3b1d609fda25ed5519e",
         "android_client_info": {
-          "package_name": "com.impetus.app"
+          "package_name": "com.aniruddh.shop_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "319860204500-bblj9dossjveit22rebhichjlpkt46dt.apps.googleusercontent.com",
+          "client_id": "765431265467-f22fs1qplfohisulegb7kpkfchd4nkr6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aniruddh.shop_app",
+            "certificate_hash": "48b1cbc5c706b015a396140982f553fa33220d1e"
+          }
+        },
+        {
+          "client_id": "765431265467-p5pg4gpqimiji9muh8iuiard0ubotg3q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aniruddh.shop_app",
+            "certificate_hash": "967ea17f6bae68fa7104ac59d5a227e581381e4d"
+          }
+        },
+        {
+          "client_id": "765431265467-5cenoqj0ikmvlr8d1t6l8nmbo5csfcur.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aniruddh.shop_app",
+            "certificate_hash": "b4b217e2ed133918071dda218bc46c72b690f722"
+          }
+        },
+        {
+          "client_id": "765431265467-k6nuoga2rr82gjukfqduagv9ho5mabe1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aniruddh.shop_app",
+            "certificate_hash": "e4fdbfdf693a7114f32f95b4d690dc3f5bb13052"
+          }
+        },
+        {
+          "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBW8FUAfx1mDtON4JVmkv4wwhDcQt8-XX0"
+          "current_key": "AIzaSyBAHsukc4-UXM1-uMjOE3ji61uM-elVyXc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "319860204500-bblj9dossjveit22rebhichjlpkt46dt.apps.googleusercontent.com",
+              "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "765431265467-l81foc8ldb0u8as7bt8jl2ekuntbmqoe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aniruddh.shopapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765431265467:android:eb2a10dd07beb053d5519e",
+        "android_client_info": {
+          "package_name": "com.local_dukaan.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "765431265467-hip32g560e3fe0sjms66ac3rt3mja7mo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.local_dukaan.app",
+            "certificate_hash": "48b1cbc5c706b015a396140982f553fa33220d1e"
+          }
+        },
+        {
+          "client_id": "765431265467-l06lffnccrvcvh2lsjcc1nm4flc3o6e6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.local_dukaan.app",
+            "certificate_hash": "b4b217e2ed133918071dda218bc46c72b690f722"
+          }
+        },
+        {
+          "client_id": "765431265467-841a02vahqqpd9o65id28go97ihp9583.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.local_dukaan.app",
+            "certificate_hash": "e4fdbfdf693a7114f32f95b4d690dc3f5bb13052"
+          }
+        },
+        {
+          "client_id": "765431265467-g92be8qqomsckg7tjjog9qa2rcu8m2c4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.local_dukaan.app",
+            "certificate_hash": "967ea17f6bae68fa7104ac59d5a227e581381e4d"
+          }
+        },
+        {
+          "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAHsukc4-UXM1-uMjOE3ji61uM-elVyXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "765431265467-l81foc8ldb0u8as7bt8jl2ekuntbmqoe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aniruddh.shopapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765431265467:android:ed07f814bf634b4ad5519e",
+        "android_client_info": {
+          "package_name": "com.quickgrab.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "765431265467-ke0ev9mo1k8p9khuij95dt7n4c8omvmc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quickgrab.app",
+            "certificate_hash": "e4fdbfdf693a7114f32f95b4d690dc3f5bb13052"
+          }
+        },
+        {
+          "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAHsukc4-UXM1-uMjOE3ji61uM-elVyXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "765431265467-l81foc8ldb0u8as7bt8jl2ekuntbmqoe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aniruddh.shopapp"
+              }
             }
           ]
         }

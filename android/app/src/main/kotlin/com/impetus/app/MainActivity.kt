@@ -1,4 +1,4 @@
-package com.impetus.app
+package com.quickgrab.app
 
 import io.flutter.embedding.android.FlutterActivity
 
