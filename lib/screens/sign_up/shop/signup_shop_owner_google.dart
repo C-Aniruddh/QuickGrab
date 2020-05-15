@@ -34,8 +34,6 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
   List<String> _industryList = <String>[
     'Select Industry',
     'Agriculure',
-    'Automobile',
-    'Cement',
     'Consurmer durables',
     'Education',
     'Engineering and capital goods',

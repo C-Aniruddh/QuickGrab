@@ -3,12 +3,15 @@ import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/shop_page/shop_page.dart';
+import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:latlong/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,6 +55,8 @@ class _UserHomePageState extends State<UserHomePage> {
 
   DocumentSnapshot userData;
 
+  List<DocumentSnapshot> offers;
+
   String token;
 
   TextEditingController startTimeController = new TextEditingController();
@@ -68,6 +73,11 @@ class _UserHomePageState extends State<UserHomePage> {
         .then((data) {
       userData = data;
     });
+
+    await Firestore.instance.collection('offers').getDocuments().then((docs) {
+      offers = docs.documents;
+    });
+
     setState(() {
       userLoaded = true;
     });
@@ -147,227 +157,229 @@ class _UserHomePageState extends State<UserHomePage> {
   Future<List<DocumentSnapshot>> search(String search) async {
     await Future.delayed(Duration(seconds: 2));
     List<DocumentSnapshot> result = [];
-    Firestore.instance.collection('shops')
-        .where('shop_name', isEqualTo: search).getDocuments()
+    Firestore.instance
+        .collection('shops')
+        .where('shop_name', isEqualTo: search)
+        .getDocuments()
         .then((documents) {
       result = documents.documents;
     });
     return result;
   }
 
-  Widget buildHomeUser(){
+  Widget buildHomeUser() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          addressView(),
-          offersView(),
-          Divider(),
-          favoritesView(),
-          Divider(),
-          nearbyView()
-        ]
-      )
-    );
+        child: Column(children: [
+      addressView(),
+      offers.length < 1 ? SizedBox(height: 1) : offersView(),
+      Divider(),
+      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+      nearbyView()
+    ]));
   }
 
-  Widget addressView(){
+  Widget addressView() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-      child: Card(child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(title: Text(userData['address'], style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
-      )),
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.add_location, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+            padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+            child: ListTile(
+                title: Text(userData['address'],
+                    style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis,)),
+          )),
+        ),
+      ),
     );
   }
 
-  Widget nearbyView(){
+  Widget nearbyView() {
     return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: Text("Stores near you", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+            child: Text("Stores near you",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: buildNearbyGrid(),
           )
-        ]
-    );
+        ]);
   }
 
-  Widget offersView(){
+  Widget offersView() {
     return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: Text("Offers", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+            child: Text("Offers",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+          ),
+          SizedBox(
+            height: 250,
+            child: Swiper(
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: (){
+                    Firestore.instance.collection('shops')
+                      .document(offers[index].data['shop_uid'])
+                    .get()
+                    .then((doc) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ShopPage(shopDetails: doc, userDetails: userData)));
+                    });
+
+                  },
+                  child: Card(
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Image.network(
+                      offers[index].data['image'],
+                      fit: BoxFit.fill,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 2,
+                    margin: EdgeInsets.all(5),
+                  ),
+                );
+              },
+              itemCount: offers.length,
+              viewportFraction: 0.8,
+              scale: 0.9,
+            ),
+          ),
+        ]);
+  }
+
+  Widget favSingle(DocumentSnapshot document) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ShopPage(shopDetails: document, userDetails: userData)));
+      },
+      child: Card(
+        child: Container(
+          width: 160.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                    height: 120,
+                    width: 160,
+                    child: Hero(
+                      tag: "none",
+                      child: Image(
+                          image: NetworkImage(document['shop_image']),
+                          height: 128,
+                          width: 128),
+                    )),
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: ListTile(
+                        title: Text(document['shop_name'],
+                            style: TextStyle(
+                                fontFamily: AppFontFamilies.mainFont)),
+                        subtitle: Text(
+                            distanceBetween(document['shop_geohash']) +
+                                " meters away",
+                            style: TextStyle(
+                                fontFamily: AppFontFamilies.mainFont)))),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget favoritesView() {
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text("Favourites",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
             child: SizedBox(
-              height: 200,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: <Widget>[
-                  Card(
-                    child: Container(
-                        width: 160.0,
-                        child: Align(alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text("Laxmi Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                            ))
-                    ),
-                  ),
-                  Card(
-                    child: Container(
-                        width: 160.0,
-                        child: Align(alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text("Pro Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                            ))
-                    ),
-                  ),
-
-                  Card(
-                    child: Container(
-                        width: 160.0,
-                        child: Align(alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text("Man Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                            ))
-                    ),
-                  ),
-
-                  Card(
-                    child: Container(
-                        width: 160.0,
-                        child: Align(alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text("Extra Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                            ))
-                    ),
-                  ),
-
-                  Card(
-                    child: Container(
-                        width: 160.0,
-                        child: Align(alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text("Test Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                            ))
-                    ),
-                  ),
-                ],),
-            ),
-          )]
-    );
-  }
-
-  Widget favoritesView(){
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: Text("Favourites", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: SizedBox(
-            height: 200,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: <Widget>[
-                Card(
-                  child: Container(
-                    width: 160.0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            height: 120,
-                              width: 160,
-                              child: Image(image: NetworkImage("https://i.imgur.com/HCw2Ho7.png"), height: 128, width: 128)),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Laxmi Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+                height: 200,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('shops')
+                      .where(FieldPath.documentId,
+                          whereIn: userData['favorites'])
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError)
+                      return new Text('Error: ${snapshot.error}');
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return new Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Theme.of(context).accentColor,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              Card(
-                child: Container(
-                width: 160.0,
-                  child: Align(alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text("Laxmi Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                  ))
-                ),
-              ),
-                Card(
-                  child: Container(
-                      width: 160.0,
-                      child: Align(alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Pro Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                          ))
-                  ),
-                ),
-
-                Card(
-                  child: Container(
-                      width: 160.0,
-                      child: Align(alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Man Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                          ))
-                  ),
-                ),
-                Card(
-                  child: Container(
-                      width: 160.0,
-                      child: Align(alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Extra Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                          ))
-                  ),
-                ),
-                Card(
-                  child: Container(
-                      width: 160.0,
-                      child: Align(alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Test Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                          ))
-                  ),
-                ),
-              ],),
+                        );
+                      default:
+                        List<DocumentSnapshot> documents = new List();
+                        documents = (snapshot.data.documents);
+                        if (documents.length < 1) {
+                          return Center(
+                            child: Text("You have no appointment requests.",
+                                style: TextStyle(
+                                    fontFamily: AppFontFamilies.mainFont)),
+                          );
+                        } else {
+                          return new Container(
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: documents.length,
+                                  itemBuilder: (BuildContext ctxt, int index) {
+                                    DocumentSnapshot document =
+                                        documents[index];
+                                    return favSingle(document);
+                                  }));
+                        }
+                    }
+                  },
+                )),
           ),
-        )]
-    );
+          Divider(),
+        ]);
   }
 
   Widget buildNearbyGrid() {
@@ -377,62 +389,89 @@ class _UserHomePageState extends State<UserHomePage> {
 
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('shops')
-              .where("shop_geohash", isGreaterThanOrEqualTo: lower)
-              .where("shop_geohash", isLessThanOrEqualTo: upper)
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return new Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Theme.of(context).accentColor,
-                  ),
-                );
-              default:
-                List<DocumentSnapshot> filterList = filterByDistance(snapshot.data.documents);
-                if (filterList.length < 1) {
-                  return Center(
-                    child: Text("There are no shops around you."),
-                  );
-                } else {
-                  return SizedBox(
-                    height: 400,
-                    child: GridView.builder(
-                      itemCount: filterList.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2),
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          child: Container(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Align(alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Text(filterList[index].data['shop_name'].toString(), style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                                      )),
-                                  Align(alignment: Alignment.bottomLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Text(distanceBetween(filterList[index].data['shop_geohash']) +
-                                            " meters away", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                                      )),
-                                ],
-                              )
-                          ),
-                        );
+      stream: Firestore.instance
+          .collection('shops')
+          .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+          .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Theme.of(context).accentColor,
+              ),
+            );
+          default:
+            List<DocumentSnapshot> filterList =
+                filterByDistance(snapshot.data.documents);
+            if (filterList.length < 1) {
+              return Center(
+                child: Text("There are no shops around you."),
+              );
+            } else {
+              return SizedBox(
+                height: 400,
+                child: GridView.builder(
+                  itemCount: filterList.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, childAspectRatio: (4 / 6)),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ShopPage(
+                                    shopDetails: filterList[index],
+                                    userDetails: userData)));
                       },
-                    ),
-                  );
-                }
+                      child: Card(
+                        child: Container(
+                          width: 160.0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                    width: 160,
+                                    child: Hero(
+                                      tag: filterList[index].documentID,
+                                      child: Image(
+                                          fit: BoxFit.fill,
+                                          image: NetworkImage(filterList[index]
+                                              .data['shop_image']),
+                                          width: 64),
+                                    )),
+                              ),
+                              Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    child: ListTile(
+                                      title: Text(
+                                          filterList[index].data['shop_name'],
+                                          style: TextStyle(
+                                              fontFamily:
+                                                  AppFontFamilies.mainFont)),
+                                    )),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
             }
-          },
-        ));
+        }
+      },
+    ));
   }
 
   Widget buildHomeUser_Stores() {
@@ -457,7 +496,8 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             );
           default:
-            List<DocumentSnapshot> filterList = filterByDistance(snapshot.data.documents);
+            List<DocumentSnapshot> filterList =
+                filterByDistance(snapshot.data.documents);
             if (filterList.length < 1) {
               return Center(
                 child: Text("There are no shops around you."),
@@ -899,26 +939,26 @@ class _UserHomePageState extends State<UserHomePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ListTile(
-              leading: SizedBox(
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(profilePicUrl),
+                leading: SizedBox(
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(profilePicUrl),
+                  ),
                 ),
-              ),
-              title: Text(userData['name'],
-                  style: TextStyle(
-                      fontSize: 24, fontFamily: AppFontFamilies.mainFont)),
-              subtitle: Text(userEmail,
-                  style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-              trailing: IconButton(icon: Icon(Icons.edit),
-              onPressed: (){
-              },)
-            ),
+                title: Text(userData['name'],
+                    style: TextStyle(
+                        fontSize: 24, fontFamily: AppFontFamilies.mainFont)),
+                subtitle: Text(userEmail,
+                    style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {},
+                )),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Card(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 InkWell(
                   onTap: () {},
@@ -936,7 +976,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       leading: Icon(Icons.access_time),
                       title: Text("Pending Orders",
                           style:
-                          TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 ),
                 Divider(),
@@ -946,7 +986,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       leading: Icon(Icons.shopping_basket),
                       title: Text("Finished Orders",
                           style:
-                          TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 ),
               ],
@@ -956,70 +996,70 @@ class _UserHomePageState extends State<UserHomePage> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Card(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () {},
-                      child: ListTile(
-                          leading: Icon(Icons.mail),
-                          title: Text("Invite Friends",
-                              style:
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () {},
+                  child: ListTile(
+                      leading: Icon(Icons.mail),
+                      title: Text("Invite Friends",
+                          style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                          trailing: Icon(Icons.arrow_forward_ios)),
-                    ),
-                    Divider(),
-                    InkWell(
-                      onTap: () {},
-                      child: ListTile(
-                          leading: Icon(Icons.headset_mic),
-                          title: Text("Customer Support",
-                              style:
+                      trailing: Icon(Icons.arrow_forward_ios)),
+                ),
+                Divider(),
+                InkWell(
+                  onTap: () {},
+                  child: ListTile(
+                      leading: Icon(Icons.headset_mic),
+                      title: Text("Customer Support",
+                          style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                          trailing: Icon(Icons.arrow_forward_ios)),
-                    ),
-                    Divider(),
-                    InkWell(
-                      onTap: () {},
-                      child: ListTile(
-                          leading: Icon(Icons.stars),
-                          title: Text("Rate our app",
-                              style:
+                      trailing: Icon(Icons.arrow_forward_ios)),
+                ),
+                Divider(),
+                InkWell(
+                  onTap: () {},
+                  child: ListTile(
+                      leading: Icon(Icons.stars),
+                      title: Text("Rate our app",
+                          style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                          trailing: Icon(Icons.arrow_forward_ios)),
-                    ),
-                    Divider(),
-                    InkWell(
-                      onTap: () {},
-                      child: ListTile(
-                          leading: Icon(Icons.edit),
-                          title: Text("Make a suggestion",
-                              style:
+                      trailing: Icon(Icons.arrow_forward_ios)),
+                ),
+                Divider(),
+                InkWell(
+                  onTap: () {},
+                  child: ListTile(
+                      leading: Icon(Icons.edit),
+                      title: Text("Make a suggestion",
+                          style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                          trailing: Icon(Icons.arrow_forward_ios)),
-                    ),
-                  ],
-                )),
+                      trailing: Icon(Icons.arrow_forward_ios)),
+                ),
+              ],
+            )),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Card(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        googleSignIn.signOut();
-                        FirebaseAuth.instance.signOut();
-                      },
-                      child: ListTile(
-                          leading: Icon(Icons.exit_to_app),
-                          title: Text("Logout",
-                              style:
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () {
+                    googleSignIn.signOut();
+                    FirebaseAuth.instance.signOut();
+                  },
+                  child: ListTile(
+                      leading: Icon(Icons.exit_to_app),
+                      title: Text("Logout",
+                          style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                          trailing: Icon(Icons.arrow_forward_ios)),
-                    ),
-                  ],
-                )),
+                      trailing: Icon(Icons.arrow_forward_ios)),
+                ),
+              ],
+            )),
           )
         ],
       ),
@@ -1057,7 +1097,8 @@ class _UserHomePageState extends State<UserHomePage> {
         IconButton(
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage()));
           },
         )
       ];
@@ -1066,7 +1107,8 @@ class _UserHomePageState extends State<UserHomePage> {
         IconButton(
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage()));
           },
         )
       ];
@@ -1075,7 +1117,8 @@ class _UserHomePageState extends State<UserHomePage> {
         IconButton(
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage()));
           },
         )
       ];
@@ -1088,7 +1131,8 @@ class _UserHomePageState extends State<UserHomePage> {
         IconButton(
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage()));
           },
         )
       ];

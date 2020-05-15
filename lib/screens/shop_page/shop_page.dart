@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:math';
 
+import 'package:app/screens/cart/cart_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:app/screens/home_page/user_home_page.dart';
+
+import '../../fonts.dart';
 
 class ShopPage extends StatefulWidget {
   ShopPage({Key key, this.shopDetails, this.userDetails}) : super(key: key);
@@ -149,25 +152,136 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(widget.shopDetails['shop_name']),
-      ),
-      body: Container(
-        constraints: BoxConstraints.expand(),
-        child: Column(
-          children: <Widget>[
-            Expanded(
+  Widget productView() {
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text("Popular Products",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: buildProductGrid(),
+          )
+        ]);
+  }
+
+  Widget buildProductGrid() {
+
+    return Container(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance
+              .collection('shops')
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return new Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Theme.of(context).accentColor,
+                  ),
+                );
+              default:
+                List<DocumentSnapshot> filterList = snapshot.data.documents;
+                if (filterList.length < 1) {
+                  return Center(
+                    child: Text("There are no shops around you."),
+                  );
+                } else {
+                  return SizedBox(
+                    height: 400,
+                    child: GridView.builder(
+                      itemCount: filterList.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, childAspectRatio: (3 / 4)),
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          onTap: (){
+                          },
+                          child: Card(
+                            child: Container(
+                              width: 160.0,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: SizedBox(
+                                        height: 120,
+                                        width: 160,
+                                        child: Hero(
+                                          tag: filterList[index].documentID,
+                                          child: Image(
+                                              image: NetworkImage(
+                                                  filterList[index].data['shop_image']),
+                                              height: 128,
+                                              width: 128),
+                                        )),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                        child: ListTile(
+                                            title: Text(
+                                                "Product Name",
+                                                style: TextStyle(
+                                                    fontFamily:
+                                                    AppFontFamilies.mainFont)),
+                                            ))),
+
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: RaisedButton(
+                                        color: Theme.of(context).accentColor,
+                                        shape: new RoundedRectangleBorder(
+                                          borderRadius: new BorderRadius.circular(30.0),
+                                        ),
+                                        onPressed: (){
+                                         // Navigator.push(context, MaterialPageRoute(builder: (context) => ShopScheduledOrders(userData: userData,)));
+                                        },
+                                        child: Icon(Icons.add_shopping_cart, color: Colors.white)
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+            }
+          },
+        ));
+  }
+
+
+  Widget buildShop() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children : [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Text("Shop on Map",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Card(
               child: Container(
-                alignment: Alignment.topCenter,
-                constraints: BoxConstraints.expand(),
-                child:
-                SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.50,
+                child: SizedBox(
+                    height: 250,
                     width: MediaQuery.of(context).size.width,
                     child: mapLoaded
                         ? GoogleMap(
@@ -181,101 +295,207 @@ class _ShopPageState extends State<ShopPage> {
                         : Container()),
               ),
             ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.bottomCenter,
-                constraints: BoxConstraints.expand(),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            child: Container(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Card(
-                                      elevation: 2,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ListTile(
-                                          title: Text("Address"),
-                                          leading: CircleAvatar(
-                                            backgroundColor: Theme.of(context).accentColor,
-                                            child: Text("A"),
-                                          ),
-                                          subtitle: Text(widget.shopDetails['shop_address']),
-                                          trailing: IconButton(
-                                            icon: Icon(Icons.map),
-                                            onPressed: () {
-                                              print("Open");
-                                              MapUtils.openMap(widget.shopDetails['shop_lat'],
-                                                  widget.shopDetails['shop_lon']);
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      elevation: 2,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ListTile(
-                                          title: Text("Contact Owner"),
-                                          leading: CircleAvatar(
-                                            backgroundColor: Theme.of(context).accentColor,
-                                            child: Text("C"),
-                                          ),
-                                          subtitle: Text(
-                                              widget.shopDetails['shop_contact_name'] +
-                                                  " (" +
-                                                  widget.shopDetails['phone_number'] +
-                                                  ")"),
-                                          trailing: IconButton(
-                                            icon: Icon(Icons.call),
-                                            onPressed: () {
-                                              print("Open");
-                                              // MapUtils.openMap(widget.shopDetails['shop_lat'], widget.shopDetails['shop_lon']);
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      elevation: 2,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ListTile(
-                                          title: Text("User Limit (Every 10 minutes)"),
-                                          leading: CircleAvatar(
-                                            backgroundColor: Theme.of(context).accentColor,
-                                            child: Text("L"),
-                                          ),
-                                          subtitle:
-                                          Text(widget.shopDetails['limit'].toString()),
-                                          trailing: IconButton(
-                                            icon: Icon(Icons.info),
-                                            onPressed: () {
-                                              print("Open");
-                                              // MapUtils.openMap(widget.shopDetails['shop_lat'], widget.shopDetails['shop_lon']);
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+          ),
+          productView()
+        ]
+      )
+    );
+  }
 
-                                  ],
-                                ))),
-                      ),
-                    ],
-                  ),
+
+  Widget buildOldShop() {
+    return Container(
+      constraints: BoxConstraints.expand(),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              alignment: Alignment.topCenter,
+              constraints: BoxConstraints.expand(),
+              child:
+              SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.50,
+                  width: MediaQuery.of(context).size.width,
+                  child: mapLoaded
+                      ? GoogleMap(
+                    mapType: MapType.normal,
+                    initialCameraPosition: _kGooglePlex,
+                    markers: Set<Marker>.of(markers.values),
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                    },
+                  )
+                      : Container()),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              constraints: BoxConstraints.expand(),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Container(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Card(
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        title: Text("Address"),
+                                        leading: CircleAvatar(
+                                          backgroundColor: Theme.of(context).accentColor,
+                                          child: Text("A"),
+                                        ),
+                                        subtitle: Text(widget.shopDetails['shop_address']),
+                                        trailing: IconButton(
+                                          icon: Icon(Icons.map),
+                                          onPressed: () {
+                                            print("Open");
+                                            MapUtils.openMap(widget.shopDetails['shop_lat'],
+                                                widget.shopDetails['shop_lon']);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Card(
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        title: Text("Contact Owner"),
+                                        leading: CircleAvatar(
+                                          backgroundColor: Theme.of(context).accentColor,
+                                          child: Text("C"),
+                                        ),
+                                        subtitle: Text(
+                                            widget.shopDetails['shop_contact_name'] +
+                                                " (" +
+                                                widget.shopDetails['phone_number'] +
+                                                ")"),
+                                        trailing: IconButton(
+                                          icon: Icon(Icons.call),
+                                          onPressed: () {
+                                            print("Open");
+                                            // MapUtils.openMap(widget.shopDetails['shop_lat'], widget.shopDetails['shop_lon']);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Card(
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        title: Text("User Limit (Every 10 minutes)"),
+                                        leading: CircleAvatar(
+                                          backgroundColor: Theme.of(context).accentColor,
+                                          child: Text("L"),
+                                        ),
+                                        subtitle:
+                                        Text(widget.shopDetails['limit'].toString()),
+                                        trailing: IconButton(
+                                          icon: Icon(Icons.info),
+                                          onPressed: () {
+                                            print("Open");
+                                            // MapUtils.openMap(widget.shopDetails['shop_lat'], widget.shopDetails['shop_lon']);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                ],
+                              ))),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget oldAppbar(){
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Text(widget.shopDetails['shop_name'],
+              style: TextStyle(
+                  fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+            onPressed: () async {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => CartPage()));
+            },
+          )
+        ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            actions: [
+              widget.userDetails['favorites'].contains(widget.shopDetails.documentID) ?
+                    IconButton(icon: Icon(Icons.star), color: Theme.of(context).accentColor,
+                    onPressed: () {
+                      List<dynamic> fav = widget.userDetails['favorites'];
+                      setState(() {
+                        fav.remove(widget.shopDetails.documentID);
+                        Firestore.instance.collection('users')
+                            .document(widget.userDetails.documentID)
+                            .updateData({'favorites': fav});
+                      });
+
+                    },)
+                  : IconButton(icon: Icon(Icons.star_border),
+                onPressed: () {
+                  List<dynamic> fav = widget.userDetails['favorites'];
+                  setState(() {
+                    fav.add(widget.shopDetails.documentID);
+                    Firestore.instance.collection('users')
+                        .document(widget.userDetails.documentID)
+                        .updateData({'favorites': fav});
+                  });
+                },)
+            ],
+            pinned: true,
+            floating: false,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            iconTheme: IconThemeData(color: Colors.black),
+            expandedHeight: 200.0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(widget.shopDetails['shop_name'], style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
+              background: Hero(tag: widget.shopDetails.documentID,
+              child: Image.network(widget.shopDetails.data['shop_image'], fit: BoxFit.cover)),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: buildShop()
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

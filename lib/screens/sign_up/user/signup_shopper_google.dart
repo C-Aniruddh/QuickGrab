@@ -100,6 +100,7 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
         'lat': userCoordinates.latitude,
         'lon': userCoordinates.longitude,
         'name': user.displayName,
+        'favorites': []
       }, merge: true);
 
       assert(user.uid == currentUser.uid);
