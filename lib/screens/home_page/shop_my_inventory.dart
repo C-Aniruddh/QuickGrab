@@ -67,15 +67,38 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                   } else {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.9,
-                      child: GridView.builder(
+                      child: ListView.builder(
                         itemCount: filterList.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: (3 / 4)),
+                        //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        //    crossAxisCount: 2, childAspectRatio: (3 / 4)),
                         itemBuilder: (BuildContext context, int index) {
                           return InkWell(
                             onTap: (){
                             },
-                            child: Card(
+                            child: Card(child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListTile(
+                                trailing: IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: (){
+
+                                  }
+                                ),
+                              leading: CircleAvatar(
+                          backgroundImage: NetworkImage(filterList[index].data['img_url'])),
+                                title: Text(
+                                  filterList[index].data['item_name'],
+                                  style: TextStyle(
+                                  fontFamily:
+                                  AppFontFamilies.mainFont)),
+                                subtitle:   Text(
+                                  "₹" + filterList[index].data['item_price'] + "  |  Available: " + filterList[index].data['item_quantity'].toString(),
+                                  style: TextStyle(
+                                      fontFamily:
+                                      AppFontFamilies.mainFont),
+                              )),
+                            ))
+                            /* Card(
                               child: Container(
                                 width: 160.0,
                                 child: Column(
@@ -125,7 +148,7 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                                   ],
                                 ),
                               ),
-                            ),
+                            ),*/
                           );
                         },
                       ),

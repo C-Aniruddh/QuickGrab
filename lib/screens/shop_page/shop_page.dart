@@ -553,13 +553,6 @@ class _ShopPageState extends State<ShopPage> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showDialog();
-        },
-        tooltip: 'Make an appointment',
-        child: Icon(Icons.add),
-      ),
     );
   }
 }
