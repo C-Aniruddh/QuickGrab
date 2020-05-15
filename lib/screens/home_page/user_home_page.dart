@@ -192,65 +192,67 @@ class _UserHomePageState extends State<UserHomePage> {
   buildOrderScheduledBanner(DocumentSnapshot appointment) {
     return Card(
         child: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 16, 8, 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Order Scheduled for",
-                      style: TextStyle(fontSize: 16.0),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 16, 8, 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Order Scheduled for",
+                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.store_mall_directory,
-                      color: Colors.orangeAccent,
-                      size: 32.0,
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    Text(
-                      appointment.data['shop_name'],
-                      style: TextStyle(fontSize: 18.0),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      color: Colors.orangeAccent,
-                      size: 32.0,
-                    ),
-                    SizedBox(
-                      width: 16.0,
-                    ),
-                    Text(
-                      appointment.data['appointment_start'] + " - " + appointment.data['appointment_end'],
-                      style: TextStyle(fontSize: 18.0),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ));
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.store_mall_directory,
+                  color: Colors.orangeAccent,
+                  size: 32.0,
+                ),
+                SizedBox(
+                  width: 16.0,
+                ),
+                Text(
+                  appointment.data['shop_name'],
+                  style: TextStyle(fontSize: 18.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  color: Colors.orangeAccent,
+                  size: 32.0,
+                ),
+                SizedBox(
+                  width: 16.0,
+                ),
+                Text(
+                  appointment.data['appointment_start'] +
+                      " - " +
+                      appointment.data['appointment_end'],
+                  style: TextStyle(fontSize: 18.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ));
   }
 
   Widget buildOrderScheduledCarousel() {
@@ -294,15 +296,15 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-          addressView(),
-          offers.length < 1 ? SizedBox(height: 1) : offersView(),
-          Divider(),
-          // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-          //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
-          //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-          // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
-          userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-          nearbyView()
+      addressView(),
+      offers.length < 1 ? SizedBox(height: 1) : offersView(),
+      Divider(),
+      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
+      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
+      // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
+      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+      nearbyView()
     ]));
   }
 
@@ -516,48 +518,70 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget cartIcon(BuildContext context) {
     if (userLoaded) {
       return new StreamBuilder(
-          stream: Firestore.instance.collection('cart')
-              .document(userData.documentID).snapshots(),
+          stream: Firestore.instance
+              .collection('cart')
+              .document(userData.documentID)
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Badge(
-                badgeContent: Text("0", style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+                badgeContent: Text("0",
+                    style: TextStyle(
+                        fontFamily: AppFontFamilies.mainFont,
+                        color: Colors.white)),
                 child: new IconButton(
-                  icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+                  icon: Icon(Icons.shopping_cart,
+                      color: Theme.of(context).accentColor),
                   onPressed: () async {
                     Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CartPage(
+                                  userData: userData,
+                                )));
                   },
                 ),
               );
             }
             var userDocument = snapshot.data['cart'];
             return new Badge(
-              position: BadgePosition.topRight(right: 4, top:4),
-              badgeContent: Text(userDocument.length.toString(), style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+              position: BadgePosition.topRight(right: 4, top: 4),
+              badgeContent: Text(userDocument.length.toString(),
+                  style: TextStyle(
+                      fontFamily: AppFontFamilies.mainFont,
+                      color: Colors.white)),
               child: new IconButton(
-                icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+                icon: Icon(Icons.shopping_cart,
+                    color: Theme.of(context).accentColor),
                 onPressed: () async {
                   Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CartPage(
+                                userData: userData,
+                              )));
                 },
               ),
             );
-          }
-      );
+          });
     } else {
       return new Badge(
-        badgeContent: Text("0", style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+        badgeContent: Text("0",
+            style: TextStyle(
+                fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
         child: new IconButton(
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CartPage(
+                          userData: userData,
+                        )));
           },
         ),
       );
     }
-
   }
 
   Widget buildNearbyGrid() {
@@ -598,44 +622,38 @@ class _UserHomePageState extends State<UserHomePage> {
                   //    crossAxisCount: 3, childAspectRatio: (4 / 6)),
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ShopPage(
-                                    shopDetails: filterList[index],
-                                    userDetails: userData)));
-                      },
-                      child:
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(filterList[index]
-                                    .data['shop_image']),
-                              ),
-                              subtitle: Text(
-                                  distanceBetween(filterList[index].data['shop_geohash']) +
-                                      " meters away",
-                                  style: TextStyle(
-                                      fontFamily:
-                                      AppFontFamilies.mainFont)),
-                              title: Text(
-                                  filterList[index].data['shop_name'],
-                                  style: TextStyle(
-                                      fontFamily:
-                                      AppFontFamilies.mainFont)),
-                              trailing: IconButton(
-                                icon: Icon(Icons.arrow_forward_ios),
-                                onPressed: () {
-
-                                },
-                              )
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ShopPage(
+                                      shopDetails: filterList[index],
+                                      userDetails: userData)));
+                        },
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      filterList[index].data['shop_image']),
+                                ),
+                                subtitle: Text(
+                                    distanceBetween(filterList[index]
+                                            .data['shop_geohash']) +
+                                        " meters away",
+                                    style: TextStyle(
+                                        fontFamily: AppFontFamilies.mainFont)),
+                                title: Text(filterList[index].data['shop_name'],
+                                    style: TextStyle(
+                                        fontFamily: AppFontFamilies.mainFont)),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.arrow_forward_ios),
+                                  onPressed: () {},
+                                )),
                           ),
-                        ),
-                      )
-                      /*Card(
+                        )
+                        /*Card(
                         child: Container(
                           width: 160.0,
                           child: Column(
@@ -672,7 +690,7 @@ class _UserHomePageState extends State<UserHomePage> {
                           ),
                         ),
                       ),*/
-                    );
+                        );
                   },
                 ),
               );
@@ -875,6 +893,148 @@ class _UserHomePageState extends State<UserHomePage> {
             ));
   }
 
+  // Appointments tab
+  
+  _buildInvoiceContentCompressed(invoiceData) {
+    List<Widget> columnContent = [];
+
+    for (dynamic content in invoiceData) {
+      List product_data = content['product'].values.toList();
+      columnContent.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  product_data[3].toString(),
+                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['quantity'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['cost'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Column column = Column(
+      children: columnContent,
+    );
+
+    return column;
+  }  
+
+  Widget scheduledAppointments(DocumentSnapshot document) {
+    return Card(
+      margin: EdgeInsets.all(10.0),
+      elevation: 2,
+      child: Container(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                document['shop_name'],
+                style: TextStyle(fontSize: 16.0),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Item",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          "Quantity",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                      Text(
+                        "|",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          "Price",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            _buildInvoiceContentCompressed(document['items']),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Total",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "1200",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget buildAppointmentsUser() {
     List<String> status = ['pending', 'scheduled'];
     return Container(
@@ -902,45 +1062,14 @@ class _UserHomePageState extends State<UserHomePage> {
               );
             } else {
               return new Container(
-                  child: ListView.builder(
-                      itemCount: documents.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        DocumentSnapshot document = documents[index];
-                        return Card(
-                          margin: EdgeInsets.all(10.0),
-                          elevation: 2,
-                          child: Container(
-                            child: new ListTile(
-                              contentPadding: EdgeInsets.all(8),
-                              onTap: () {
-                                _showModalAppointmentDetails(document);
-
-                                // Navigator.push(context, MaterialPageRoute(builder: (context)=> ShopPage(shopDetails: document, userDetails: userData,)));
-                              },
-                              leading: Container(
-                                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: CircleAvatar(
-                                  backgroundColor:
-                                      Theme.of(context).accentColor,
-                                  child: Text(document['shop_name'][0]
-                                      .toString()
-                                      .toUpperCase()),
-                                ),
-                              ),
-                              title: Text(document['shop_name']),
-                              subtitle: Text(document['appointment_status']),
-                              trailing: IconButton(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                icon: Icon(Icons.info),
-                                onPressed: () {
-                                  print("Open");
-                                  _showModalAppointmentDetails(document);
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      }));
+                child: ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    DocumentSnapshot document = documents[index];
+                    return scheduledAppointments(document);
+                  },
+                ),
+              );
             }
         }
       },
@@ -950,7 +1079,8 @@ class _UserHomePageState extends State<UserHomePage> {
   _buildInvoiceContent(invoiceData) {
     List<Widget> columnContent = [];
 
-    for (String content in invoiceData)
+    for (dynamic content in invoiceData) {
+      List product_data = content['product'].values.toList();
       columnContent.add(
         Padding(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -960,7 +1090,7 @@ class _UserHomePageState extends State<UserHomePage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Text(
-                  "item",
+                  product_data[3].toString(),
                   style: TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -971,7 +1101,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      "3",
+                      content['quantity'].toString(),
                       style: TextStyle(fontSize: 16.0),
                     ),
                   ),
@@ -982,7 +1112,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      "400",
+                      content['cost'].toString(),
                       style: TextStyle(fontSize: 16.0),
                     ),
                   )
@@ -992,6 +1122,7 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
         ),
       );
+    }
 
     Column column = Column(
       children: columnContent,
@@ -1082,7 +1213,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                 ],
                               ),
                             ),
-                            _buildInvoiceContent(["item1", "item2", "item3"]),
+                            _buildInvoiceContent(document['items']),
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
@@ -1518,7 +1649,8 @@ class _UserHomePageState extends State<UserHomePage> {
         IconButton(
           icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NotificationsView()));
           },
         ),
         cartIcon(context),
@@ -1530,15 +1662,14 @@ class _UserHomePageState extends State<UserHomePage> {
         SizedBox(width: 10),
       ];
     } else if (currentPage == 2) {
-      return <Widget>[
-        cartIcon(context)
-      ];
+      return <Widget>[cartIcon(context)];
     } else {
       return <Widget>[
         IconButton(
           icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NotificationsView()));
           },
         ),
         cartIcon(context),
