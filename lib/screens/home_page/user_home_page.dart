@@ -622,75 +622,38 @@ class _UserHomePageState extends State<UserHomePage> {
                   //    crossAxisCount: 3, childAspectRatio: (4 / 6)),
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ShopPage(
-                                      shopDetails: filterList[index],
-                                      userDetails: userData)));
-                        },
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      filterList[index].data['shop_image']),
-                                ),
-                                subtitle: Text(
-                                    distanceBetween(filterList[index]
-                                            .data['shop_geohash']) +
-                                        " meters away",
-                                    style: TextStyle(
-                                        fontFamily: AppFontFamilies.mainFont)),
-                                title: Text(filterList[index].data['shop_name'],
-                                    style: TextStyle(
-                                        fontFamily: AppFontFamilies.mainFont)),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.arrow_forward_ios),
-                                  onPressed: () {},
-                                )),
-                          ),
-                        )
-                        /*Card(
-                        child: Container(
-                          width: 160.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Align(
-                                alignment: Alignment.center,
-                                child: SizedBox(
-                                    width: 160,
-                                    child: Hero(
-                                      tag: filterList[index].documentID,
-                                      child: Image(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(filterList[index]
-                                              .data['shop_image']),
-                                          width: 64),
-                                    )),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ShopPage(
+                                    shopDetails: filterList[index],
+                                    userDetails: userData)));
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    filterList[index].data['shop_image']),
                               ),
-                              Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                    child: ListTile(
-                                      title: Text(
-                                          filterList[index].data['shop_name'],
-                                          style: TextStyle(
-                                              fontFamily:
-                                                  AppFontFamilies.mainFont)),
-                                    )),
-                              ),
-                            ],
-                          ),
+                              subtitle: Text(
+                                  distanceBetween(filterList[index]
+                                          .data['shop_geohash']) +
+                                      " meters away",
+                                  style: TextStyle(
+                                      fontFamily: AppFontFamilies.mainFont)),
+                              title: Text(filterList[index].data['shop_name'],
+                                  style: TextStyle(
+                                      fontFamily: AppFontFamilies.mainFont)),
+                              trailing: IconButton(
+                                icon: Icon(Icons.arrow_forward_ios),
+                                onPressed: () {},
+                              )),
                         ),
-                      ),*/
-                        );
+                      ),
+                    );
                   },
                 ),
               );
@@ -894,7 +857,7 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   // Appointments tab
-  
+
   _buildInvoiceContentCompressed(invoiceData) {
     List<Widget> columnContent = [];
 
@@ -948,9 +911,9 @@ class _UserHomePageState extends State<UserHomePage> {
     );
 
     return column;
-  }  
+  }
 
-  Widget scheduledAppointments(DocumentSnapshot document) {
+  Widget scheduledAppointments(DocumentSnapshot document, int total) {
     return Card(
       margin: EdgeInsets.all(10.0),
       elevation: 2,
@@ -961,8 +924,77 @@ class _UserHomePageState extends State<UserHomePage> {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 document['shop_name'],
-                style: TextStyle(fontSize: 16.0),
+                style: TextStyle(fontSize: 20.0),
               ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        "Date:",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        document['appointment_data'] != null
+                            ? document['appointment_data']
+                            : "Pending",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        "OTP:",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        document['otp'],
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Text(
+                    "Time Slot:",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Text(
+                    document['appointment_start'] != null &&
+                            document['appointment_end'] != null
+                        ? document['appointment_start'] +
+                            " - " +
+                            document['appointment_end']
+                        : "Pending",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              color: Colors.grey,
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -1022,7 +1054,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      "1200",
+                      total.toString(),
                       style: TextStyle(fontSize: 16.0),
                     ),
                   )
@@ -1066,7 +1098,11 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemCount: documents.length,
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
-                    return scheduledAppointments(document);
+                    int total = 0;
+                    for (var i = 0; i < document['items'].length; i++) {
+                      total = total + int.parse(document['items'][i]['cost']);
+                    }
+                    return scheduledAppointments(document, total);
                   },
                 ),
               );
@@ -1161,6 +1197,10 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemCount: documents.length,
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
+                    int total = 0;
+                    for (var i = 0; i < document['items'].length; i++) {
+                      total = total + int.parse(document['items'][i]['cost']);
+                    }
                     return Card(
                       margin: EdgeInsets.all(10.0),
                       elevation: 2,
@@ -1213,7 +1253,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                 ],
                               ),
                             ),
-                            _buildInvoiceContent(document['items']),
+                            _buildInvoiceContentCompressed(document['items']),
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
@@ -1233,7 +1273,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                   Padding(
                                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                                     child: Text(
-                                      "1200",
+                                      total.toString(),
                                       style: TextStyle(fontSize: 16.0),
                                     ),
                                   )
@@ -1643,16 +1683,60 @@ class _UserHomePageState extends State<UserHomePage> {
     super.initState();
   }
 
+  Widget notificationIcon(BuildContext context) {
+    if (userLoaded) {
+      return new StreamBuilder(
+          stream: Firestore.instance
+              .collection('notifications')
+              .where('receiver_uid', isEqualTo: userData.documentID)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return IconButton(
+                icon: Icon(Icons.notifications,
+                    color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationsView(userData: userData)));
+                },
+              );
+            }
+            return new Badge(
+              position: BadgePosition.topRight(right: 4, top: 4),
+              badgeContent: SizedBox(height: 20),
+              child: new IconButton(
+                icon: Icon(Icons.notifications,
+                    color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationsView(userData: userData)));
+                },
+              ),
+            );
+          });
+    } else {
+      return new IconButton(
+        icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+        onPressed: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => NotificationsView(userData: userData)));
+        },
+      );
+    }
+  }
+
   List<Widget> returnActionButton() {
     if (currentPage == 0) {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NotificationsView()));
-          },
-        ),
+        notificationIcon(context),
         cartIcon(context),
         SizedBox(width: 10),
       ];
@@ -1665,13 +1749,7 @@ class _UserHomePageState extends State<UserHomePage> {
       return <Widget>[cartIcon(context)];
     } else {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NotificationsView()));
-          },
-        ),
+        notificationIcon(context),
         cartIcon(context),
         SizedBox(width: 10),
       ];

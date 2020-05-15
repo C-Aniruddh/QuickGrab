@@ -15,9 +15,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../fonts.dart';
 
 class AddInventory extends StatefulWidget {
-  AddInventory({Key key, this.shopData}) : super(key: key);
+  AddInventory({Key key, this.shopData, this.categories}) : super(key: key);
 
   final DocumentSnapshot shopData;
+  final List<String> categories;
 
   @override
   _AddInventoryState createState() => _AddInventoryState();
@@ -29,6 +30,8 @@ class _AddInventoryState extends State<AddInventory> {
   File croppedImage;
   final _formKey = GlobalKey<FormState>();
   String _uploadedFileURL;
+
+  String _categorySelect = 'Other';
 
   TextEditingController itemNameController = new TextEditingController();
   TextEditingController itemPriceController = new TextEditingController();
@@ -411,6 +414,73 @@ class _AddInventoryState extends State<AddInventory> {
           customTextField(Icons.text_fields, "Item Name", itemNameController),
           customTextField(Icons.attach_money, "Item Price", itemPriceController,
               keyType: TextInputType.number),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Container(
+                height: 56.0,
+                margin: EdgeInsets.all(8.0),
+                child: new Container(
+                  padding: const EdgeInsets.only(left: 8, right: 5),
+                  width: MediaQuery.of(context).size.width * .90,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(32),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 1.0,
+                        // has the effect of softening the shadow
+                        spreadRadius: 0.0,
+                        // has the effect of extending the shadow
+                        offset: Offset(
+                          0.0, // horizontal, move right 10
+                          0.0, // vertical, move down 10
+                        ),
+                      )
+                    ],
+                  ),
+                  child: new Row(
+                    children: <Widget>[
+                      new Container(
+                        child: new IconButton(
+                            icon: new Icon(
+                              Icons.business,
+                            ),
+                            onPressed: null),
+                      ),
+                      new Flexible(
+                        child: new DropdownButtonHideUnderline(
+                          child: new DropdownButton(
+                            iconDisabledColor: Colors.grey,
+                            iconEnabledColor: Colors.grey,
+                            hint: Text("Select Category",
+                                style: TextStyle(
+                                    fontFamily: AppFontFamilies.mainFont,
+                                    color: Colors.grey)),
+                            value: _categorySelect,
+                            isDense: true,
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _categorySelect = newValue;
+                              });
+                            },
+                            items: widget.categories.map((String value) {
+                              return new DropdownMenuItem(
+                                value: value,
+                                child: new Text(
+                                  value,
+                                  style: TextStyle(
+                                    fontFamily: AppFontFamilies.mainFont,),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ),
           customTextField(Icons.format_list_numbered,
               "Item Quantity (Optional)", itemQuantityController,
               keyType: TextInputType.number, validate: false),
@@ -436,6 +506,7 @@ class _AddInventoryState extends State<AddInventory> {
                         "item_price": itemPriceController.text,
                         "item_quantity": itemQuantityController.text,
                         "item_description": itemDescriptionController.text,
+                        "item_category": _categorySelect,
                         "img_url": _url
                       }).then((result) {
                         Firestore.instance.collection('shops')

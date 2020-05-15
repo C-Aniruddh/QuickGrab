@@ -45,7 +45,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
     'Pharmaceuticals',
     'Retail',
     'Stationary'
-    'Texttile',
+    'Textile',
     'Vegetables and Fruits',
     'Other'
   ];
@@ -123,6 +123,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
 
       Firestore.instance.collection('shops').document(user.uid)
           .setData({
+        'industry': _industrySelect,
         'limit': 10,
         'phone_number': _phoneNumberController.text,
         'shop_GST': _shopGSTController.text,
