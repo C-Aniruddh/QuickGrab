@@ -118,7 +118,6 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
           builder: (BuildContext context, StateSetter setStateSheet) =>
               SingleChildScrollView(
                 child: Container(
-                    color: Colors.grey[900],
                     height: MediaQuery.of(context).size.height * 0.5,
                     child: Column(
                       children: <Widget>[

@@ -39,6 +39,14 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
               child: Container(
                   child: Column(
                     children: <Widget>[
+                      TextField(
+                        obscureText: true,
+                        controller: otpController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'OTP',
+                        ),
+                      )
                       //PhoneAuthWidgets.subTitle("Enter OTP"),
                       //PhoneAuthWidgets.textField(otpController),
                     ],
@@ -72,7 +80,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                             });
                           });
                         });
-                    Navigator.pop(context);
+                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                   } else {
                     Navigator.pop(context);
                     _showInfoDialog(context, "The entered OTP is wrong");

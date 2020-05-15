@@ -86,7 +86,7 @@ class _UserHomePageState extends State<UserHomePage> {
     await Firestore.instance
         .collection('appointments')
         .where('shopper_uid', isEqualTo: userData['uid'])
-        .where('appointment_status', isEqualTo: "incomplete")
+        .where('appointment_status', isEqualTo: "scheduled")
         .getDocuments()
         .then((docs) {
       upcomingAppointments = docs.documents;
@@ -182,93 +182,74 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   buildOrderScheduledBanner(DocumentSnapshot appointment) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: Card(
-          elevation: 3.0,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 0, 8),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 16, 8, 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Order Scheduled for",
-                          style: TextStyle(fontSize: 16.0),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+    return Card(
+        child: Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 16, 8, 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Order Scheduled for",
+                      style: TextStyle(fontSize: 16.0),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 2, 8, 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "May 22",
-                          style: TextStyle(fontSize: 18.0),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.store_mall_directory,
-                          color: Colors.orangeAccent,
-                          size: 32.0,
-                        ),
-                        SizedBox(
-                          width: 16.0,
-                        ),
-                        Text(
-                          appointment.data['shop_name'],
-                          style: TextStyle(fontSize: 18.0),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          color: Colors.orangeAccent,
-                          size: 32.0,
-                        ),
-                        SizedBox(
-                          width: 16.0,
-                        ),
-                        Text(
-                          "9:00 AM - 9:15 AM",
-                          style: TextStyle(fontSize: 18.0),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          )),
-    );
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.store_mall_directory,
+                      color: Colors.orangeAccent,
+                      size: 32.0,
+                    ),
+                    SizedBox(
+                      width: 16.0,
+                    ),
+                    Text(
+                      appointment.data['shop_name'],
+                      style: TextStyle(fontSize: 18.0),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.orangeAccent,
+                      size: 32.0,
+                    ),
+                    SizedBox(
+                      width: 16.0,
+                    ),
+                    Text(
+                      appointment.data['appointment_start'] + " - " + appointment.data['appointment_end'],
+                      style: TextStyle(fontSize: 18.0),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget buildOrderScheduledCarousel() {
     return CarouselSlider(
       options: CarouselOptions(
-          enlargeCenterPage: true,
+          enlargeCenterPage: false,
+          enableInfiniteScroll: false,
           onPageChanged: (index, reason) {
             setState(() {
               _current = index;
@@ -277,8 +258,6 @@ class _UserHomePageState extends State<UserHomePage> {
       items: upcomingAppointments.map((appointment) {
         return Builder(builder: (BuildContext context) {
           return Container(
-            height: MediaQuery.of(context).size.height * 0.2,
-            width: MediaQuery.of(context).size.width,
             child: buildOrderScheduledBanner(appointment),
           );
         });
@@ -307,15 +286,15 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-      addressView(),
-      offers.length < 1 ? SizedBox(height: 1) : offersView(),
-      Divider(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-      upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
-      upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-      upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
-      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-      nearbyView()
+          addressView(),
+          offers.length < 1 ? SizedBox(height: 1) : offersView(),
+          Divider(),
+          // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
+          //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+          //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
+          // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
+          userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+          nearbyView()
     ]));
   }
 
@@ -708,7 +687,6 @@ class _UserHomePageState extends State<UserHomePage> {
               builder: (BuildContext context, StateSetter setStateSheet) =>
                   SingleChildScrollView(
                 child: Container(
-                    color: Colors.grey[900],
                     height: MediaQuery.of(context).size.height * 0.5,
                     child: Column(
                       children: <Widget>[
@@ -819,7 +797,7 @@ class _UserHomePageState extends State<UserHomePage> {
       stream: Firestore.instance
           .collection('appointments')
           .where('appointment_status', whereIn: status)
-          .where('shopper_uid', isEqualTo: userUID)
+          .where('shopper_uid', isEqualTo: userData.documentID)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');

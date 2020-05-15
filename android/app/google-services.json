@@ -167,6 +167,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "765431265467-5cq24spceicbqimophqv49ap0e6p26e8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quickgrab.app",
+            "certificate_hash": "b4b217e2ed133918071dda218bc46c72b690f722"
+          }
+        },
+        {
           "client_id": "765431265467-88ds87ekcf4bf711cjte49fam3a5veus.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
