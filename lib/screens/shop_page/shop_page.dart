@@ -221,95 +221,73 @@ class _ShopPageState extends State<ShopPage> {
                     child: Text("There are no shops around you."),
                   );
                 } else {
-                  return IgnorePointer(
-                    child: GridView.builder(
-                      primary: true,
-                      shrinkWrap: true,
-                      itemCount: filterList.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, childAspectRatio: (1/1)),
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(filterList[index].data['img_url']),
-                                fit: BoxFit.fitWidth,
-                                alignment: Alignment.topCenter,
-                              ),
+                  return ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    primary: true,
+                    shrinkWrap: true,
+                    itemCount: filterList.length,
+                    //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    //    crossAxisCount: 2, childAspectRatio: (1/1)),
+                    itemBuilder: (BuildContext context, int index) {
+                      return
+                        Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(filterList[index].data['img_url']),
                             ),
-                            child: Container(
-                              color: Colors.black.withOpacity(0.5),
-                                child:
-                                  Center(child: Text(
-                                      filterList[index].data['item_name'],
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                          fontFamily:
-                                          AppFontFamilies.mainFont)),)),
-                          ),
-                        )
-
-                          /*Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(filterList[index].data['img_url']),
-                              ),
-                              subtitle: Text(
-                                  "₹" + filterList[index].data['item_price'],
-                                  style: TextStyle(
-                                      fontFamily:
-                                      AppFontFamilies.mainFont)),
-                              title: Text(
-                                filterList[index].data['item_name'],
+                            subtitle: Text(
+                                "₹" + filterList[index].data['item_price'],
                                 style: TextStyle(
-                                fontFamily:
-                                AppFontFamilies.mainFont)),
-                              trailing: IconButton(
-                                icon: Icon(Icons.add_shopping_cart),
-                                    onPressed: () {
-
+                                    fontFamily:
+                                    AppFontFamilies.mainFont)),
+                            title: Text(
+                              filterList[index].data['item_name'],
+                              style: TextStyle(
+                              fontFamily:
+                              AppFontFamilies.mainFont)),
+                            trailing: IconButton(
+                              icon: Icon(Icons.add_shopping_cart),
+                                  onPressed: () {
+                                print("Pressed");
+                                    Firestore.instance.collection('cart')
+                                        .document(widget.userDetails.documentID)
+                                        .get()
+                                        .then((document) {
+                                      List<dynamic> cart;
+                                      if (document.exists){
+                                        print("Does exist");
+                                        cart = document.data['cart'];
+                                      } else {
+                                        print("Created");
+                                        cart = [];
+                                      }
+                                      print(cart);
+                                      cart.add(
+                                          {'user_uid': widget.userDetails.documentID,
+                                            'product': filterList[index].data,
+                                            'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                            'cost': filterList[index].data['item_price'],
+                                            'quantity': 1,
+                                            'productID': filterList[index].documentID
+                                          }
+                                      );
+                                      print(cart);
+                                      print("Adding");
                                       Firestore.instance.collection('cart')
                                           .document(widget.userDetails.documentID)
-                                          .get()
-                                          .then((document) {
-                                        List<dynamic> cart;
-                                        if (document.exists){
-                                          print("Does exist");
-                                          cart = document.data['cart'];
-                                        } else {
-                                          print("Created");
-                                          cart = [];
-                                        }
-                                        print(cart);
-                                        cart.add(
-                                            {'user_uid': widget.userDetails.documentID,
-                                              'product': filterList[index].data,
-                                              'timestamp': DateTime.now().millisecondsSinceEpoch,
-                                              'cost': filterList[index].data['item_price'],
-                                              'quantity': 1,
-                                              'productID': filterList[index].documentID
-                                            }
-                                        );
-                                        print(cart);
-                                        print("Adding");
-                                        Firestore.instance.collection('cart')
-                                            .document(widget.userDetails.documentID)
-                                            .setData({'cart': cart}, merge: true);
+                                          .setData({'cart': cart}, merge: true);
 
-                                        _showInfoDialog(context, "Item has been added to cart.");
-                                      });
+                                      _showInfoDialog(context, "Item has been added to cart.");
+                                    });
 
-                                  },
-                              )
-                            ),
+                                },
+                            )
                           ),
-                        )*/;
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   );
                 }
             }

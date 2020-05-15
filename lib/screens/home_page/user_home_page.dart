@@ -512,6 +512,53 @@ class _UserHomePageState extends State<UserHomePage> {
         ]);
   }
 
+  Widget cartIcon(BuildContext context) {
+    if (userLoaded) {
+      return new StreamBuilder(
+          stream: Firestore.instance.collection('cart')
+              .document(userData.documentID).snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Badge(
+                badgeContent: Text("0", style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+                child: new IconButton(
+                  icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+                  onPressed: () async {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+                  },
+                ),
+              );
+            }
+            var userDocument = snapshot.data['cart'];
+            return new Badge(
+              position: BadgePosition.topRight(right: 4, top:4),
+              badgeContent: Text(userDocument.length.toString(), style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+              child: new IconButton(
+                icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+                },
+              ),
+            );
+          }
+      );
+    } else {
+      return new Badge(
+        badgeContent: Text("0", style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+        child: new IconButton(
+          icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+          onPressed: () async {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
+          },
+        ),
+      );
+    }
+
+  }
+
   Widget buildNearbyGrid() {
     List<String> upperLower = calculateFilter();
     String upper = upperLower[0];
@@ -542,8 +589,9 @@ class _UserHomePageState extends State<UserHomePage> {
               );
             } else {
               return SizedBox(
-                height: 400,
                 child: GridView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                   itemCount: filterList.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, childAspectRatio: (4 / 6)),
@@ -558,6 +606,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                     userDetails: userData)));
                       },
                       child:
+
                       Card(
                         child: Container(
                           width: 160.0,
@@ -1438,32 +1487,20 @@ class _UserHomePageState extends State<UserHomePage> {
     if (currentPage == 0) {
       return <Widget>[
         IconButton(
-          icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
-          },
-        )
+          icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+          onPressed: () async {},
+        ),
+        cartIcon(context),
+        SizedBox(width: 10),
       ];
     } else if (currentPage == 1) {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
-          },
-        )
+        cartIcon(context),
+        SizedBox(width: 10),
       ];
     } else if (currentPage == 2) {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
-          },
-        )
+        cartIcon(context)
       ];
     } else {
       return <Widget>[
@@ -1471,13 +1508,8 @@ class _UserHomePageState extends State<UserHomePage> {
           icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
           onPressed: () async {},
         ),
-        IconButton(
-          icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
-          },
-        )
+        cartIcon(context),
+        SizedBox(width: 10),
       ];
     }
   }
