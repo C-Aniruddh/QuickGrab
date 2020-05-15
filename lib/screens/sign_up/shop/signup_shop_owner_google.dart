@@ -136,6 +136,8 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
         'shop_geohash': shopGeoHash,
         'shop_lat': shopCoordinates.latitude,
         'shop_lon': shopCoordinates.longitude,
+        'shop_image': 'https://i.imgur.com/HCw2Ho7.png',
+        'shop_payment_methods': ['Cash']
       }, merge: true);
 
       assert(user.uid == currentUser.uid);

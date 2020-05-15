@@ -288,6 +288,31 @@ class _UserHomePageState extends State<UserHomePage> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: <Widget>[
+                Card(
+                  child: Container(
+                    width: 160.0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            height: 120,
+                              width: 160,
+                              child: Image(image: NetworkImage("https://i.imgur.com/HCw2Ho7.png"), height: 128, width: 128)),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text("Laxmi Stores", style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               Card(
                 child: Container(
                 width: 160.0,
