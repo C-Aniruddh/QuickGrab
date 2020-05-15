@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
+import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/shop_page/shop_page.dart';
 import 'package:badges/badges.dart';
@@ -16,6 +17,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:latlong/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class MapUtils {
   MapUtils._();
@@ -57,6 +59,9 @@ class _UserHomePageState extends State<UserHomePage> {
 
   List<DocumentSnapshot> offers;
 
+  List<DocumentSnapshot> upcomingAppointments;
+  int _current = 0;
+
   String token;
 
   TextEditingController startTimeController = new TextEditingController();
@@ -76,6 +81,15 @@ class _UserHomePageState extends State<UserHomePage> {
 
     await Firestore.instance.collection('offers').getDocuments().then((docs) {
       offers = docs.documents;
+    });
+
+    await Firestore.instance
+        .collection('appointments')
+        .where('shopper_uid', isEqualTo: userData['uid'])
+        .where('appointment_status', isEqualTo: "incomplete")
+        .getDocuments()
+        .then((docs) {
+      upcomingAppointments = docs.documents;
     });
 
     setState(() {
@@ -167,12 +181,139 @@ class _UserHomePageState extends State<UserHomePage> {
     return result;
   }
 
+  buildOrderScheduledBanner(DocumentSnapshot appointment) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Card(
+          elevation: 3.0,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 0, 8),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 16, 8, 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Order Scheduled for",
+                          style: TextStyle(fontSize: 16.0),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 2, 8, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "May 22",
+                          style: TextStyle(fontSize: 18.0),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.store_mall_directory,
+                          color: Colors.orangeAccent,
+                          size: 32.0,
+                        ),
+                        SizedBox(
+                          width: 16.0,
+                        ),
+                        Text(
+                          appointment.data['shop_name'],
+                          style: TextStyle(fontSize: 18.0),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          color: Colors.orangeAccent,
+                          size: 32.0,
+                        ),
+                        SizedBox(
+                          width: 16.0,
+                        ),
+                        Text(
+                          "9:00 AM - 9:15 AM",
+                          style: TextStyle(fontSize: 18.0),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )),
+    );
+  }
+
+  Widget buildOrderScheduledCarousel() {
+    return CarouselSlider(
+      options: CarouselOptions(
+          enlargeCenterPage: true,
+          onPageChanged: (index, reason) {
+            setState(() {
+              _current = index;
+            });
+          }),
+      items: upcomingAppointments.map((appointment) {
+        return Builder(builder: (BuildContext context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.2,
+            width: MediaQuery.of(context).size.width,
+            child: buildOrderScheduledBanner(appointment),
+          );
+        });
+      }).toList(),
+    );
+  }
+
+  Widget indicatorDots() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: upcomingAppointments.map((url) {
+        int index = upcomingAppointments.indexOf(url);
+        return Container(
+          width: 8.0,
+          height: 8.0,
+          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _current == index ? Colors.orange[700] : Colors.orange[50],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
       addressView(),
       offers.length < 1 ? SizedBox(height: 1) : offersView(),
       Divider(),
+      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
+      upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+      upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
+      upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
       userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
       nearbyView()
     ]));
@@ -192,10 +333,13 @@ class _UserHomePageState extends State<UserHomePage> {
           height: 64,
           child: Card(
               child: Padding(
-            padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+            padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
             child: ListTile(
-                title: Text(userData['address'],
-                    style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis,)),
+                title: Text(
+              userData['address'],
+              style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+              overflow: TextOverflow.ellipsis,
+            )),
           )),
         ),
       ),
@@ -236,18 +380,18 @@ class _UserHomePageState extends State<UserHomePage> {
             child: Swiper(
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
-                  onTap: (){
-                    Firestore.instance.collection('shops')
-                      .document(offers[index].data['shop_uid'])
-                    .get()
-                    .then((doc) {
+                  onTap: () {
+                    Firestore.instance
+                        .collection('shops')
+                        .document(offers[index].data['shop_uid'])
+                        .get()
+                        .then((doc) {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  ShopPage(shopDetails: doc, userDetails: userData)));
+                              builder: (context) => ShopPage(
+                                  shopDetails: doc, userDetails: userData)));
                     });
-
                   },
                   child: Card(
                     semanticContainer: true,
@@ -740,6 +884,59 @@ class _UserHomePageState extends State<UserHomePage> {
     ));
   }
 
+  _buildInvoiceContent(invoiceData) {
+    List<Widget> columnContent = [];
+
+    for (String content in invoiceData)
+      columnContent.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  "item",
+                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "3",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "400",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+    Column column = Column(
+      children: columnContent,
+    );
+
+    return column;
+  }
+
   Widget buildAppointmentsDoneUser() {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
@@ -766,44 +963,117 @@ class _UserHomePageState extends State<UserHomePage> {
               );
             } else {
               return new Container(
-                  child: ListView.builder(
-                      itemCount: documents.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        DocumentSnapshot document = documents[index];
-                        return Card(
-                          margin: EdgeInsets.all(10.0),
-                          elevation: 2,
-                          child: Container(
-                            child: new ListTile(
-                              contentPadding: EdgeInsets.all(8),
-                              onTap: () {
-                                _showModalAppointmentDetails(document);
-                                //Navigator.push(context, MaterialPageRoute(builder: (context)=> ShopPage(shopDetails: document, userDetails: userData,)));
-                              },
-                              leading: Container(
-                                padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: CircleAvatar(
-                                  backgroundColor:
-                                      Theme.of(context).accentColor,
-                                  child: Text(document['shop_name'][0]
-                                      .toString()
-                                      .toUpperCase()),
-                                ),
-                              ),
-                              title: Text(document['shop_name']),
-                              subtitle: Text(document['appointment_status']),
-                              trailing: IconButton(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                icon: Icon(Icons.info),
-                                onPressed: () {
-                                  print("Open");
-                                  _showModalAppointmentDetails(document);
-                                },
+                child: ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    DocumentSnapshot document = documents[index];
+                    return Card(
+                      margin: EdgeInsets.all(10.0),
+                      elevation: 2,
+                      child: Container(
+                        child: ExpansionTile(
+                          title: Text(
+                            document['shop_name'],
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                    child: Text(
+                                      "Item",
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                        child: Text(
+                                          "Quantity",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      ),
+                                      Text(
+                                        "|",
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                        child: Text(
+                                          "Price",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        );
-                      }));
+                            _buildInvoiceContent(["item1", "item2", "item3"]),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                    child: Text(
+                                      "Total",
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  ),
+                                  Text(
+                                    "|",
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                    child: Text(
+                                      "1200",
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child: Center(
+                                child: RaisedButton(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(
+                                          color: Colors.orangeAccent)),
+                                  onPressed: () {},
+                                  color: Colors.orangeAccent,
+                                  textColor: Colors.white,
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                    child: Text(
+                                      "Mail Invoice",
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
             }
         }
       },
@@ -961,7 +1231,18 @@ class _UserHomePageState extends State<UserHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AppointmentList(
+                          userData: userData,
+                          title: "All Orders",
+                          appointmentStatus: "None",
+                        ),
+                      ),
+                    );
+                  },
                   child: ListTile(
                       leading: Icon(Icons.list),
                       title: Text("All My Orders",
@@ -971,7 +1252,18 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Divider(),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AppointmentList(
+                          userData: userData,
+                          title: "Pending Orders",
+                          appointmentStatus: "incomplete",
+                        ),
+                      ),
+                    );
+                  },
                   child: ListTile(
                       leading: Icon(Icons.access_time),
                       title: Text("Pending Orders",
@@ -981,7 +1273,18 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Divider(),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AppointmentList(
+                          userData: userData,
+                          title: "Finished Orders",
+                          appointmentStatus: "completed",
+                        ),
+                      ),
+                    );
+                  },
                   child: ListTile(
                       leading: Icon(Icons.shopping_basket),
                       title: Text("Finished Orders",

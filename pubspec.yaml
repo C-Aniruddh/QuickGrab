@@ -43,6 +43,7 @@ dependencies:
   firebase_database: ^3.1.5
   firebase_storage: ^3.0.3
   flutter_swiper : ^1.1.6
+  carousel_slider: ^2.1.0
 
 
   # The following adds the Cupertino Icons font to your application.
