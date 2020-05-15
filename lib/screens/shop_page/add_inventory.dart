@@ -95,7 +95,7 @@ class _AddInventoryState extends State<AddInventory> {
           );
         });
   }
-  
+
   Future<Null> _cropImage(File imageFile) async {
     croppedImage = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
@@ -415,7 +415,7 @@ class _AddInventoryState extends State<AddInventory> {
               "Item Quantity (Optional)", itemQuantityController,
               keyType: TextInputType.number, validate: false),
           customLargeTextField(Icons.description,
-              "\n\nItem Description (Optional)", itemDescriptionController,
+              "\nItem Description (Optional)", itemDescriptionController,
               validate: false),
           Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
