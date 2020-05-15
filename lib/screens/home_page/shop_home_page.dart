@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:app/notificationHandler.dart';
-import 'package:app/screens/cart/order_payment_page.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
