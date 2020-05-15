@@ -331,6 +331,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                 'appointment_status': 'pending',
                                 'appointment_start': null,
                                 'appointment_end': null,
+                                'appointment_date': null,
                                 'otp': (rng.nextInt(10000) + 1000).toString()
                               }).then((value) async {
                                 String title = "New appointment request";

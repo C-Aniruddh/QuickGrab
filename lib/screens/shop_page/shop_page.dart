@@ -3,6 +3,8 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:app/screens/cart/cart_page.dart';
+import 'package:app/widget/custom_tile.dart';
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -219,98 +221,93 @@ class _ShopPageState extends State<ShopPage> {
                     child: Text("There are no shops around you."),
                   );
                 } else {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.9,
+                  return IgnorePointer(
                     child: GridView.builder(
+                      primary: true,
+                      shrinkWrap: true,
                       itemCount: filterList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, childAspectRatio: (3 / 4)),
+                          crossAxisCount: 2, childAspectRatio: (1/1)),
                       itemBuilder: (BuildContext context, int index) {
-                        return InkWell(
-                          onTap: (){
-                          },
-                          child: Card(
-                            child: Container(
-                              width: 160.0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: SizedBox(
-                                        height: 120,
-                                        width: 160,
-                                        child: Hero(
-                                          tag: filterList[index].documentID,
-                                          child: Image(
-                                              image: NetworkImage(
-                                                  filterList[index].data['img_url']),
-                                              height: 128,
-                                              width: 128),
-                                        )),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                        child: ListTile(
-                                            title: Text(
-                                                filterList[index].data['item_name'],
-                                                style: TextStyle(
-                                                    fontFamily:
-                                                    AppFontFamilies.mainFont)),
-                                            ))),
-
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: RaisedButton(
-                                        color: Theme.of(context).accentColor,
-                                        shape: new RoundedRectangleBorder(
-                                          borderRadius: new BorderRadius.circular(30.0),
-                                        ),
-                                        onPressed: (){
-                                          Firestore.instance.collection('cart')
-                                              .document(widget.userDetails.documentID)
-                                              .get()
-                                              .then((document) {
-                                                List<dynamic> cart;
-                                                if (document.exists){
-                                                  print("Does exist");
-                                                  cart = document.data['cart'];
-                                                } else {
-                                                  print("Created");
-                                                  cart = [];
-                                                }
-                                                print(cart);
-                                                cart.add(
-                                                  {'user_uid': widget.userDetails.documentID,
-                                                    'product': filterList[index].data,
-                                                    'timestamp': DateTime.now().millisecondsSinceEpoch,
-                                                    'cost': filterList[index].data['item_price'],
-                                                    'quantity': 1,
-                                                    'productID': filterList[index].documentID
-                                                  }
-                                                );
-                                                print(cart);
-                                                print("Adding");
-                                                Firestore.instance.collection('cart')
-                                                  .document(widget.userDetails.documentID)
-                                                .setData({'cart': cart}, merge: true);
-
-                                                _showInfoDialog(context, "Item has been added to cart.");
-                                          });
-                                         // Navigator.push(context, MaterialPageRoute(builder: (context) => ShopScheduledOrders(userData: userData,)));
-                                        },
-                                        child: Icon(Icons.add_shopping_cart, color: Colors.white)
-                                    ),
-                                  ),
-
-                                ],
+                        return Card(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(filterList[index].data['img_url']),
+                                fit: BoxFit.fitWidth,
+                                alignment: Alignment.topCenter,
                               ),
                             ),
+                            child: Container(
+                              color: Colors.black.withOpacity(0.5),
+                                child:
+                                  Center(child: Text(
+                                      filterList[index].data['item_name'],
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        color: Colors.white,
+                                          fontFamily:
+                                          AppFontFamilies.mainFont)),)),
                           ),
-                        );
+                        )
+
+                          /*Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(filterList[index].data['img_url']),
+                              ),
+                              subtitle: Text(
+                                  "₹" + filterList[index].data['item_price'],
+                                  style: TextStyle(
+                                      fontFamily:
+                                      AppFontFamilies.mainFont)),
+                              title: Text(
+                                filterList[index].data['item_name'],
+                                style: TextStyle(
+                                fontFamily:
+                                AppFontFamilies.mainFont)),
+                              trailing: IconButton(
+                                icon: Icon(Icons.add_shopping_cart),
+                                    onPressed: () {
+
+                                      Firestore.instance.collection('cart')
+                                          .document(widget.userDetails.documentID)
+                                          .get()
+                                          .then((document) {
+                                        List<dynamic> cart;
+                                        if (document.exists){
+                                          print("Does exist");
+                                          cart = document.data['cart'];
+                                        } else {
+                                          print("Created");
+                                          cart = [];
+                                        }
+                                        print(cart);
+                                        cart.add(
+                                            {'user_uid': widget.userDetails.documentID,
+                                              'product': filterList[index].data,
+                                              'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                              'cost': filterList[index].data['item_price'],
+                                              'quantity': 1,
+                                              'productID': filterList[index].documentID
+                                            }
+                                        );
+                                        print(cart);
+                                        print("Adding");
+                                        Firestore.instance.collection('cart')
+                                            .document(widget.userDetails.documentID)
+                                            .setData({'cart': cart}, merge: true);
+
+                                        _showInfoDialog(context, "Item has been added to cart.");
+                                      });
+
+                                  },
+                              )
+                            ),
+                          ),
+                        )*/;
                       },
                     ),
                   );
@@ -320,13 +317,40 @@ class _ShopPageState extends State<ShopPage> {
         ));
   }
 
+  Widget addressView() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.add_location, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
+                child: ListTile(
+                    title: Text(
+                      widget.shopDetails.data['shop_address'],
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+                      overflow: TextOverflow.ellipsis,
+                    )),
+              )),
+        ),
+      ),
+    );
+  }
+
 
   Widget buildShop() {
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children : [
-          Padding(
+          /*Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: Text("Shop on Map",
                 style: TextStyle(
@@ -351,7 +375,10 @@ class _ShopPageState extends State<ShopPage> {
                         : Container()),
               ),
             ),
-          ),
+          ),*/
+          Image(image: NetworkImage(widget.shopDetails.data['shop_image']), height: 250,
+          width: MediaQuery.of(context).size.width, fit: BoxFit.contain),
+          addressView(),
           productView()
         ]
       )
@@ -509,50 +536,40 @@ class _ShopPageState extends State<ShopPage> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: false,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            actions: [
-              widget.userDetails['favorites'].contains(widget.shopDetails.documentID) ?
-                    IconButton(icon: Icon(Icons.star), color: Theme.of(context).accentColor,
-                    onPressed: () {
-                      List<dynamic> fav = widget.userDetails['favorites'];
-                      setState(() {
-                        fav.remove(widget.shopDetails.documentID);
-                        Firestore.instance.collection('users')
-                            .document(widget.userDetails.documentID)
-                            .updateData({'favorites': fav});
-                      });
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.black),
+        flexibleSpace: FlexibleSpaceBar(
+        title: Text(widget.shopDetails['shop_name'], style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
+        background: Hero(tag: widget.shopDetails.documentID,
+        child: Image.network(widget.shopDetails.data['shop_image'], fit: BoxFit.cover))),
+        actions: [
+          widget.userDetails['favorites'].contains(widget.shopDetails.documentID) ?
+          IconButton(icon: Icon(Icons.star), color: Theme.of(context).accentColor,
+            onPressed: () {
+              List<dynamic> fav = widget.userDetails['favorites'];
+              setState(() {
+                fav.remove(widget.shopDetails.documentID);
+                Firestore.instance.collection('users')
+                    .document(widget.userDetails.documentID)
+                    .updateData({'favorites': fav});
+              });
 
-                    },)
-                  : IconButton(icon: Icon(Icons.star_border),
-                onPressed: () {
-                  List<dynamic> fav = widget.userDetails['favorites'];
-                  setState(() {
-                    fav.add(widget.shopDetails.documentID);
-                    Firestore.instance.collection('users')
-                        .document(widget.userDetails.documentID)
-                        .updateData({'favorites': fav});
-                  });
-                },)
-            ],
-            pinned: false,
-            floating: true,
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            iconTheme: IconThemeData(color: Colors.black),
-            expandedHeight: 200.0,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(widget.shopDetails['shop_name'], style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
-              background: Hero(tag: widget.shopDetails.documentID,
-              child: Image.network(widget.shopDetails.data['shop_image'], fit: BoxFit.cover)),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: buildShop()
-          )
+            },)
+              : IconButton(icon: Icon(Icons.star_border),
+            onPressed: () {
+              List<dynamic> fav = widget.userDetails['favorites'];
+              setState(() {
+                fav.add(widget.shopDetails.documentID);
+                Firestore.instance.collection('users')
+                    .document(widget.userDetails.documentID)
+                    .updateData({'favorites': fav});
+              });
+            },)
         ],
       ),
+      body: SingleChildScrollView(child: buildShop())
     );
   }
 }

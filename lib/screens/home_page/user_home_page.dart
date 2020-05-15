@@ -557,7 +557,8 @@ class _UserHomePageState extends State<UserHomePage> {
                                     shopDetails: filterList[index],
                                     userDetails: userData)));
                       },
-                      child: Card(
+                      child:
+                      Card(
                         child: Container(
                           width: 160.0,
                           child: Column(

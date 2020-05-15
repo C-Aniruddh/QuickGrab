@@ -45,6 +45,8 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
 
   List<String> timeSlots;
 
+  List<DocumentSnapshot> shopScheduled;
+
   Future<void> _signOut() async {
     try {
       await googleSignIn.signOut();
@@ -362,6 +364,12 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
   @override
   void initState() {
     // TODO: implement initState
+    Firestore.instance.collection('appointments')
+        .where('target_shop', isEqualTo: widget.userData.documentID)
+        .getDocuments()
+        .then((docs) => {
+        shopScheduled = docs.documents
+    });
     updateTimeSlots();
     super.initState();
   }
