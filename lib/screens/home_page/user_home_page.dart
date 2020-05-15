@@ -635,43 +635,6 @@ class _UserHomePageState extends State<UserHomePage> {
                           ),
                         ),
                       )
-                      /*Card(
-                        child: Container(
-                          width: 160.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Align(
-                                alignment: Alignment.center,
-                                child: SizedBox(
-                                    width: 160,
-                                    child: Hero(
-                                      tag: filterList[index].documentID,
-                                      child: Image(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(filterList[index]
-                                              .data['shop_image']),
-                                          width: 64),
-                                    )),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                    child: ListTile(
-                                      title: Text(
-                                          filterList[index].data['shop_name'],
-                                          style: TextStyle(
-                                              fontFamily:
-                                                  AppFontFamilies.mainFont)),
-                                    )),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),*/
                     );
                   },
                 ),
@@ -1512,15 +1475,48 @@ class _UserHomePageState extends State<UserHomePage> {
     super.initState();
   }
 
+  Widget notificationIcon(BuildContext context) {
+    if (userLoaded) {
+      return new StreamBuilder(
+          stream: Firestore.instance.collection('notifications')
+          .where('receiver_uid', isEqualTo: userData.documentID)
+          .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return IconButton(
+                icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView(userData: userData)));
+                },
+              );
+            }
+            return new Badge(
+              position: BadgePosition.topRight(right: 4, top:4),
+              badgeContent: SizedBox(height: 20),
+              child: new IconButton(
+                icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView(userData: userData)));
+                },
+              ),
+            );
+          }
+      );
+    } else {
+      return new IconButton(
+        icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+        onPressed: () async {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView(userData: userData)));
+        },
+      );
+    }
+
+  }
+
   List<Widget> returnActionButton() {
     if (currentPage == 0) {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
-          },
-        ),
+        notificationIcon(context),
         cartIcon(context),
         SizedBox(width: 10),
       ];
@@ -1535,12 +1531,7 @@ class _UserHomePageState extends State<UserHomePage> {
       ];
     } else {
       return <Widget>[
-        IconButton(
-          icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
-          },
-        ),
+        notificationIcon(context),
         cartIcon(context),
         SizedBox(width: 10),
       ];
