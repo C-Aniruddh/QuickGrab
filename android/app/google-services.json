@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "765431265467-8pgkngvmbk1ss55sie5sl9injsq4t5im.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aniruddh.shop_app",
+            "certificate_hash": "c7d2520d7b3fe0b654420ee0d940f97545dce66d"
+          }
+        },
+        {
           "client_id": "765431265467-f22fs1qplfohisulegb7kpkfchd4nkr6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -83,6 +91,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "765431265467-5si6e2ogebk8eemtj437362ckkg3vncu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.local_dukaan.app",
+            "certificate_hash": "c7d2520d7b3fe0b654420ee0d940f97545dce66d"
+          }
+        },
+        {
           "client_id": "765431265467-hip32g560e3fe0sjms66ac3rt3mja7mo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -150,6 +166,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "765431265467-88ds87ekcf4bf711cjte49fam3a5veus.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quickgrab.app",
+            "certificate_hash": "c7d2520d7b3fe0b654420ee0d940f97545dce66d"
+          }
+        },
         {
           "client_id": "765431265467-ke0ev9mo1k8p9khuij95dt7n4c8omvmc.apps.googleusercontent.com",
           "client_type": 1,
