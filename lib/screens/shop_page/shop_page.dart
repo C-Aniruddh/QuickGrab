@@ -143,6 +143,7 @@ class _ShopPageState extends State<ShopPage> {
                       'receiver_uid': widget.shopDetails['uid'],
                       'title': title,
                       'body': body,
+                      'read': false,
                     });
                   });
                   Navigator.pop(context);
@@ -509,6 +510,40 @@ class _ShopPageState extends State<ShopPage> {
         ]);
   }
 
+  Widget cartIcon(BuildContext context) {
+    return StreamBuilder(
+        stream: Firestore.instance.collection('cart')
+            .document(widget.userDetails.documentID).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Badge(
+              badgeContent: Text("0", style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+              child: new IconButton(
+                icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => CartPage(userData: widget.userDetails,)));
+                },
+              ),
+            );
+          }
+          var userDocument = snapshot.data['cart'];
+          return new Badge(
+            position: BadgePosition.topRight(right: 4, top:4),
+            badgeContent: Text(userDocument.length.toString(), style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.white)),
+            child: new IconButton(
+              icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
+              onPressed: () async {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => CartPage(userData: widget.userDetails,)));
+              },
+            ),
+          );
+        }
+    );
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -523,28 +558,8 @@ class _ShopPageState extends State<ShopPage> {
         background: Hero(tag: widget.shopDetails.documentID,
         child: Image.network(widget.shopDetails.data['shop_image'], fit: BoxFit.cover))),
         actions: [
-          widget.userDetails['favorites'].contains(widget.shopDetails.documentID) ?
-          IconButton(icon: Icon(Icons.star), color: Theme.of(context).accentColor,
-            onPressed: () {
-              List<dynamic> fav = widget.userDetails['favorites'];
-              setState(() {
-                fav.remove(widget.shopDetails.documentID);
-                Firestore.instance.collection('users')
-                    .document(widget.userDetails.documentID)
-                    .updateData({'favorites': fav});
-              });
-
-            },)
-              : IconButton(icon: Icon(Icons.star_border),
-            onPressed: () {
-              List<dynamic> fav = widget.userDetails['favorites'];
-              setState(() {
-                fav.add(widget.shopDetails.documentID);
-                Firestore.instance.collection('users')
-                    .document(widget.userDetails.documentID)
-                    .updateData({'favorites': fav});
-              });
-            },)
+          cartIcon(context),
+          SizedBox(width: 10)
         ],
       ),
       body: SingleChildScrollView(child: buildShop())

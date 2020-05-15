@@ -3,6 +3,7 @@ import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
+import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/shop_page/shop_page.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
@@ -589,12 +590,12 @@ class _UserHomePageState extends State<UserHomePage> {
               );
             } else {
               return SizedBox(
-                child: GridView.builder(
+                child: ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: filterList.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, childAspectRatio: (4 / 6)),
+                  //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  //    crossAxisCount: 3, childAspectRatio: (4 / 6)),
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () {
@@ -606,8 +607,35 @@ class _UserHomePageState extends State<UserHomePage> {
                                     userDetails: userData)));
                       },
                       child:
-
                       Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(filterList[index]
+                                    .data['shop_image']),
+                              ),
+                              subtitle: Text(
+                                  distanceBetween(filterList[index].data['shop_geohash']) +
+                                      " meters away",
+                                  style: TextStyle(
+                                      fontFamily:
+                                      AppFontFamilies.mainFont)),
+                              title: Text(
+                                  filterList[index].data['shop_name'],
+                                  style: TextStyle(
+                                      fontFamily:
+                                      AppFontFamilies.mainFont)),
+                              trailing: IconButton(
+                                icon: Icon(Icons.arrow_forward_ios),
+                                onPressed: () {
+
+                                },
+                              )
+                          ),
+                        ),
+                      )
+                      /*Card(
                         child: Container(
                           width: 160.0,
                           child: Column(
@@ -643,7 +671,7 @@ class _UserHomePageState extends State<UserHomePage> {
                             ],
                           ),
                         ),
-                      ),
+                      ),*/
                     );
                   },
                 ),
@@ -1154,6 +1182,7 @@ class _UserHomePageState extends State<UserHomePage> {
                           'receiver_uid': doc['shopper_uid'],
                           'title': title,
                           'body': body,
+                          'read': false,
                         });
                       });
                     });
@@ -1488,7 +1517,9 @@ class _UserHomePageState extends State<UserHomePage> {
       return <Widget>[
         IconButton(
           icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
+          },
         ),
         cartIcon(context),
         SizedBox(width: 10),
@@ -1506,7 +1537,9 @@ class _UserHomePageState extends State<UserHomePage> {
       return <Widget>[
         IconButton(
           icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsView()));
+          },
         ),
         cartIcon(context),
         SizedBox(width: 10),

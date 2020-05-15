@@ -97,6 +97,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                           'receiver_uid': doc['shopper_uid'],
                           'title': title,
                           'body': body,
+                          'read': false,
                         });
                       });
                     });
@@ -209,6 +210,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                                 'receiver_uid': doc['shopper_uid'],
                                 'title': title,
                                 'body': body,
+                                'read': false,
                               });
                             });
                           });

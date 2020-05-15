@@ -77,6 +77,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                               'receiver_uid': doc['shopper_uid'],
                               'title': title,
                               'body': body,
+                              'read': false,
                             });
                           });
                         });

@@ -343,6 +343,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                   'receiver_uid': shopDoc.data['uid'],
                                   'title': title,
                                   'body': body,
+                                  'read': false,
                                 });
                               });
                             });

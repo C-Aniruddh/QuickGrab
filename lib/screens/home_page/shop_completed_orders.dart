@@ -69,6 +69,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                               'receiver_uid': doc['shopper_uid'],
                               'title': title,
                               'body': body,
+                              'read': false,
                             });
                           });
                         });

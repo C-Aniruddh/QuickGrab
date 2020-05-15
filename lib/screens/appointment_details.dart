@@ -148,6 +148,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                       'receiver_uid': doc['shopper_uid'],
                       'title': title,
                       'body': body,
+                      'read': false,
                     });
                   });
                 });
