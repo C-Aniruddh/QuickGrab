@@ -1098,7 +1098,7 @@ class _UserHomePageState extends State<UserHomePage> {
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage()));
+                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
           },
         )
       ];
@@ -1108,7 +1108,7 @@ class _UserHomePageState extends State<UserHomePage> {
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage()));
+                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
           },
         )
       ];
@@ -1118,7 +1118,7 @@ class _UserHomePageState extends State<UserHomePage> {
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage()));
+                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
           },
         )
       ];
@@ -1132,7 +1132,7 @@ class _UserHomePageState extends State<UserHomePage> {
           icon: Icon(Icons.shopping_cart, color: Theme.of(context).accentColor),
           onPressed: () async {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => CartPage()));
+                context, MaterialPageRoute(builder: (context) => CartPage(userData: userData,)));
           },
         )
       ];

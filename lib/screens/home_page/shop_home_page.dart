@@ -4,10 +4,12 @@ import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
+import 'package:app/screens/home_page/shop_my_inventory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -91,15 +93,25 @@ class _ShopHomePageState extends State<ShopHomePage> {
 
   Widget addressView() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-      child: Card(
-          child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-            leading: Icon(Icons.add_location),
-            subtitle: Text(userData['shop_address'],
-                style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
-      )),
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.add_location, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+                child: ListTile(
+                    title: Text(userData['shop_address'],
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis,)),
+              )),
+        ),
+      ),
     );
   }
 
@@ -271,7 +283,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
                           alignment: Alignment.topLeft,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: Text("Shop Profile",
+                            child: Text("My Inventory",
                                 style: TextStyle(
                                     fontSize: 24,
                                     fontFamily: AppFontFamilies.mainFont)),
@@ -286,6 +298,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
                                 borderRadius: new BorderRadius.circular(30.0),
                               ),
                               onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ShopMyInventory(userData: userData,)));
                               },
                               child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -319,6 +332,11 @@ class _ShopHomePageState extends State<ShopHomePage> {
         profilePicUrl = user.photoUrl;
         userEmail = user.email;
       });
+    });
+
+    SystemChannels.lifecycle.setMessageHandler((msg){
+      debugPrint('SystemChannels> $msg');
+      if(msg==AppLifecycleState.resumed.toString())setState((){});
     });
     super.initState();
   }
