@@ -131,9 +131,9 @@ class _AddInventoryState extends State<AddInventory> {
         context: parentContext,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Sign up'),
+            title: Text('Adding to inventory', style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
             content: SingleChildScrollView(
-              child: Text("Adding new item..."),
+              child: Text("Adding new item...", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
             ),
           );
         });
@@ -226,20 +226,11 @@ class _AddInventoryState extends State<AddInventory> {
                 topRight: Radius.circular(12),
                 bottomLeft: Radius.circular(12),
                 bottomRight: Radius.circular(12)),
-            border: Border.all(color: Colors.grey[600]),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: Offset(0, 2), // changes position of shadow
-              ),
-            ],
+
           ),
           child: Icon(
             Icons.add_a_photo,
             size: 128.0,
-            color: Colors.grey[350],
           ),
         ),
       );
@@ -406,7 +397,7 @@ class _AddInventoryState extends State<AddInventory> {
                       _image == null
                           ? "Add an picture"
                           : "Retake picture".toUpperCase(),
-                      style: TextStyle(fontSize: 14)),
+                      style: TextStyle(fontSize: 14, fontFamily: AppFontFamilies.mainFont)),
                 ),
               ),
             ),
@@ -438,9 +429,8 @@ class _AddInventoryState extends State<AddInventory> {
                     if (itemNameController.text.isNotEmpty &&
                         itemPriceController.text.isNotEmpty) {
                       _showDialog(context);
-                      String _url = await uploadFile(_image,
-                          widget.shopData['uid'] + itemNameController.text);
-                      Firestore.instance.collection('inventory').add({
+                      String _url = await uploadFile(_image, widget.shopData['uid'] + itemNameController.text);
+                      Firestore.instance.collection('products').add({
                         "shop_uid": widget.shopData['uid'],
                         "item_name": itemNameController.text,
                         "item_price": itemPriceController.text,
@@ -448,6 +438,16 @@ class _AddInventoryState extends State<AddInventory> {
                         "item_description": itemDescriptionController.text,
                         "img_url": _url
                       }).then((result) {
+                        Firestore.instance.collection('shops')
+                        .document(widget.shopData.documentID)
+                        .get()
+                        .then((doc){
+                          List<dynamic> inventory = doc.data['inventory'];
+                          inventory.add(result.documentID);
+                          Firestore.instance.collection('shops')
+                          .document(widget.shopData.documentID)
+                          .updateData({'inventory': inventory});
+                        });
                         Navigator.pop(context);
                         Navigator.pop(context);
                       }).catchError((err) => print(err));
@@ -458,10 +458,8 @@ class _AddInventoryState extends State<AddInventory> {
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Add to inventory".toUpperCase(),
-                    style: TextStyle(fontSize: 14),
-                  ),
+                  child: Text("Add to inventory".toUpperCase(),
+                      style: TextStyle(fontSize: 14, fontFamily: AppFontFamilies.mainFont)),
                 ),
               ),
             ),
@@ -493,7 +491,7 @@ class _AddInventoryState extends State<AddInventory> {
           ),
           title: Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: Text("Add Inventory",
+            child: Text("Add Item to Inventory",
                 style: TextStyle(
                     fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
           ),

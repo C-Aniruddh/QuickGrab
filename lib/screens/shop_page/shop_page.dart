@@ -170,12 +170,38 @@ class _ShopPageState extends State<ShopPage> {
         ]);
   }
 
+  _showInfoDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget buildProductGrid() {
 
     return Container(
         child: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance
-              .collection('shops')
+              .collection('products')
+              .where(FieldPath.documentId,
+                whereIn: widget.shopDetails.data['inventory'])
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
@@ -194,7 +220,7 @@ class _ShopPageState extends State<ShopPage> {
                   );
                 } else {
                   return SizedBox(
-                    height: 400,
+                    height: MediaQuery.of(context).size.height * 0.9,
                     child: GridView.builder(
                       itemCount: filterList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -219,7 +245,7 @@ class _ShopPageState extends State<ShopPage> {
                                           tag: filterList[index].documentID,
                                           child: Image(
                                               image: NetworkImage(
-                                                  filterList[index].data['shop_image']),
+                                                  filterList[index].data['img_url']),
                                               height: 128,
                                               width: 128),
                                         )),
@@ -230,7 +256,7 @@ class _ShopPageState extends State<ShopPage> {
                                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                                         child: ListTile(
                                             title: Text(
-                                                "Product Name",
+                                                filterList[index].data['item_name'],
                                                 style: TextStyle(
                                                     fontFamily:
                                                     AppFontFamilies.mainFont)),
@@ -244,6 +270,36 @@ class _ShopPageState extends State<ShopPage> {
                                           borderRadius: new BorderRadius.circular(30.0),
                                         ),
                                         onPressed: (){
+                                          Firestore.instance.collection('cart')
+                                              .document(widget.userDetails.documentID)
+                                              .get()
+                                              .then((document) {
+                                                List<dynamic> cart;
+                                                if (document.exists){
+                                                  print("Does exist");
+                                                  cart = document.data['cart'];
+                                                } else {
+                                                  print("Created");
+                                                  cart = [];
+                                                }
+                                                print(cart);
+                                                cart.add(
+                                                  {'user_uid': widget.userDetails.documentID,
+                                                    'product': filterList[index].data,
+                                                    'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                                    'cost': filterList[index].data['item_price'],
+                                                    'quantity': 1,
+                                                    'productID': filterList[index].documentID
+                                                  }
+                                                );
+                                                print(cart);
+                                                print("Adding");
+                                                Firestore.instance.collection('cart')
+                                                  .document(widget.userDetails.documentID)
+                                                .setData({'cart': cart}, merge: true);
+
+                                                _showInfoDialog(context, "Item has been added to cart.");
+                                          });
                                          // Navigator.push(context, MaterialPageRoute(builder: (context) => ShopScheduledOrders(userData: userData,)));
                                         },
                                         child: Icon(Icons.add_shopping_cart, color: Colors.white)
@@ -480,8 +536,8 @@ class _ShopPageState extends State<ShopPage> {
                   });
                 },)
             ],
-            pinned: true,
-            floating: false,
+            pinned: false,
+            floating: true,
             elevation: 0,
             backgroundColor: Colors.transparent,
             iconTheme: IconThemeData(color: Colors.black),

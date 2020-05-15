@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/screens/appointment_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,7 +34,6 @@ class ShopPendingOrders extends StatefulWidget {
 }
 
 class _ShopPendingOrdersState extends State<ShopPendingOrders> {
-
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   bool userLoaded = false;
@@ -44,7 +44,6 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
   TextEditingController endTimeController = new TextEditingController();
 
   List<String> timeSlots;
-
 
   Future<void> _signOut() async {
     try {
@@ -57,7 +56,6 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
 
   TextEditingController otpController = new TextEditingController();
 
-
   _showCompleteDialog(BuildContext context, String documentID, String otp) {
     return showDialog(
         context: context,
@@ -66,11 +64,11 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
             content: SingleChildScrollView(
               child: Container(
                   child: Column(
-                    children: <Widget>[
-                      //PhoneAuthWidgets.subTitle("Enter OTP"),
-                      //PhoneAuthWidgets.textField(otpController),
-                    ],
-                  )),
+                children: <Widget>[
+                  //PhoneAuthWidgets.subTitle("Enter OTP"),
+                  //PhoneAuthWidgets.textField(otpController),
+                ],
+              )),
             ),
             actions: <Widget>[
               FlatButton(
@@ -81,25 +79,25 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                         .document(documentID)
                         .updateData({'appointment_status': 'completed'}).then(
                             (value) async {
-                          await Firestore.instance
-                              .collection('appointments')
-                              .document(documentID)
-                              .get()
-                              .then((doc) async {
-                            var title = "Apopintment completed";
-                            var body = "Your appointment at " +
-                                doc['shop_name'] +
-                                " was marked completed";
-                            await Firestore.instance
-                                .collection('notifications')
-                                .add({
-                              'sender_type': "shops",
-                              'receiver_uid': doc['shopper_uid'],
-                              'title': title,
-                              'body': body,
-                            });
-                          });
+                      await Firestore.instance
+                          .collection('appointments')
+                          .document(documentID)
+                          .get()
+                          .then((doc) async {
+                        var title = "Apopintment completed";
+                        var body = "Your appointment at " +
+                            doc['shop_name'] +
+                            " was marked completed";
+                        await Firestore.instance
+                            .collection('notifications')
+                            .add({
+                          'sender_type': "shops",
+                          'receiver_uid': doc['shopper_uid'],
+                          'title': title,
+                          'body': body,
                         });
+                      });
+                    });
                     Navigator.pop(context);
                   } else {
                     Navigator.pop(context);
@@ -115,235 +113,162 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
         });
   }
 
+  Widget buildAppDet(DocumentSnapshot document){
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document, timeSlots: timeSlots,)));
+        },
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListTile(
+              title: Text(document['shopper_name'])
+            ),
+          )
+        ),
+      ),
+    );
+  }
+
+  Widget buildAppointmentDetails(DocumentSnapshot document) {
+    String startTime;
+    String endTime;
+    String valueDrop;
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document,)));
+        },
+        child: Card(
+          margin: EdgeInsets.all(10.0),
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              child: ExpansionTile(
+                title: Text(
+                  document['shopper_name'],
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: ListTile(
+                      title: Text("Select time slot"),
+                      subtitle: DropdownButton<String>(
+                        items: timeSlots.map((String value) {
+                          return new DropdownMenuItem<String>(
+                            value: value,
+                            child: new Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (_) {
+                          valueDrop = _;
+                          setState(() {
+                            valueDrop = _;
+                            startTimeController.text = valueDrop.split('--')[0];
+                            endTimeController.text = valueDrop.split('--')[1];
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Center(
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                            side: BorderSide(color: Colors.orangeAccent)),
+                        onPressed: () {
+                          startTime = valueDrop.split('--')[0];
+                          endTime = valueDrop.split('--')[1];
+                          Firestore.instance
+                              .collection('appointments')
+                              .document(document.documentID)
+                              .updateData({
+                            'appointment_start': startTime,
+                            'appointment_end': endTime,
+                            'appointment_status': 'scheduled'
+                          }).then((value) async {
+                            await Firestore.instance
+                                .collection('appointments')
+                                .document(document.documentID)
+                                .get()
+                                .then((doc) async {
+                              var title = "Apopintment scheduled";
+                              var body = "Your appointment at " + doc['shop_name'] + " is scheduled";
+                              await Firestore.instance.collection('notifications').add({
+                                'sender_type': "shops",
+                                'receiver_uid': doc['shopper_uid'],
+                                'title': title,
+                                'body': body,
+                              });
+                            });
+                          });
+                        },
+                        color: Colors.orangeAccent,
+                        textColor: Colors.white,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: Text(
+                            "Confirm Appointment",
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildPendingShop() {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('appointments')
-              .where('appointment_status', isEqualTo: 'pending')
-              .where('target_shop', isEqualTo: widget.userData['uid'])
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return new Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Theme.of(context).accentColor,
-                  ),
-                );
-              default:
-                List<DocumentSnapshot> documents = new List();
-                documents = (snapshot.data.documents);
-                if (documents.length < 1) {
-                  return Center(
-                    child: Text("You have no appointment requests.", style: TextStyle(
-                        fontFamily: AppFontFamilies.mainFont)),
-                  );
-                } else {
-                  return new Container(
-                      child: ListView.builder(
-                          itemCount: documents.length,
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            DocumentSnapshot document = documents[index];
-                            return Card(
-                              margin: EdgeInsets.all(10.0),
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: new ListTile(
-                                  contentPadding: EdgeInsets.all(8),
-                                  onTap: () async {
-                                    String startTime;
-                                    String endTime;
-                                    String valueDrop;
-                                    showModalBottomSheet(
-                                        context: context,
-                                        builder: (context) => StatefulBuilder(
-                                          builder: (BuildContext context,
-                                              StateSetter setStateSheet) =>
-                                              SingleChildScrollView(
-                                                child: Container(
-                                                    color: Colors.grey[900],
-                                                    height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                        0.5,
-                                                    child: Column(
-                                                      children: <Widget>[
-                                                        Align(
-                                                          alignment:
-                                                          Alignment.center,
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                            children: <Widget>[
-                                                              Padding(
-                                                                padding:
-                                                                const EdgeInsets
-                                                                    .all(16.0),
-                                                                child: Icon(
-                                                                    Icons.info),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                const EdgeInsets
-                                                                    .all(16.0),
-                                                                child: Text(
-                                                                    'Fix an appointment',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                        16.0)),
-                                                              ),
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                                child: Padding(
-                                                                  padding:
-                                                                  const EdgeInsets
-                                                                      .all(
-                                                                      16.0),
-                                                                  child: Icon(
-                                                                    Icons.close,
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Divider(
-                                                          color: Colors.black26,
-                                                        ),
-                                                        SizedBox(
-                                                            height: 300,
-                                                            child: Container(
-                                                                child: Column(
-                                                                  children: <Widget>[
-                                                                    Flexible(
-                                                                      child: Padding(
-                                                                          padding: EdgeInsets
-                                                                              .fromLTRB(
-                                                                              16.0,
-                                                                              8.0,
-                                                                              16.0,
-                                                                              0),
-                                                                          child: Column(
-                                                                            children: <
-                                                                                Widget>[
-                                                                              Card(
-                                                                                  child:
-                                                                                  Padding(
-                                                                                    padding:
-                                                                                    const EdgeInsets.all(0.0),
-                                                                                    child:
-                                                                                    ListTile(
-                                                                                      title:
-                                                                                      Text("User needs : "),
-                                                                                      subtitle:
-                                                                                      Text(
-                                                                                        document['items'],
-                                                                                        overflow:
-                                                                                        TextOverflow.ellipsis,
-                                                                                        maxLines:
-                                                                                        5,
-                                                                                      ),
-                                                                                    ),
-                                                                                  )),
-                                                                              timeSlotsLoaded
-                                                                                  ? Card(
-                                                                                elevation: 2,
-                                                                                child: ListTile(
-                                                                                  title: Text("Select time slot"),
-                                                                                  subtitle: DropdownButton<String>(
-                                                                                    items: timeSlots.map((String value) {
-                                                                                      return new DropdownMenuItem<String>(
-                                                                                        value: value,
-                                                                                        child: new Text(value),
-                                                                                      );
-                                                                                    }).toList(),
-                                                                                    onChanged: (_) {
-                                                                                      valueDrop = _;
-                                                                                      setStateSheet(() {
-                                                                                        valueDrop = _;
-                                                                                        startTimeController.text = valueDrop.split('--')[0];
-                                                                                        endTimeController.text = valueDrop.split('--')[1];
-                                                                                      });
-                                                                                    },
-                                                                                  ),
-                                                                                ),
-                                                                              )
-                                                                                  : Container(),
-                                                                              Center(
-                                                                                child:
-                                                                                RaisedButton(
-                                                                                  color:
-                                                                                  Colors.cyan,
-                                                                                  child:
-                                                                                  Text("Confirm"),
-                                                                                  onPressed:
-                                                                                      () {
-                                                                                    startTime =
-                                                                                    valueDrop.split('--')[0];
-                                                                                    endTime =
-                                                                                    valueDrop.split('--')[1];
-                                                                                    Firestore.instance.collection('appointments').document(document.documentID).updateData({
-                                                                                      'appointment_start': startTime,
-                                                                                      'appointment_end': endTime,
-                                                                                      'appointment_status': 'scheduled'
-                                                                                    }).then((value) async {
-                                                                                      await Firestore.instance.collection('appointments').document(document.documentID).get().then((doc) async {
-                                                                                        var title = "Apopintment scheduled";
-                                                                                        var body = "Your appointment at " + doc['shop_name'] + " is scheduled";
-                                                                                        await Firestore.instance.collection('notifications').add({
-                                                                                          'sender_type': "shops",
-                                                                                          'receiver_uid': doc['shopper_uid'],
-                                                                                          'title': title,
-                                                                                          'body': body,
-                                                                                        });
-                                                                                      });
-                                                                                    });
-                                                                                    Navigator.pop(context);
-                                                                                  },
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          )),
-                                                                    ),
-                                                                  ],
-                                                                )))
-                                                      ],
-                                                    )),
-                                              ),
-                                        ));
-                                  },
-                                  leading: CircleAvatar(
-                                    backgroundColor: Theme.of(context).accentColor,
-                                    child: Text(document['shopper_name'][0]
-                                        .toString()
-                                        .toUpperCase()),
-                                  ),
-                                  title: Text(document['shopper_name']),
-                                  subtitle: Text("Tap to view more"),
-                                  trailing: IconButton(
-                                    icon: Icon(Icons.info),
-                                    onPressed: () {
-                                      print("Open");
-                                      List<double> pt =
-                                      gH.decode(document['shop_geohash']);
-                                      MapUtils.openMap(pt[1], pt[0]);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          }));
-                }
+      stream: Firestore.instance
+          .collection('appointments')
+          .where('appointment_status', isEqualTo: 'pending')
+          .where('target_shop', isEqualTo: widget.userData['uid'])
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Theme.of(context).accentColor,
+              ),
+            );
+          default:
+            List<DocumentSnapshot> documents = new List();
+            documents = (snapshot.data.documents);
+            if (documents.length < 1) {
+              return Center(
+                child: Text("You have no appointment requests.",
+                    style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+              );
+            } else {
+              return new Container(
+                  child: ListView.builder(
+                      itemCount: documents.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        DocumentSnapshot document = documents[index];
+                        return buildAppDet(document);
+                      }));
             }
-          },
-        ));
+        }
+      },
+    ));
   }
 
   _showInfoDialog(BuildContext context, String text) {
@@ -444,25 +369,26 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leading: IconButton(icon: Icon(Icons.close),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            child: Text("Pending Orders",
+                style: TextStyle(
+                    fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
+          ),
         ),
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Text("Pending Orders",
-              style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
-        ),
-      ),
-      body: buildPendingShop()
-      // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: buildPendingShop()
+        // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
 }
