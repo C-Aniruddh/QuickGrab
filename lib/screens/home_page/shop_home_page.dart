@@ -3,6 +3,7 @@ import 'package:app/notificationHandler.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
+import 'package:app/screens/shop_page/add_inventory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
