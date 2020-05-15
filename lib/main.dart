@@ -1,3 +1,4 @@
+import 'package:app/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:app/screens/login_page/landing_page.dart';
 
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
         accentColor: Color.fromRGBO(250, 100, 0, 1),
         brightness: Brightness.light,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: AppFontFamilies.mainFont,
       ),
       home: LandingPage(title: 'Flutter Demo Home Page'),
       routes: <String, WidgetBuilder>{
