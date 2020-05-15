@@ -91,9 +91,7 @@ class _AppointmentListState extends State<AppointmentList> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
+        automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Text(widget.title, style: TextStyle(color: Colors.black)),

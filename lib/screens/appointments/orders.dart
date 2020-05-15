@@ -14,6 +14,15 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   Widget buildBody() {
     // return buildAppointmentsDoneUser();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -22,15 +31,13 @@ class _OrderDetailsState extends State<OrderDetails> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
+        automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Text("Order Details", style: TextStyle(color: Colors.black)),
         ),
       ),
-      body: buildBody(),
+      body: SingleChildScrollView(child: buildBody()),
     );
   }
 }

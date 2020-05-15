@@ -95,7 +95,7 @@ class _AddInventoryState extends State<AddInventory> {
           );
         });
   }
-  
+
   Future<Null> _cropImage(File imageFile) async {
     croppedImage = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
@@ -424,7 +424,7 @@ class _AddInventoryState extends State<AddInventory> {
               "Item Quantity (Optional)", itemQuantityController,
               keyType: TextInputType.number, validate: false),
           customLargeTextField(Icons.description,
-              "\n\nItem Description (Optional)", itemDescriptionController,
+              "\nItem Description (Optional)", itemDescriptionController,
               validate: false),
           Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -438,7 +438,8 @@ class _AddInventoryState extends State<AddInventory> {
                     if (itemNameController.text.isNotEmpty &&
                         itemPriceController.text.isNotEmpty) {
                       _showDialog(context);
-                      String _url = await uploadFile(_image, widget.shopData['uid'] + itemNameController.text);
+                      String _url = await uploadFile(_image,
+                          widget.shopData['uid'] + itemNameController.text);
                       Firestore.instance.collection('inventory').add({
                         "shop_uid": widget.shopData['uid'],
                         "item_name": itemNameController.text,
@@ -457,8 +458,10 @@ class _AddInventoryState extends State<AddInventory> {
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Add to inventory".toUpperCase(),
-                      style: TextStyle(fontSize: 14)),
+                  child: Text(
+                    "Add to inventory".toUpperCase(),
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ),
             ),

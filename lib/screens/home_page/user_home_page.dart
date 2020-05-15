@@ -4,6 +4,7 @@ import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/shop_page/shop_page.dart';
+import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
@@ -15,9 +16,12 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:latlong/latlong.dart';
+import 'package:rating_dialog/rating_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:share/share.dart';
+import 'package:app/screens/user_options/rate_app.dart' as rateApp;
 
 class MapUtils {
   MapUtils._();
@@ -68,6 +72,9 @@ class _UserHomePageState extends State<UserHomePage> {
   TextEditingController endTimeController = new TextEditingController();
   TextEditingController otpController = new TextEditingController();
   TextEditingController _dataController = TextEditingController();
+
+  TextEditingController suggestionTextController = new TextEditingController();
+  final suggestionformKey = GlobalKey<FormState>();
 
   void setUserData(String uid) async {
     token = await FirebaseNotifications().setUpFirebase();
@@ -311,9 +318,11 @@ class _UserHomePageState extends State<UserHomePage> {
       offers.length < 1 ? SizedBox(height: 1) : offersView(),
       Divider(),
       // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-      upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+      upcomingAppointments.length < 1
+          ? SizedBox(height: 1)
+          : buildOrderScheduledCarousel(),
       upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-      upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
+      upcomingAppointments.length < 1 ? SizedBox(height: 1) : Divider(),
       userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
       nearbyView()
     ]));
@@ -1202,6 +1211,32 @@ class _UserHomePageState extends State<UserHomePage> {
     return newData;
   }
 
+  showRatingDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true, // set to false if you want to force a rating
+        builder: (context) {
+          return RatingDialog(
+            icon: const FlutterLogo(size: 100, colors: Colors.red),
+            title: "Rate the App",
+            description: "Tap a star to set your rating.",
+            submitButton: "SUBMIT",
+            alternativeButton: "Contact us instead?",
+            positiveComment: "We are glad to hear that.",
+            negativeComment: "We're sad to hear that.",
+            accentColor: Colors.red,
+            onSubmitPressed: (int rating) {
+              print("onSubmitPressed: rating = $rating");
+              // TODO: open the app's page on Google Play / Apple App Store
+            },
+            onAlternativePressed: () {
+              print("onAlternativePressed: do something");
+              // TODO: maybe you want the user to contact you instead of rating a bad review
+            },
+          );
+        });
+  }
+
   Widget buildUserProfile() {
     return SingleChildScrollView(
       child: Column(
@@ -1302,7 +1337,10 @@ class _UserHomePageState extends State<UserHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Share.share(
+                        'Check out QuickGrab to effectively maintain social distancing when buying items at shops.');
+                  },
                   child: ListTile(
                       leading: Icon(Icons.mail),
                       title: Text("Invite Friends",
@@ -1312,7 +1350,18 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Divider(),
                 InkWell(
-                  onTap: () {},
+                  onTap: () async {
+                    final Uri params = Uri(
+                      scheme: 'mailto',
+                      path: 'adityachakraborti14@gmail.com',
+                    );
+                    String url = params.toString();
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      print('Could not launch $url');
+                    }
+                  },
                   child: ListTile(
                       leading: Icon(Icons.headset_mic),
                       title: Text("Customer Support",
@@ -1322,7 +1371,9 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Divider(),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    showRatingDialog(context);
+                  },
                   child: ListTile(
                       leading: Icon(Icons.stars),
                       title: Text("Rate our app",
@@ -1332,7 +1383,19 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Divider(),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => CustomDialog(
+                        title: "Suggestions",
+                        description: "Type in your suggestions here.",
+                        buttonText: "Okay",
+                        hint: "Type in your suggestions here.",
+                        formkey: suggestionformKey,
+                        textController: suggestionTextController,
+                      ),
+                    );
+                  },
                   child: ListTile(
                       leading: Icon(Icons.edit),
                       title: Text("Make a suggestion",
