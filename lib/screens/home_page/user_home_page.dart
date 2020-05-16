@@ -942,8 +942,8 @@ class _UserHomePageState extends State<UserHomePage> {
                     Padding(
                       padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                       child: Text(
-                        document['appointment_data'] != null
-                            ? document['appointment_data']
+                        document['appointment_date'] != null
+                            ? document['appointment_date']
                             : "Pending",
                         style: TextStyle(fontSize: 16.0),
                       ),
@@ -1036,6 +1036,18 @@ class _UserHomePageState extends State<UserHomePage> {
             ),
             _buildInvoiceContentCompressed(document['items']),
             Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  child: Divider(
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -1100,7 +1112,10 @@ class _UserHomePageState extends State<UserHomePage> {
                     DocumentSnapshot document = documents[index];
                     int total = 0;
                     for (var i = 0; i < document['items'].length; i++) {
-                      total = total + int.parse(document['items'][i]['cost']);
+                      total = total +
+                          (int.parse(document['items'][i]['cost']) *
+                              int.parse(
+                                  document['items'][i]['quantity'].toString()));
                     }
                     return scheduledAppointments(document, total);
                   },
@@ -1199,7 +1214,10 @@ class _UserHomePageState extends State<UserHomePage> {
                     DocumentSnapshot document = documents[index];
                     int total = 0;
                     for (var i = 0; i < document['items'].length; i++) {
-                      total = total + int.parse(document['items'][i]['cost']);
+                      total = total +
+                          (int.parse(document['items'][i]['cost']) *
+                              int.parse(
+                                  document['items'][i]['quantity'].toString()));
                     }
                     return Card(
                       margin: EdgeInsets.all(10.0),
@@ -1207,10 +1225,63 @@ class _UserHomePageState extends State<UserHomePage> {
                       child: Container(
                         child: ExpansionTile(
                           title: Text(
-                            document['shop_name'],
+                            document['shop_name'] + "  on  " + document['appointment_date'],
                             style: TextStyle(fontSize: 16.0),
                           ),
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                      child: Text(
+                                        "Date:",
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                      child: Text(
+                                        document['appointment_date'] != null
+                                            ? document['appointment_date']
+                                            : "Pending",
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                  child: Text(
+                                    "Time Slot:",
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                  child: Text(
+                                    document['appointment_start'] != null &&
+                                            document['appointment_end'] != null
+                                        ? document['appointment_start'] +
+                                            " - " +
+                                            document['appointment_end']
+                                        : "Pending",
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Divider(
+                              color: Colors.grey,
+                            ),
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(
@@ -1254,6 +1325,19 @@ class _UserHomePageState extends State<UserHomePage> {
                               ),
                             ),
                             _buildInvoiceContentCompressed(document['items']),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20.0),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  child: Divider(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: Row(

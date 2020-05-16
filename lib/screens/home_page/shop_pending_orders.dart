@@ -127,7 +127,18 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: ListTile(
-              title: Text(document['shopper_name'])
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(document['shopper_name'], overflow: TextOverflow.ellipsis,),
+                ],
+              ),
+              subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(document['items'].length.toString() + "  items")
+                ],
+              ),
             ),
           )
         ),
