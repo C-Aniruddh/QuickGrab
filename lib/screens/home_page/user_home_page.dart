@@ -4,6 +4,7 @@ import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
+import 'package:app/screens/search_page.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -1973,7 +1974,7 @@ class _UserHomePageState extends State<UserHomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showUnderConstructionDialog(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(userData: userData,)));
          },
         tooltip: 'Search',
         child: Icon(Icons.search),
