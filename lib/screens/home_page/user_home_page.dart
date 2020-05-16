@@ -4,7 +4,6 @@ import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
-import 'package:app/screens/shop_page/shop_page.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +23,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:share/share.dart';
 import 'package:app/screens/user_options/rate_app.dart' as rateApp;
 import 'package:app/screens/utils/fab_bottom_app_bar.dart';
+import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
 
 class MapUtils {
   MapUtils._();
@@ -1480,6 +1480,32 @@ class _UserHomePageState extends State<UserHomePage> {
         });
   }
 
+  _showUnderConstructionDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Center(
+                child: Container(
+                  child: Text("This page is currently under construction."),
+                ),
+              )
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Okay',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   _showInfoDialog(BuildContext context, String text) {
     return showDialog(
         context: context,
@@ -1928,7 +1954,9 @@ class _UserHomePageState extends State<UserHomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () { },
+        onPressed: () {
+          _showUnderConstructionDialog(context);
+         },
         tooltip: 'Search',
         child: Icon(Icons.search),
         elevation: 2.0,
