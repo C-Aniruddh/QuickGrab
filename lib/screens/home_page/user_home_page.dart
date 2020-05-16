@@ -23,6 +23,7 @@ import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:share/share.dart';
 import 'package:app/screens/user_options/rate_app.dart' as rateApp;
+import 'package:app/screens/utils/fab_bottom_app_bar.dart';
 
 class MapUtils {
   MapUtils._();
@@ -1896,40 +1897,41 @@ class _UserHomePageState extends State<UserHomePage> {
           actions: returnActionButton()),
       body:
           userLoaded ? buildBody() : Center(child: CircularProgressIndicator()),
-      bottomNavigationBar: CubertoBottomBar(
-        inactiveIconColor: Theme.of(context).accentColor,
-        tabStyle: CubertoTabStyle.STYLE_FADED_BACKGROUND,
-        // By default its CubertoTabStyle.STYLE_NORMAL
-        selectedTab: currentPage,
-        // By default its 0, Current page which is fetched when a tab is clickd, should be set here so as the change the tabs, and the same can be done if willing to programmatically change the tab.
-        tabs: [
-          TabData(
+      bottomNavigationBar: FABBottomAppBar(
+        notchedShape: CircularNotchedRectangle(),
+        centerItemText: '',
+        color: Colors.grey,
+        selectedColor: Colors.orange,
+        items: [
+          FABBottomAppBarItem(
             iconData: Icons.home,
-            title: "Nearby",
-            tabColor: Theme.of(context).accentColor,
+            text: "Nearby",
           ),
-          TabData(
+          FABBottomAppBarItem(
             iconData: Icons.av_timer,
-            title: "Appointments",
-            tabColor: Theme.of(context).accentColor,
+            text: "Orders",
           ),
-          TabData(
+          FABBottomAppBarItem(
             iconData: Icons.library_books,
-            title: "Invoices",
-            tabColor: Theme.of(context).accentColor,
+            text: "Invoices",
           ),
-          TabData(
+          FABBottomAppBarItem(
             iconData: Icons.supervisor_account,
-            title: "Profile",
-            tabColor: Theme.of(context).accentColor,
+            text: "Profile",
           ),
         ],
-        onTabChangedListener: (position, title, color) {
+        onTabSelected: (index) {
           setState(() {
-            currentPage = position;
-            currentTitle = title;
+            currentPage = index;
           });
         },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () { },
+        tooltip: 'Search',
+        child: Icon(Icons.search),
+        elevation: 2.0,
       ),
     );
   }
