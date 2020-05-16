@@ -70,6 +70,18 @@ class _UserHomePageState extends State<UserHomePage> {
 
   String token;
 
+  List<String> _industryListNoLiqour = <String>[
+    'Agriculure',
+    'Grocery',
+    'Manufacturing',
+    'Oil and Gas',
+    'Pharmaceuticals',
+    'Retail',
+    'Stationary',
+    'Vegetables and Fruits',
+    'Other'
+  ];
+
   TextEditingController startTimeController = new TextEditingController();
   TextEditingController endTimeController = new TextEditingController();
   TextEditingController otpController = new TextEditingController();
@@ -314,15 +326,15 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-      addressView(),
-      offers.length < 1 ? SizedBox(height: 1) : offersView(),
-      Divider(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
-      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-      nearbyView()
+            addressView(),
+            offers.length < 1 ? SizedBox(height: 1) : offersView(),
+            Divider(),
+            // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
+            //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+            //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
+            // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
+            userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+            nearbyView()
     ]));
   }
 
@@ -608,8 +620,14 @@ class _UserHomePageState extends State<UserHomePage> {
 
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
+      stream: userData.data['is21'] ? Firestore.instance
           .collection('shops')
+          .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+          .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .snapshots()
+          : Firestore.instance
+          .collection('shops')
+          .where('industry', whereIn: _industryListNoLiqour)
           .where("shop_geohash", isGreaterThanOrEqualTo: lower)
           .where("shop_geohash", isLessThanOrEqualTo: upper)
           .snapshots(),

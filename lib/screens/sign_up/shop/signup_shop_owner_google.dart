@@ -34,21 +34,17 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
   List<String> _industryList = <String>[
     'Select Industry',
     'Agriculure',
-    'Consurmer durables',
-    'Education',
-    'Engineering and capital goods',
-    'Gems and Jwellery',
     'Grocery',
     'Liquor',
     'Manufacturing',
     'Oil and Gas',
     'Pharmaceuticals',
     'Retail',
-    'Stationary'
-    'Textile',
+    'Stationary',
     'Vegetables and Fruits',
     'Other'
   ];
+
   String _industrySelect = 'Select Industry';
 
   Future<void> _signInAnonymously() async {

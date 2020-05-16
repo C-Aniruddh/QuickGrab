@@ -59,12 +59,17 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   String token;
 
+  bool isOverflow = false;
+  bool hasLiquor = false;
+  bool hasOrderedIn24Hours = false;
+
   TextEditingController startTimeController = new TextEditingController();
   TextEditingController endTimeController = new TextEditingController();
   TextEditingController otpController = new TextEditingController();
   TextEditingController _dataController = TextEditingController();
 
   List<String> timeSlots;
+  double total_liquor = 0;
 
   Future<void> _signOut() async {
     try {
@@ -101,8 +106,73 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                 fontSize: 18,
                 fontFamily: AppFontFamilies.mainFont)),
           ),
-              orderConfirmView()
+              orderConfirmView(),
+              availabilityNotice(),
+              hasOrderedIn24Hours ? orderWithin24() : SizedBox(height: 1),
+              hasLiquor ? liquorID() : SizedBox(height: 1),
+              isOverflow ? overflowWarning() : SizedBox(height: 1),
     ]));
+  }
+
+  Widget orderWithin24(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+              leading: Icon(Icons.warning),
+              title: Text("You have already made an order for liquor the last 24 hours. Please wait before trying again.")
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget overflowWarning(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Icon(Icons.warning),
+            title: Text("You are ordering more than 2L of alcohol. Kindly reduce the quantity.")
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget liquorID(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+              leading: Icon(Icons.info),
+              title: Text("Kindly carry your ID proof (with DOB) with you for collecting your order."),
+              subtitle: Text("Permit, if required, will be added to the cost at the shop."),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget availabilityNotice(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: Icon(Icons.info),
+            title: Text("Note: This is not a confirmation of purchase. Items are subject to availibility at the shop.")
+          ),
+        ),
+      ),
+    );
   }
 
 
@@ -178,6 +248,49 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     }
 
     return total.toString();
+  }
+
+  getNumbers(String input){
+    var doubleRE = RegExp(r"-?(?:\d*\.)?\d+(?:[eE][+-]?\d+)?");
+    var numbers = doubleRE.allMatches(input).map((m) => double.parse(m[0])).toList();
+    return numbers;
+  }
+
+  bool checkLiquorOverflow(){
+    for (var i = 0; i < widget.items.length; i++){
+      var item = widget.items[i];
+      if (item['product']['shop_industry'] == "Liquor"){
+        print(getNumbers(item['product']['item_quantity'].toString()));
+        print("Inside loop");
+        double alcohol_quantity;
+        try {
+          alcohol_quantity = getNumbers(item['product']['item_quantity'].toString())[0];
+        } catch (exception) {
+          alcohol_quantity = 0;
+        }
+
+        double item_alc_quantity = item['quantity'] * alcohol_quantity;
+        print(alcohol_quantity);
+
+        total_liquor = total_liquor + item_alc_quantity;
+      }
+    }
+
+    if (total_liquor > 2000){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool checkLiquor(){
+    for (var i = 0; i < widget.items.length; i++){
+      var item = widget.items[i];
+      if (item['product']['shop_industry'] == "Liquor"){
+        return true;
+      }
+    }
+    return false;
   }
 
 
@@ -377,8 +490,37 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     );
   }
 
+  bool check24hrsHistory(){
+    var date = new DateTime.now();
+    var date24 = new DateTime(date.year, date.month, date.day - 1);
+    print(date);
+    print(date24);
+    bool isIn24 = false;
+    Firestore.instance.collection('appointments')
+        .where('shopper_uid', isEqualTo: widget.userData.documentID)
+        .where('timestamp', isGreaterThan: date24)
+        .getDocuments()
+        .then((documents){
+          for(var i=0; i < documents.documents.length; i++){
+            var items = documents.documents[i].data['items'];
+            for (var j = 0; j < items.length; j++){
+              var item = items[j];
+              if (item['product']['shop_industry'] == 'Liquor'){
+                isIn24 = true;
+              }
+            }
+          }
+    });
+    return isIn24;
+  }
+
   @override
   void initState() {
+    setState(() {
+      hasLiquor = checkLiquor();
+      isOverflow = checkLiquorOverflow();
+      // hasOrderedIn24Hours = check24hrsHistory();
+    });
     super.initState();
   }
 
@@ -457,72 +599,78 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                           borderRadius: new BorderRadius.circular(30.0),
                         ),
                         onPressed: () async {
-                          _showInfoDialog(context, "Your order is being placed");
-                          var rng = new Random();
-                          var now = new DateTime.now();
 
-                          List<String> shops = [];
-                          for (var i = 0; i < widget.items.length; i ++) {
-                            var item = widget.items[i];
-                            String shop_uid = item['product']['shop_uid'];
-                            if (!shops.contains(shop_uid)) {
-                              shops.add(shop_uid);
-                            }
-                          }
+                          if(!isOverflow){
 
-                          for (var i = 0; i < shops.length; i ++) {
-                            var orderItems = [];
-                            for (var j = 0; j < widget.items.length; j++) {
-                              var item = widget.items[j];
+                            _showInfoDialog(context, "Your order is being placed");
+                            var rng = new Random();
+                            var now = new DateTime.now();
+
+                            List<String> shops = [];
+                            for (var i = 0; i < widget.items.length; i ++) {
+                              var item = widget.items[i];
                               String shop_uid = item['product']['shop_uid'];
-                              if (shop_uid == shops[i]) {
-                                orderItems.add(item);
+                              if (!shops.contains(shop_uid)) {
+                                shops.add(shop_uid);
                               }
                             }
 
-                            await Firestore.instance.collection('shops')
-                                .document(shops[i])
-                                .get()
-                                .then((shopDoc) async {
-                              await Firestore.instance.collection(
-                                  'appointments')
-                                  .add({'timestamp': now,
-                                'items': orderItems,
-                                'target_shop': shopDoc.data['uid'],
-                                'shopper_uid': widget.userData['uid'],
-                                'shopper_name': widget.userData['name'],
-                                'shop_name': shopDoc.data['shop_name'],
-                                'shop_geohash': shopDoc.data['shop_geohash'],
-                                'appointment_status': 'pending',
-                                'appointment_start': null,
-                                'appointment_end': null,
-                                'appointment_date': null,
-                                'otp': (rng.nextInt(10000) + 1000).toString()
-                              }).then((value) async {
-                                String title = "New appointment request";
-                                String body = widget.userData['name'] +
-                                    " has requested an appointment.";
+                            for (var i = 0; i < shops.length; i ++) {
+                              var orderItems = [];
+                              for (var j = 0; j < widget.items.length; j++) {
+                                var item = widget.items[j];
+                                String shop_uid = item['product']['shop_uid'];
+                                if (shop_uid == shops[i]) {
+                                  orderItems.add(item);
+                                }
+                              }
+
+                              await Firestore.instance.collection('shops')
+                                  .document(shops[i])
+                                  .get()
+                                  .then((shopDoc) async {
                                 await Firestore.instance.collection(
-                                    'notifications')
-                                    .add({'sender_type': "users",
-                                  'receiver_uid': shopDoc.data['uid'],
-                                  'title': title,
-                                  'body': body,
-                                  'read': false,
+                                    'appointments')
+                                    .add({'timestamp': now,
+                                  'items': orderItems,
+                                  'target_shop': shopDoc.data['uid'],
+                                  'shopper_uid': widget.userData['uid'],
+                                  'shopper_name': widget.userData['name'],
+                                  'shop_name': shopDoc.data['shop_name'],
+                                  'shop_geohash': shopDoc.data['shop_geohash'],
+                                  'appointment_status': 'pending',
+                                  'appointment_start': null,
+                                  'appointment_end': null,
+                                  'appointment_date': null,
+                                  'otp': (rng.nextInt(10000) + 1000).toString()
+                                }).then((value) async {
+                                  String title = "New appointment request";
+                                  String body = widget.userData['name'] +
+                                      " has requested an appointment.";
+                                  await Firestore.instance.collection(
+                                      'notifications')
+                                      .add({'sender_type': "users",
+                                    'receiver_uid': shopDoc.data['uid'],
+                                    'title': title,
+                                    'body': body,
+                                    'read': false,
+                                  });
                                 });
                               });
-                            });
 
-                            await Firestore.instance.collection('cart')
-                                .document(widget.userData.documentID)
-                                .setData({'cart': []});
+                              await Firestore.instance.collection('cart')
+                                  .document(widget.userData.documentID)
+                                  .setData({'cart': []});
 
-                            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
 
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPaymentPage(items: cartItems)));
+                            }
+                          } else {
+                            _showInfoDialog(context, "There is a problem with your order. Please check.");
                           }
 
-                        },
+                            // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPaymentPage(items: cartItems)));
+                          },
                         child: ListTile(
                             title: Text("Complete Order", style: TextStyle(color: Colors.white, fontFamily: AppFontFamilies.mainFont)),
                             trailing: Icon(Icons.arrow_forward_ios, color: Colors.white,)

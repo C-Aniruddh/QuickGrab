@@ -132,7 +132,7 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                                   fontFamily:
                                   AppFontFamilies.mainFont)),
                                 subtitle:   Text(
-                                  "₹" + filterList[index].data['item_price'] + "  |  Available: " + filterList[index].data['item_quantity'].toString(),
+                                  "₹" + filterList[index].data['item_price'] + "  |  Size: " + filterList[index].data['item_quantity'].toString(),
                                   style: TextStyle(
                                       fontFamily:
                                       AppFontFamilies.mainFont),

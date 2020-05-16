@@ -367,6 +367,14 @@ class _AddInventoryState extends State<AddInventory> {
     );
   }
 
+  String itemQu(){
+    if (widget.shopData.data['industry'] == 'Liquor'){
+      return "Item Quantity (in ml) (e.g 1000ml)";
+    } else {
+      return "Item Quantity (1 Dozen, 1kg, 500gm, etc)";
+    }
+  }
+
   Widget buildBody() {
     return Form(
       key: _formKey,
@@ -482,10 +490,10 @@ class _AddInventoryState extends State<AddInventory> {
                 )),
           ),
           customTextField(Icons.format_list_numbered,
-              "Item Quantity (Optional)", itemQuantityController,
-              keyType: TextInputType.number, validate: false),
+              itemQu(), itemQuantityController,
+              keyType: TextInputType.text, validate: false),
           customLargeTextField(Icons.description,
-              "\nItem Description (Optional)", itemDescriptionController,
+              "Item Description (Optional)", itemDescriptionController,
               validate: false),
           Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -510,6 +518,7 @@ class _AddInventoryState extends State<AddInventory> {
                         "item_quantity": itemQuantityController.text,
                         "item_description": itemDescriptionController.text,
                         "item_category": _categorySelect,
+                        "shop_industry": widget.shopData['industry'],
                         "img_url": _url
                       }).then((result) {
                         Firestore.instance.collection('shops')

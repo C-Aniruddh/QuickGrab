@@ -21,12 +21,15 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   TextEditingController _phoneNumberController = TextEditingController();
+  TextEditingController _birthdateController = TextEditingController();
   TextEditingController _userAddressController = TextEditingController();
 
   String apiKey = "AIzaSyC8mQe0t6T0yJz1DJNW9w0nKgUzKx-aCHM";
   String userAddress = "";
   LatLng userCoordinates;
   String userGeoHash = "";
+
+  DateTime selectedDate = DateTime.now();
 
   Future<void> _signInAnonymously() async {
     try {
@@ -63,6 +66,32 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
     );
   }
 
+  int calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    int month1 = currentDate.month;
+    int month2 = birthDate.month;
+    if (month2 > month1) {
+      age--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = birthDate.day;
+      if (day2 > day1) {
+        age--;
+      }
+    }
+    return age;
+  }
+
+  bool isTwentyOne(){
+    int age = calculateAge(selectedDate);
+    if (age >= 21){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<String> signInWithGoogle() async {
     if (userAddress == "") {
       showAlertDialog(context, "Invalid address", "Please check the entered address.");
@@ -90,6 +119,9 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
       Firestore.instance.collection('uid_type').document(user.uid)
           .setData({'type': 'user'}, merge: true);
 
+      Firestore.instance.collection('cart').document(user.uid)
+          .setData({'cart': []}, merge: true);
+
       Firestore.instance.collection('users').document(user.uid)
           .setData({
         'phone_number': _phoneNumberController.text,
@@ -100,8 +132,11 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
         'lat': userCoordinates.latitude,
         'lon': userCoordinates.longitude,
         'name': user.displayName,
+        'dob': selectedDate,
+        'is21': isTwentyOne(),
         'favorites': []
       }, merge: true);
+
 
       assert(user.uid == currentUser.uid);
     }
@@ -169,6 +204,19 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
         ));
   }
 
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(1930, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        _birthdateController.text = selectedDate.day.toString() + "/" + selectedDate.month.toString() + '/' + selectedDate.year.toString();
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,6 +259,64 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
                   },
                   child: customTextField(Icons.location_on, "Home Location", _userAddressController, enabled: false)),
             ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: InkWell(
+              onTap: (){
+                _selectDate(context);
+              },
+              child: Container(
+                  height: 56.0,
+                  margin: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                  child: new Container(
+                    padding:
+                    const EdgeInsets.only(left: 8, right: 5),
+                    width: MediaQuery.of(context).size.width * .90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(32),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black54,
+                          blurRadius: 1.0,
+                          // has the effect of softening the shadow
+                          spreadRadius: 0.0,
+                          // has the effect of extending the shadow
+                          offset: Offset(
+                            0.0, // horizontal, move right 10
+                            0.0, // vertical, move down 10
+                          ),
+                        )
+                      ],
+                    ),
+                    child: new Row(
+                      children: <Widget>[
+                        new Container(
+                          child: new IconButton(
+                              icon: Icon(Icons.cake),
+                              onPressed: null),
+                        ),
+                        new Flexible(
+                          child: TextFormField(
+                            enabled: false,
+                            keyboardType: TextInputType.text,
+                            decoration: new InputDecoration
+                                .collapsed(
+                                hintText: "Your date of birth",
+                                hintStyle: TextStyle(
+                                  fontFamily:
+                                  AppFontFamilies.mainFont,)),
+                            controller: _birthdateController,
+                            style: new TextStyle(
+                              fontFamily: AppFontFamilies.mainFont,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ),
+          ),
 
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
