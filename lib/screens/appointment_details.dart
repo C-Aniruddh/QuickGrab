@@ -7,11 +7,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../fonts.dart';
 
 class AppointmentDetails extends StatefulWidget {
-  AppointmentDetails({Key key, this.appointmentData, this.timeSlots})
+  AppointmentDetails({Key key, this.appointmentData, this.timeSlots, this.shopScheduled,
+  this.shopData})
       : super(key: key);
 
   final DocumentSnapshot appointmentData;
   final List<String> timeSlots;
+  final List<DocumentSnapshot> shopScheduled;
+  final DocumentSnapshot shopData;
 
   @override
   _AppointmentDetailsState createState() => _AppointmentDetailsState();
@@ -31,6 +34,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
   DateTime selectedDate = DateTime.now();
   bool datePicked = false;
+
+  List<String> remainingSlots;
 
   Future<void> _signOut() async {
     try {
@@ -159,6 +164,42 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     }
 
     return total.toString();
+  }
+
+  List<String> getStartTimes(){
+    List<String> startTimesAll = [];
+    for(var i = 0; i < widget.timeSlots.length; i++){
+      String startTime = widget.timeSlots[i].split('--')[0];
+      startTimesAll.add(startTime);
+    }
+    return startTimesAll;
+  }
+
+  int countOccurrencesUsingWhereMethod(List<String> list, String element) {
+    if (list == null || list.isEmpty) {
+      return 0;
+    }
+    var foundElements = list.where((e) => e == element);
+    return foundElements.length;
+  }
+
+  List<String> getLimits(){
+    List<String> startTimes = [];
+    for (var i=0; i<widget.shopScheduled.length; i++){
+      startTimes.add(widget.shopScheduled[i].data['appointment_start']);
+    }
+
+    List<String> remaningSlots = [];
+    List<String> allStartTimes = getStartTimes();
+
+    for (var i = 0; i < allStartTimes.length; i++){
+      if (startTimes.contains(allStartTimes[i])){
+        remaningSlots.add(widget.timeSlots[i] + "-- Remaining Slots (" + (widget.shopData.data['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i])).toString() + ")");
+      } else {
+        remaningSlots.add(widget.timeSlots[i] + "-- Remaining Slots (" + widget.shopData.data['limit'].toString() + ")");
+      }
+    }
+    return remaningSlots;
   }
 
   Widget scheduledAppointments(DocumentSnapshot document, String total) {
@@ -381,7 +422,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                 overflow: TextOverflow.ellipsis,
               ),
               value: selectedTimeSlot,
-              items: widget.timeSlots.map((String value) {
+              items: remainingSlots.map((String value) {
                 return new DropdownMenuItem<String>(
                   value: value,
                   child: new Text(value),
@@ -463,6 +504,13 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    remainingSlots = getLimits();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -483,7 +531,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
           ),
         ),
-        body: appointmentView(context)
+        body: SingleChildScrollView(child: appointmentView(context))
         // This trailing comma makes auto-formatting nicer for build methods.
         );
   }

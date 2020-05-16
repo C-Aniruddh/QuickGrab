@@ -82,31 +82,26 @@ class _NotificationsViewState extends State<NotificationsView> {
                             child:
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ListTile(
-                                    leading: Icon(Icons.notifications),
-                                      subtitle: Text(
-                                          filterList[index].data['body'],
-                                          style: TextStyle(
-                                              fontFamily:
-                                              AppFontFamilies.mainFont)),
-                                      title: Text(
-                                          filterList[index].data['title'],
-                                          style: TextStyle(
-                                              fontFamily:
-                                              AppFontFamilies.mainFont)),
-                                      trailing: filterList[index].data['read'] ?
-                                      SizedBox(width: 10)
-                                          :Badge(
-                                        badgeContent: Text("NEW", style: TextStyle(
-                                          color: Colors.white,
-                                            fontFamily:
-                                            AppFontFamilies.mainFont)),
-                                      )
-                                  ),
-                                ),
+                              child: ListTile(
+                                leading: Icon(Icons.notifications),
+                                  subtitle: Text(
+                                      filterList[index].data['body'],
+                                      style: TextStyle(
+                                          fontFamily:
+                                          AppFontFamilies.mainFont)),
+                                  title: Text(
+                                      filterList[index].data['title'],
+                                      style: TextStyle(
+                                          fontFamily:
+                                          AppFontFamilies.mainFont)),
+                                  trailing: filterList[index].data['read'] ?
+                                  SizedBox(width: 10)
+                                      :Badge(
+                                    badgeContent: Text("NEW", style: TextStyle(
+                                      color: Colors.white,
+                                        fontFamily:
+                                        AppFontFamilies.mainFont)),
+                                  )
                               ),
                             )
                         );

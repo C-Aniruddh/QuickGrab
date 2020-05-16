@@ -121,7 +121,16 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
       padding: const EdgeInsets.all(16.0),
       child: InkWell(
         onTap: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document, timeSlots: timeSlots,)));
+          if(shopScheduled == null){
+            Firestore.instance.collection('appointments')
+                .where('target_shop', isEqualTo: widget.userData.documentID)
+                .where('appointment_status', isEqualTo: "scheduled")
+                .getDocuments()
+                .then((docs) => {
+              shopScheduled = docs.documents
+            });
+          }
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document, timeSlots: timeSlots, shopScheduled: shopScheduled, shopData: widget.userData,)));
         },
         child: Card(
           child: Padding(
@@ -379,6 +388,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
     // TODO: implement initState
     Firestore.instance.collection('appointments')
         .where('target_shop', isEqualTo: widget.userData.documentID)
+        .where('appointment_status', isEqualTo: "scheduled")
         .getDocuments()
         .then((docs) => {
         shopScheduled = docs.documents
