@@ -203,8 +203,7 @@ class _ShopPageState extends State<ShopPage> {
         child: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance
               .collection('products')
-              .where(FieldPath.documentId,
-                whereIn: widget.shopDetails.data['inventory'])
+              .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return new Text('Error: ${snapshot.error}');

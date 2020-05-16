@@ -75,8 +75,8 @@ class _CartPageState extends State<CartPage> {
               ),
               title: Text(item['product']['item_name'],
                   style: TextStyle(
-                      fontSize: 24, fontFamily: AppFontFamilies.mainFont)),
-              subtitle: Text(item['product']['item_price'],
+                      fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+              subtitle: Text("₹" + item['product']['item_price'],
                   style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
