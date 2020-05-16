@@ -876,7 +876,9 @@ class _UserHomePageState extends State<UserHomePage> {
     List<Widget> columnContent = [];
 
     for (dynamic content in invoiceData) {
+      print(content);
       List product_data = content['product'].values.toList();
+      print(product_data);
       columnContent.add(
         Padding(
           padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -886,7 +888,7 @@ class _UserHomePageState extends State<UserHomePage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
-                  product_data[3].toString(),
+                  content['product']['item_name'].toString(),
                   style: TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1149,7 +1151,7 @@ class _UserHomePageState extends State<UserHomePage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Text(
-                  product_data[3].toString(),
+                  content['product']['item_name'].toString(),
                   style: TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
                 ),
