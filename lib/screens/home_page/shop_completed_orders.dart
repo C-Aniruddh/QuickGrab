@@ -236,7 +236,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
-                  product_data[3].toString(),
+                  content['product']['item_name'].toString(),
                   style: TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
                 ),
