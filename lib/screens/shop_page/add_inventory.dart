@@ -287,7 +287,7 @@ class _AddInventoryState extends State<AddInventory> {
                 validator: (value) {
                   if (validate) {
                     if (value.isEmpty) {
-                      return "This field cannot be empty.";
+                      return null;
                     } else {
                       return null;
                     }
@@ -496,14 +496,17 @@ class _AddInventoryState extends State<AddInventory> {
                     side: BorderSide(color: Colors.orangeAccent)),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
-                    if (itemNameController.text.isNotEmpty &&
-                        itemPriceController.text.isNotEmpty) {
+                    if (itemNameController.text.isNotEmpty) {
                       _showDialog(context);
+                      String itemPrice = "NA";
+                      if (!itemPriceController.text.isEmpty){
+                        itemPrice = itemPriceController.text.toString();
+                      }
                       String _url = await uploadFile(_image, widget.shopData['uid'] + itemNameController.text);
                       Firestore.instance.collection('products').add({
                         "shop_uid": widget.shopData['uid'],
                         "item_name": itemNameController.text,
-                        "item_price": itemPriceController.text,
+                        "item_price": itemPrice,
                         "item_quantity": itemQuantityController.text,
                         "item_description": itemDescriptionController.text,
                         "item_category": _categorySelect,

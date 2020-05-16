@@ -97,12 +97,177 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
             children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text("Shop accepts payment through", style:TextStyle(
+            child: Text("Confirm your order", style:TextStyle(
                 fontSize: 18,
                 fontFamily: AppFontFamilies.mainFont)),
           ),
-          dashboardGrid()
+              orderConfirmView()
     ]));
+  }
+
+
+  _buildInvoiceContentCompressed(invoiceData) {
+    List<Widget> columnContent = [];
+
+    for (dynamic content in invoiceData) {
+      List product_data = content['product'].values.toList();
+      columnContent.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  product_data[3].toString(),
+                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['quantity'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['cost'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Column column = Column(
+      children: columnContent,
+    );
+
+    return column;
+  }
+
+  String totalAmount(){
+    double total = 0;
+
+    for (var i = 0; i < widget.items.length; i++) {
+      var item = widget.items[i];
+
+      if (item['cost'] == "NA"){
+        return "NA";
+      }
+
+      total = total +
+          (int.parse(item['cost']) *
+              int.parse(
+                  item['quantity'].toString()));
+    }
+
+    return total.toString();
+  }
+
+
+  Widget orderConfirmView(){
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  "Item",
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              ),
+              Row(
+                mainAxisAlignment:
+                MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding:
+                    EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Quantity",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding:
+                    EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(
+                      "Price",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+        _buildInvoiceContentCompressed(widget.items),
+        Padding(
+          padding: const EdgeInsets.only(right: 20.0),
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              width:
+              MediaQuery.of(context).size.width * 0.4,
+              child: Divider(
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  "Total",
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              ),
+              Text(
+                "|",
+                style: TextStyle(fontSize: 16.0),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  totalAmount().toString(),
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget dashboardGrid() {

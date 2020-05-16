@@ -3,6 +3,7 @@ import 'package:app/notificationHandler.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
+import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
 import 'package:app/screens/home_page/shop_my_inventory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -89,6 +90,74 @@ class _ShopHomePageState extends State<ShopHomePage> {
     });
 
   }
+
+  Widget notificationIcon(BuildContext context) {
+    if (userLoaded) {
+      return new StreamBuilder(
+          stream: Firestore.instance
+              .collection('notifications')
+              .where('receiver_uid', isEqualTo: userData.documentID)
+              .where('read', isEqualTo: false)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData){
+              return IconButton(
+                icon: Icon(Icons.notifications,
+                    color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationsView(userData: userData)));
+                },
+              );
+            }
+            if (snapshot.data.documents.length < 1) {
+              return IconButton(
+                icon: Icon(Icons.notifications,
+                    color: Theme.of(context).accentColor),
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationsView(userData: userData)));
+                },
+              );
+            } else {
+              return new Badge(
+                position: BadgePosition.topRight(right: 4, top: 4),
+                badgeContent: SizedBox(height: 20),
+                child: new IconButton(
+                  icon: Icon(Icons.notifications,
+                      color: Theme
+                          .of(context)
+                          .accentColor),
+                  onPressed: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                NotificationsView(userData: userData)));
+                  },
+                ),
+              );
+            }
+          });
+    } else {
+      return new IconButton(
+        icon: Icon(Icons.notifications, color: Theme.of(context).accentColor),
+        onPressed: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => NotificationsView(userData: userData)));
+        },
+      );
+    }
+  }
+
 
 
   Widget addressView() {
@@ -354,6 +423,15 @@ class _ShopHomePageState extends State<ShopHomePage> {
               style: TextStyle(
                   fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
         ),
+        actions: [
+          notificationIcon(context),
+          IconButton(icon: Icon(Icons.power_settings_new, color: Theme.of(context).accentColor,),
+            onPressed: (){
+              _signOut();
+            },
+          ),
+          SizedBox(width: 10),
+        ],
       ),
       body: userLoaded
           ? buildHomeShop()

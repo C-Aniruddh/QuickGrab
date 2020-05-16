@@ -198,13 +198,7 @@ class _CartPageState extends State<CartPage> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Items: " + cartItems.length.toString(), style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-                      Text("Total: " + billTotal.toString(), style: TextStyle(fontSize: 20, fontFamily: AppFontFamilies.mainFont))
-                    ],
-                  ),
+                  child: Container()
                 ),
               ),
               Padding(

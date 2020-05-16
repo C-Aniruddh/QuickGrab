@@ -111,7 +111,7 @@ class _UserHomePageState extends State<UserHomePage> {
       double addLon = userData['lon'];
       print(addLat);
       print(addLon);
-      num queryDistance = 1000.round();
+      num queryDistance = 200000.round();
 
       final Distance distance = const Distance();
       //final num query_distance = (EARTH_RADIUS * PI / 4).round();
@@ -137,6 +137,19 @@ class _UserHomePageState extends State<UserHomePage> {
     }
   }
 
+  String distanceBetweenNumber(String shopGeoHash) {
+    String userGeoHash = userData['geohash'];
+    GeoHasher geoHasher = GeoHasher();
+    List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
+    List<double> userCoordinates = geoHasher.decode(userGeoHash);
+    print(userCoordinates);
+    Distance distance = new Distance();
+    double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
+        new LatLng(userCoordinates[1], userCoordinates[0]));
+
+    return meter.round().toString();
+  }
+
   String distanceBetween(String shopGeoHash) {
     String userGeoHash = userData['geohash'];
     GeoHasher geoHasher = GeoHasher();
@@ -146,13 +159,17 @@ class _UserHomePageState extends State<UserHomePage> {
     Distance distance = new Distance();
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
-    return meter.round().toString();
+
+    if (meter.round() > 1000){
+      return (meter.round() / 1000).toString() + " kms away";
+    }
+    return meter.round().toString() + " meters away";
   }
 
   List<DocumentSnapshot> filterByDistance(List<DocumentSnapshot> allDocs) {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
-      if (double.parse(distanceBetween(allDocs[i]['shop_geohash'])) < 1000) {
+      if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) < 200000) {
         toReturn.add(allDocs[i]);
       } else {
         // do nothing
@@ -443,8 +460,7 @@ class _UserHomePageState extends State<UserHomePage> {
                             style: TextStyle(
                                 fontFamily: AppFontFamilies.mainFont)),
                         subtitle: Text(
-                            distanceBetween(document['shop_geohash']) +
-                                " meters away",
+                            distanceBetween(document['shop_geohash']),
                             style: TextStyle(
                                 fontFamily: AppFontFamilies.mainFont)))),
               ),
@@ -640,8 +656,7 @@ class _UserHomePageState extends State<UserHomePage> {
                               ),
                               subtitle: Text(
                                   distanceBetween(filterList[index]
-                                          .data['shop_geohash']) +
-                                      " meters away",
+                                          .data['shop_geohash']),
                                   style: TextStyle(
                                       fontFamily: AppFontFamilies.mainFont)),
                               title: Text(filterList[index].data['shop_name'],
@@ -724,8 +739,7 @@ class _UserHomePageState extends State<UserHomePage> {
                               ),
                               title: Text(document['shop_name']),
                               subtitle: Text(
-                                distanceBetween(document['shop_geohash']) +
-                                    " meters away",
+                                distanceBetween(document['shop_geohash']),
                               ),
                               trailing: IconButton(
                                 padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
@@ -913,7 +927,7 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
-  Widget scheduledAppointments(DocumentSnapshot document, int total) {
+  Widget scheduledAppointments(DocumentSnapshot document, String total) {
     return Card(
       margin: EdgeInsets.all(10.0),
       elevation: 2,
@@ -1110,13 +1124,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemCount: documents.length,
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
-                    int total = 0;
-                    for (var i = 0; i < document['items'].length; i++) {
-                      total = total +
-                          (int.parse(document['items'][i]['cost']) *
-                              int.parse(
-                                  document['items'][i]['quantity'].toString()));
-                    }
+                    String total = totalAmount(document['items']);
                     return scheduledAppointments(document, total);
                   },
                 ),
@@ -1182,6 +1190,25 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
+  String totalAmount(var items){
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+
+      if (item['cost'] == "NA"){
+        return "NA";
+      }
+
+      total = total +
+          (int.parse(item['cost']) *
+              int.parse(
+                  item['quantity'].toString()));
+    }
+
+    return total.toString();
+  }
+
   Widget buildAppointmentsDoneUser() {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
@@ -1212,20 +1239,14 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemCount: documents.length,
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
-                    int total = 0;
-                    for (var i = 0; i < document['items'].length; i++) {
-                      total = total +
-                          (int.parse(document['items'][i]['cost']) *
-                              int.parse(
-                                  document['items'][i]['quantity'].toString()));
-                    }
+                    String total = totalAmount(document['items']);
                     return Card(
                       margin: EdgeInsets.all(10.0),
                       elevation: 2,
                       child: Container(
                         child: ExpansionTile(
                           title: Text(
-                            document['shop_name'] + "  on  " + document['appointment_date'],
+                            document['shop_name'] + " on " + document['appointment_date'],
                             style: TextStyle(fontSize: 16.0),
                           ),
                           children: [
@@ -1582,15 +1603,15 @@ class _UserHomePageState extends State<UserHomePage> {
                       MaterialPageRoute(
                         builder: (context) => AppointmentList(
                           userData: userData,
-                          title: "All Orders",
-                          appointmentStatus: "None",
+                          title: "Scheduled Orders",
+                          appointmentStatus: "scheduled",
                         ),
                       ),
                     );
                   },
                   child: ListTile(
                       leading: Icon(Icons.list),
-                      title: Text("All My Orders",
+                      title: Text("Scheduled Orders",
                           style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
@@ -1604,7 +1625,7 @@ class _UserHomePageState extends State<UserHomePage> {
                         builder: (context) => AppointmentList(
                           userData: userData,
                           title: "Pending Orders",
-                          appointmentStatus: "incomplete",
+                          appointmentStatus: "pending",
                         ),
                       ),
                     );
@@ -1624,7 +1645,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       MaterialPageRoute(
                         builder: (context) => AppointmentList(
                           userData: userData,
-                          title: "Finished Orders",
+                          title: "Completed Orders",
                           appointmentStatus: "completed",
                         ),
                       ),
@@ -1632,7 +1653,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   },
                   child: ListTile(
                       leading: Icon(Icons.shopping_basket),
-                      title: Text("Finished Orders",
+                      title: Text("Completed Orders",
                           style:
                               TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
@@ -1773,9 +1794,10 @@ class _UserHomePageState extends State<UserHomePage> {
           stream: Firestore.instance
               .collection('notifications')
               .where('receiver_uid', isEqualTo: userData.documentID)
+              .where('read', isEqualTo: false)
               .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData){
               return IconButton(
                 icon: Icon(Icons.notifications,
                     color: Theme.of(context).accentColor),
@@ -1788,10 +1810,8 @@ class _UserHomePageState extends State<UserHomePage> {
                 },
               );
             }
-            return new Badge(
-              position: BadgePosition.topRight(right: 4, top: 4),
-              badgeContent: SizedBox(height: 20),
-              child: new IconButton(
+            if (snapshot.data.documents.length < 1) {
+              return IconButton(
                 icon: Icon(Icons.notifications,
                     color: Theme.of(context).accentColor),
                 onPressed: () async {
@@ -1801,8 +1821,26 @@ class _UserHomePageState extends State<UserHomePage> {
                           builder: (context) =>
                               NotificationsView(userData: userData)));
                 },
-              ),
-            );
+              );
+            } else {
+              return new Badge(
+                position: BadgePosition.topRight(right: 4, top: 4),
+                badgeContent: SizedBox(height: 20),
+                child: new IconButton(
+                  icon: Icon(Icons.notifications,
+                      color: Theme
+                          .of(context)
+                          .accentColor),
+                  onPressed: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                NotificationsView(userData: userData)));
+                  },
+                ),
+              );
+            }
           });
     } else {
       return new IconButton(

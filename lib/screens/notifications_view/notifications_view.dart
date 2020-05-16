@@ -77,31 +77,35 @@ class _NotificationsViewState extends State<NotificationsView> {
                             onTap: () {
                               Firestore.instance.collection('notifications')
                                   .document(filterList[index].documentID)
-                                  .setData({'read': true});
+                                  .updateData({'read': true});
                             },
                             child:
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ListTile(
-                                    subtitle: Text(
-                                        filterList[index].data['body'],
-                                        style: TextStyle(
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ListTile(
+                                    leading: Icon(Icons.notifications),
+                                      subtitle: Text(
+                                          filterList[index].data['body'],
+                                          style: TextStyle(
+                                              fontFamily:
+                                              AppFontFamilies.mainFont)),
+                                      title: Text(
+                                          filterList[index].data['title'],
+                                          style: TextStyle(
+                                              fontFamily:
+                                              AppFontFamilies.mainFont)),
+                                      trailing: filterList[index].data['read'] ?
+                                      SizedBox(width: 10)
+                                          :Badge(
+                                        badgeContent: Text("NEW", style: TextStyle(
+                                          color: Colors.white,
                                             fontFamily:
                                             AppFontFamilies.mainFont)),
-                                    title: Text(
-                                        filterList[index].data['title'],
-                                        style: TextStyle(
-                                            fontFamily:
-                                            AppFontFamilies.mainFont)),
-                                    trailing: filterList[index].data['read'] ?
-                                    SizedBox(width: 10)
-                                        :Badge(
-                                      badgeContent: Text("NEW", style: TextStyle(
-                                        color: Colors.white,
-                                          fontFamily:
-                                          AppFontFamilies.mainFont)),
-                                    )
+                                      )
+                                  ),
                                 ),
                               ),
                             )

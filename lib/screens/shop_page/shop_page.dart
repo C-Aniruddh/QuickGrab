@@ -264,16 +264,65 @@ class _ShopPageState extends State<ShopPage> {
                                         print("Created");
                                         cart = [];
                                       }
-                                      print(cart);
-                                      cart.add(
-                                          {'user_uid': widget.userDetails.documentID,
-                                            'product': filterList[index].data,
-                                            'timestamp': DateTime.now().millisecondsSinceEpoch,
-                                            'cost': filterList[index].data['item_price'],
-                                            'quantity': 1,
-                                            'productID': filterList[index].documentID
+
+                                      if (cart.length < 1 ){
+                                        cart.add(
+                                            {'user_uid': widget.userDetails.documentID,
+                                              'product': filterList[index].data,
+                                              'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                              'cost': filterList[index].data['item_price'],
+                                              'quantity': 1,
+                                              'productID': filterList[index].documentID
+                                            }
+                                        );
+                                      } else {
+                                        List<String> productsInCart = [];
+
+                                        for (var i = 0; i < cart.length; i++){
+                                          var item = cart[i];
+                                          productsInCart.add(item['productID'].toString());
+                                        }
+
+                                        if(productsInCart.contains(filterList[index].documentID)){
+                                          for (var j = 0; j < cart.length; j++){
+                                            var it = cart[j];
+                                            if (it['productID'] == filterList[index].documentID){
+                                              it['quantity'] = it['quantity'] + 1;
+                                            }
                                           }
-                                      );
+                                        } else {
+                                          cart.add(
+                                              {'user_uid': widget.userDetails.documentID,
+                                                'product': filterList[index].data,
+                                                'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                                'cost': filterList[index].data['item_price'],
+                                                'quantity': 1,
+                                                'productID': filterList[index].documentID
+                                              }
+                                          );
+                                        }
+                                      }
+                                        /*
+                                        for (var i = 0; i < cart.length; i ++ ){
+                                          var item = cart[i];
+                                          if(item['productID'] == filterList[index].documentID){
+                                            item['quantity'] = item['quantity'] + 1;
+                                          } else {
+                                            cart.add(
+                                                {'user_uid': widget.userDetails.documentID,
+                                                  'product': filterList[index].data,
+                                                  'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                                  'cost': filterList[index].data['item_price'],
+                                                  'quantity': 1,
+                                                  'productID': filterList[index].documentID
+                                                }
+                                            );
+                                          }
+                                        }
+                                      }
+
+                                         */
+
                                       print(cart);
                                       print("Adding");
                                       Firestore.instance.collection('cart')
@@ -316,7 +365,13 @@ class _ShopPageState extends State<ShopPage> {
                       widget.shopDetails.data['shop_address'],
                       style: TextStyle(fontFamily: AppFontFamilies.mainFont),
                       overflow: TextOverflow.ellipsis,
-                    )),
+                    ),
+                  trailing: IconButton(icon: Icon(Icons.open_in_new),
+                  onPressed: (){
+                    MapUtils.openMap(widget.shopDetails['shop_lat'],
+                        widget.shopDetails['shop_lon']);
+                  },),
+                ),
               )),
         ),
       ),
@@ -357,6 +412,7 @@ class _ShopPageState extends State<ShopPage> {
           ),*/
           Image(image: NetworkImage(widget.shopDetails.data['shop_image']), height: 250,
           width: MediaQuery.of(context).size.width, fit: BoxFit.contain),
+          SizedBox(height: 16),
           addressView(),
           productView()
         ]
@@ -553,10 +609,7 @@ class _ShopPageState extends State<ShopPage> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         iconTheme: IconThemeData(color: Colors.black),
-        flexibleSpace: FlexibleSpaceBar(
         title: Text(widget.shopDetails['shop_name'], style: TextStyle(fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
-        background: Hero(tag: widget.shopDetails.documentID,
-        child: Image.network(widget.shopDetails.data['shop_image'], fit: BoxFit.cover))),
         actions: [
           cartIcon(context),
           SizedBox(width: 10)

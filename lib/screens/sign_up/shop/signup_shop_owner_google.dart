@@ -86,6 +86,40 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
     );
   }
 
+  String profilePicByIndustry(String industry){
+    if (industry == 'Agriculure'){
+      return 'https://i.imgur.com/jfVIvEd.png';
+    } else if (industry == 'Consurmer durables'){
+      return 'https://i.imgur.com/vadpYXZ.jpg';
+    } else if (industry == 'Education'){
+      return 'https://i.imgur.com/ILuBFVr.jpg';
+    } else if (industry == 'Engineering and capital goods'){
+      return 'https://i.imgur.com/95N4cM6.jpg';
+    } else if (industry == 'Gems and Jwellery'){
+      return 'https://i.imgur.com/rWk5b3y.jpg';
+    } else if (industry == 'Grocery') {
+      return 'https://i.imgur.com/RnQVr3I.jpg';
+    } else if (industry == 'Liquor'){
+      return 'https://i.imgur.com/cTgZo71.jpg';
+    } else if (industry == 'Manufacturing'){
+      return 'https://i.imgur.com/95N4cM6.jpg';
+    } else if (industry == 'Oil and Gas'){
+      return 'https://i.imgur.com/R77k8CD.jpg';
+    } else if (industry == 'Pharmaceuticals'){
+      return 'https://i.imgur.com/gXcyC4w.jpg';
+    } else if (industry == 'Retail'){
+      return 'https://i.imgur.com/DjW5799.jpg';
+    } else if (industry == 'Stationary'){
+      return 'https://i.imgur.com/yHXRj55.jpg';
+    } else if (industry == 'Textile'){
+      return 'https://i.imgur.com/DjW5799.jpg';
+    } else if (industry == 'Vegetables and Fruits'){
+      return 'https://i.imgur.com/MjbrTlI.jpg';
+    } else {
+      return 'https://i.imgur.com/RnQVr3I.jpg';
+    }
+  }
+
   Future<String> signInWithGoogle() async {
     if (_shopNameController.text.length == 0){
       showAlertDialog(context, "Invalid shop name", "Please check the entered shop name.");
@@ -135,7 +169,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
         'shop_geohash': shopGeoHash,
         'shop_lat': shopCoordinates.latitude,
         'shop_lon': shopCoordinates.longitude,
-        'shop_image': 'https://i.imgur.com/HCw2Ho7.png',
+        'shop_image': profilePicByIndustry(_industrySelect),
         'shop_payment_methods': ['Cash'],
         'inventory': []
       }, merge: true);

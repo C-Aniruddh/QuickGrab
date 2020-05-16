@@ -120,6 +120,81 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
         });
   }
 
+  String totalAmount(var items){
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+
+      if (item['cost'] == "NA"){
+        return "NA";
+      }
+
+      total = total +
+          (int.parse(item['cost']) *
+              int.parse(
+                  item['quantity'].toString()));
+    }
+
+    return total.toString();
+  }
+
+  _buildInvoiceContentCompressed(invoiceData) {
+    List<Widget> columnContent = [];
+
+    for (dynamic content in invoiceData) {
+      List product_data = content['product'].values.toList();
+      columnContent.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  product_data[3].toString(),
+                  style: TextStyle(fontSize: 16.0),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['quantity'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                  Text(
+                    "|",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Text(
+                      content['cost'].toString(),
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Column column = Column(
+      children: columnContent,
+    );
+
+    return column;
+  }
+
+
   Widget buildHomeShop_old() {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
@@ -148,6 +223,197 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                   );
                 } else {
                   return new Container(
+                    child: ListView.builder(
+                      itemCount: documents.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        DocumentSnapshot document = documents[index];
+                        String total = totalAmount(document['items']);
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            margin: EdgeInsets.all(10.0),
+                            elevation: 2,
+                            child: Container(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ExpansionTile(
+                                  leading: Icon(Icons.account_circle),
+                                  title: Text(
+                                    document['shopper_name'] ,
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                              EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                              child: Text(
+                                                "Date:",
+                                                style: TextStyle(fontSize: 16.0),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                              EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                              child: Text(
+                                                document['appointment_date'] != null
+                                                    ? document['appointment_date']
+                                                    : "Pending",
+                                                style: TextStyle(fontSize: 16.0),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                          child: Text(
+                                            "Time Slot:",
+                                            style: TextStyle(fontSize: 16.0),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                          child: Text(
+                                            document['appointment_start'] != null &&
+                                                document['appointment_end'] != null
+                                                ? document['appointment_start'] +
+                                                " - " +
+                                                document['appointment_end']
+                                                : "Pending",
+                                            style: TextStyle(fontSize: 16.0),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Divider(
+                                      color: Colors.grey,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                            child: Text(
+                                              "Item",
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                                child: Text(
+                                                  "Quantity",
+                                                  style: TextStyle(fontSize: 16.0),
+                                                ),
+                                              ),
+                                              Text(
+                                                "|",
+                                                style: TextStyle(fontSize: 16.0),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                                child: Text(
+                                                  "Price",
+                                                  style: TextStyle(fontSize: 16.0),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    _buildInvoiceContentCompressed(document['items']),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 20.0),
+                                      child: Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Container(
+                                          width:
+                                          MediaQuery.of(context).size.width * 0.4,
+                                          child: Divider(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                            child: Text(
+                                              "Total",
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          ),
+                                          Text(
+                                            "|",
+                                            style: TextStyle(fontSize: 16.0),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                            child: Text(
+                                              total.toString(),
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                      child: Center(
+                                        child: RaisedButton(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(18.0),
+                                              side: BorderSide(
+                                                  color: Colors.orangeAccent)),
+                                          onPressed: () {
+                                            print("Open");
+                                            _showCompleteDialog(context,
+                                                document.documentID, document['otp']);
+                                          },
+                                          color: Colors.orangeAccent,
+                                          textColor: Colors.white,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                                            child: Text(
+                                              "Complete Order",
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+
+                  /* Container(
                       child: ListView.builder(
                           itemCount: documents.length,
                           itemBuilder: (BuildContext ctxt, int index) {
@@ -186,7 +452,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                                 ),
                               ),
                             );
-                          }));
+                          }))*/;
                 }
             }
           },

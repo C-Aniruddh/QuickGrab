@@ -12,7 +12,7 @@ import '../../fonts.dart';
 class ShopMyInventory extends StatefulWidget {
   ShopMyInventory({Key key, this.userData}) : super(key: key);
 
-  final DocumentSnapshot userData;
+   DocumentSnapshot userData;
 
   @override
   _ShopMyInventoryState createState() => _ShopMyInventoryState();
@@ -112,9 +112,16 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                               padding: const EdgeInsets.all(8.0),
                               child: ListTile(
                                 trailing: IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: Icon(Icons.delete),
                                   onPressed: (){
-
+                                    List<dynamic> inventory = widget.userData.data['inventory'];
+                                    inventory.remove(filterList[index].documentID);
+                                    Firestore.instance.collection('shops')
+                                        .document(widget.userData.documentID)
+                                        .updateData({'inventory': inventory});
+                                    Firestore.instance.collection('products')
+                                        .document(filterList[index].documentID)
+                                        .delete();
                                   }
                                 ),
                               leading: CircleAvatar(

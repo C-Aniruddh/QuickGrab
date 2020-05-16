@@ -142,7 +142,26 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     return column;
   }
 
-  Widget scheduledAppointments(DocumentSnapshot document, int total) {
+  String totalAmount(var items){
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+
+      if (item['cost'] == "NA"){
+        return "NA";
+      }
+
+      total = total +
+          (int.parse(item['cost']) *
+              int.parse(
+                  item['quantity'].toString()));
+    }
+
+    return total.toString();
+  }
+
+  Widget scheduledAppointments(DocumentSnapshot document, String total) {
     return Card(
       margin: EdgeInsets.all(10.0),
       elevation: 2,
@@ -302,13 +321,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   }
 
   Widget orderView() {
-    int total = 0;
-    for (var i = 0; i < widget.appointmentData['items'].length; i++) {
-      total = total +
-          (int.parse(widget.appointmentData['items'][i]['cost']) *
-              int.parse(
-                  widget.appointmentData['items'][i]['quantity'].toString()));
-    }
+    String total = totalAmount(widget.appointmentData['items']);
     return Container(
         child: SizedBox(
       height: MediaQuery.of(context).size.height * 0.485,

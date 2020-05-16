@@ -81,7 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ListTile(title: Text("Are you a shop owner?", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       leading: Hero(tag: "shop_signup", child: Image(image: AssetImage('assets/images/shop_owner.png'), width: 48, height: 48)),
-                      subtitle: Text("Continue as a shopper", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      subtitle: Text("Continue as a shop owner", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),
@@ -101,7 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 )),
               ),
             ),
-            Padding(
+            /*Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
               child: InkWell(
                 onTap: () {
@@ -115,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),
-            ),
+            ),*/
 
           ],
         ),
