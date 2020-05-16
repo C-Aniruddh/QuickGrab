@@ -459,6 +459,10 @@ class _ShopPageState extends State<ShopPage> {
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
+                title: Text(
+                  widget.shopDetails['shop_name'],
+                  style: TextStyle(color: Colors.black.withOpacity(0.5)),
+                ),
                 actions: [cartIcon(context), SizedBox(width: 10)],
                 expandedHeight: 250.0,
                 elevation: 0,
@@ -470,7 +474,7 @@ class _ShopPageState extends State<ShopPage> {
                   title: Container(
                     child: Text(
                       widget.shopDetails['shop_name'],
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                   background: Stack(
@@ -482,6 +486,11 @@ class _ShopPageState extends State<ShopPage> {
                           height: 250,
                           width: MediaQuery.of(context).size.width,
                           fit: BoxFit.cover),
+                      Container(
+                        height: 250,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.black.withOpacity(0.5),
+                      ),
                       Positioned(
                         // top: 100.0,
                         // right: 100.0,

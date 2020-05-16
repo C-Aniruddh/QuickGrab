@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:latlong/latlong.dart';
@@ -111,6 +113,24 @@ class _SearchPageState extends State<SearchPage> {
         .getDocuments()
           .then((documents){
             shopsNearby = documents.documents;
+            print(shopsNearby);
+
+            List<String> shopUIDs = [];
+            for (var i=0; i < shopsNearby.length; i++){
+              shopUIDs.add(shopsNearby[i].documentID);
+            }
+            print(shopUIDs);
+
+            var chunks = partition(shopUIDs, 10).toList();
+
+            for (var j = 0; j < chunks.length; j ++){
+              Firestore.instance.collection('products')
+                  .where('shop_uid', whereIn: chunks[j])
+                  .getDocuments()
+                  .then((documents){
+                productsFromShops.addAll(documents.documents);
+              });
+            }
       });
     } else {
       Firestore.instance
@@ -121,23 +141,28 @@ class _SearchPageState extends State<SearchPage> {
           .getDocuments()
           .then((documents){
             shopsNearby = documents.documents;
+            print(shopsNearby);
+
+
+            List<String> shopUIDs = [];
+            for (var i=0; i < shopsNearby.length; i++){
+              shopUIDs.add(shopsNearby[i].documentID);
+            }
+            print(shopUIDs);
+
+            var chunks = partition(shopUIDs, 10).toList();
+
+            for (var j = 0; j < chunks.length; j ++){
+              Firestore.instance.collection('products')
+                  .where('shop_uid', whereIn: chunks[j])
+                  .getDocuments()
+                  .then((documents){
+                productsFromShops.addAll(documents.documents);
+              });
+            }
+
       });
   }
-    List<String> shopUIDs = [];
-    for (var i=0; i < shopsNearby.length; i++){
-      shopUIDs.add(shopsNearby[i].documentID);
-    }
-
-    var chunks = partition(shopUIDs, 10).toList();
-
-    for (var j = 0; j < chunks.length; j ++){
-      Firestore.instance.collection('products')
-          .where('shop_uid', whereIn: chunks[j])
-          .getDocuments()
-          .then((documents){
-        productsFromShops.addAll(documents.documents);
-      });
-    }
 
     setState(() {
       itemsLoaded = true;
@@ -284,33 +309,117 @@ class _SearchPageState extends State<SearchPage> {
     List<DocumentSnapshot> result = [];
     print("search");
     for (var i = 0; i < shopsNearby.length; i++){
-      print(i);
-      print(shopsNearby[i]);
-      if (shopsNearby[i].data['shop_name'].toString().contains(search)){
+      if (shopsNearby[i].data['shop_name'].toString().toLowerCase().contains(search.toLowerCase())){
         result.add(shopsNearby[i]);
       }
     }
-
     for (var i = 0; i < productsFromShops.length; i++){
-      print(i);
-      print(shopsNearby[i]);
-      if (shopsNearby[i].data['shop_name'].toString().contains(search)){
-        result.add(shopsNearby[i]);
+      if (productsFromShops[i].data['item_name'].toString().toLowerCase().contains(search.toLowerCase())){
+        result.add(productsFromShops[i]);
       }
     }
     return result;
   }
+
+  DocumentSnapshot findShop(shopDocumentID){
+    DocumentSnapshot def = null;
+    for(var i = 0; i < shopsNearby.length; i++){
+      if(shopsNearby[i].documentID == shopDocumentID){
+        return shopsNearby[i];
+      }
+    }
+    return def;
+  }
+
+  String distanceBetween(String shopGeoHash) {
+    String userGeoHash = widget.userData['geohash'];
+    GeoHasher geoHasher = GeoHasher();
+    List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
+    List<double> userCoordinates = geoHasher.decode(userGeoHash);
+    print(userCoordinates);
+    Distance distance = new Distance();
+    double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
+        new LatLng(userCoordinates[1], userCoordinates[0]));
+
+    if (meter.round() > 1000){
+      return (meter.round() / 1000).toString() + " kms away";
+    }
+    return meter.round().toString() + " meters away";
+  }
+
+  Widget singleItem(DocumentSnapshot document){
+    if (document.data.containsKey('shop_name')){
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ShopPage(shopDetails: document, userDetails: widget.userData)));
+          },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(document.data['shop_image']),
+                ),
+                title: Text(document.data['shop_name']),
+                subtitle: Text(distanceBetween(document.data['shop_geohash'])),
+                trailing: Icon(Icons.arrow_forward_ios),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      DocumentSnapshot shopData = findShop(document.data['shop_uid']);
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ShopPage(shopDetails: shopData, userDetails: widget.userData)));
+          },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(document.data['img_url']),
+                ),
+                title: Text(document.data['item_name']),
+                subtitle: Text("Available at " + shopData.data['shop_name']),
+                trailing: Icon(Icons.arrow_forward_ios),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
 
   Widget buildSearchPage(){
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SearchBar<DocumentSnapshot>(
+          placeHolder: Center(
+              child: Text("Start searching!")
+          ),
+          emptyWidget: Center(
+            child: Text("No results found.")
+          ),
+          searchBarPadding: const EdgeInsets.all(16.0),
             onSearch: search,
           onItemFound: (DocumentSnapshot documentSnapshot, int index){
-              return ListTile(
-                title: Text("Document")
-              );
+              return singleItem(documentSnapshot);
           },
         ),
       )
