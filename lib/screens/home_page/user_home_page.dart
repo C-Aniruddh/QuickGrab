@@ -1881,7 +1881,7 @@ class _UserHomePageState extends State<UserHomePage> {
         notchedShape: CircularNotchedRectangle(),
         centerItemText: '',
         color: Colors.grey,
-        selectedColor: Colors.orange,
+        selectedColor: Colors.orange[600],
         items: [
           FABBottomAppBarItem(
             iconData: Icons.home,

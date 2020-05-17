@@ -123,8 +123,8 @@ class _OrderDataNewState extends State<OrderDataNew> {
                     Icon(Icons.reorder),
                     SizedBox(width: 10),
                     widget.isShop ?
-                    Text(document.data['shopper_name'], style: TextStyle(color: Colors.black))
-                    : Text(document.data['shop_name'], style: TextStyle(color: Colors.black)),
+                    Text(document.data['shopper_name'], style: TextStyle(color: Colors.black), overflow: TextOverflow.ellipsis,)
+                    : Text(document.data['shop_name'], style: TextStyle(color: Colors.black), overflow: TextOverflow.ellipsis,),
                   ],
                 ),
               ),
@@ -152,7 +152,7 @@ class _OrderDataNewState extends State<OrderDataNew> {
             widget.isInvoice ?
             SizedBox(height: 1)
             : Padding(
-              padding: const EdgeInsets.fromLTRB(32, 4, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
               child: Table(
                 children: [
                   TableRow(
