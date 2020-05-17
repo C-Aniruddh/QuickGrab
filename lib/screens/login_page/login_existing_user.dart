@@ -18,6 +18,7 @@ class LoginPageExistingUser extends StatefulWidget {
 }
 
 class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
+
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   Future<void> _signInAnonymously() async {
@@ -27,6 +28,8 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
       print(e); // TODO: show dialog with error
     }
   }
+
+
 
   _showInfoDialog(BuildContext context, String text) {
     return showDialog(
@@ -75,19 +78,18 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
         });
   }
 
+
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    _showLoginDialog(context, "Logging you in...");
     final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+    await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.getCredential(
       accessToken: googleSignInAuthentication.accessToken,
       idToken: googleSignInAuthentication.idToken,
     );
 
-    final AuthResult authResult =
-        await FirebaseAuth.instance.signInWithCredential(credential);
+    final AuthResult authResult = await FirebaseAuth.instance.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
 
     assert(!user.isAnonymous);
@@ -101,18 +103,15 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
 
   Future<String> signInWithFacebook() async {
     var facebookLogin = new FacebookLogin();
-    _showLoginDialog(context, "Logging you in...");
     var result = await facebookLogin.logIn(['email', 'public_profile']);
 
     FirebaseUser user;
 
-    if (result.status == FacebookLoginStatus.loggedIn) {
+    if (result.status == FacebookLoginStatus.loggedIn){
       FacebookAccessToken facebookAccessToken = result.accessToken;
-      AuthCredential authCredential = FacebookAuthProvider.getCredential(
-          accessToken: facebookAccessToken.token);
+      AuthCredential authCredential = FacebookAuthProvider.getCredential(accessToken: facebookAccessToken.token);
 
-      user = (await FirebaseAuth.instance.signInWithCredential(authCredential))
-          .user;
+      user = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
     }
 
     assert(!user.isAnonymous);
@@ -133,75 +132,48 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
-              child: Image(
-                image: AssetImage('assets/images/login_screen.png'),
-                height: 250,
-                width: 300,
-              ),
+              child: Image(image: AssetImage('assets/images/login_screen.png'), height: 250, width: 300,),
             ),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(
-                  child: Text("Welcome to QuickGrab!",
-                      style: TextStyle(
-                          fontSize: 24, fontFamily: AppFontFamilies.mainFont))),
+              child: Center(child: Text("Welcome to QuickGrab!", style: TextStyle(fontSize: 24, fontFamily: AppFontFamilies.mainFont))),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(
-                  child: Text("Sign in to continue.",
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
+              child: Center(child: Text("Sign in to continue.", style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
             ),
             Divider(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
               child: InkWell(
-                onTap: () async {
-                  await signInWithFacebook();
-                  Navigator.pop(context);
+                onTap: (){
+                  // _showLoginDialog(context, "Logging you in...");
+                  signInWithFacebook();
                 },
-                child: Card(
-                    child: Padding(
+                child: Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                      title: Text("Sign in with Facebook",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                      leading: Image(
-                        image: AssetImage('assets/images/facebook_logo.png'),
-                        height: 48,
-                        width: 48,
-                      ),
-                      subtitle: Text("Sign in using your Facebook account!",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                      trailing: Icon(Icons.arrow_forward_ios)),
+                  child: ListTile(title: Text("Sign in with Facebook", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  leading: Image(image: AssetImage('assets/images/facebook_logo.png'), height: 48, width: 48,),
+                  subtitle: Text("Sign in using your Facebook account!", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
               child: InkWell(
-                onTap: () async {
+                onTap: () async{
+                  // _showLoginDialog(context, "Logging you in...");
                   await signInWithGoogle();
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
+
                 },
-                child: Card(
-                    child: Padding(
+                child: Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                      title: Text("Sign in with Google",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                      leading: Image(
-                        image: AssetImage('assets/images/g-logo.png'),
-                        height: 48,
-                        width: 48,
-                      ),
-                      subtitle: Text("Sign in using your google account!",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  child: ListTile(title: Text("Sign in with Google", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      leading: Image(image: AssetImage('assets/images/g-logo.png'), height: 48, width: 48,),
+                      subtitle: Text("Sign in using your google account!", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),
@@ -209,36 +181,19 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
             Divider(),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(
-                  child: Text("Don't have an account?",
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
+              child: Center(child: Text("Don't have an account?", style: TextStyle(fontFamily: AppFontFamilies.mainFont))),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
               child: InkWell(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SignUpPage()));
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
                 },
-                child: Card(
-                    child: Padding(
+                child: Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                      title: Text("Create a new account",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                      leading: Hero(
-                          tag: "sign_up",
-                          child: Image(
-                            image:
-                                AssetImage('assets/images/existing_user.png'),
-                            height: 48,
-                            width: 48,
-                          )),
-                      subtitle: Text(
-                          "Sign up using your mobile number or google account",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  child: ListTile(title: Text("Create a new account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      leading: Hero(tag: "sign_up", child: Image(image: AssetImage('assets/images/existing_user.png'), height: 48, width: 48,)),
+                      subtitle: Text("Sign up using your mobile number or google account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),
