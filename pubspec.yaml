@@ -48,6 +48,8 @@ dependencies:
   share: ^0.6.4+2
   quiver: 2.1.3
   ticket_pass_package: ^0.1.0
+  flutter_facebook_login: ^3.0.0
+  flutter_auth_buttons: ^0.8.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
