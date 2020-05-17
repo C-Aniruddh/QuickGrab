@@ -1,6 +1,8 @@
 import 'package:app/screens/sign_up/user/signup_shopper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:app/fonts.dart';
 
@@ -27,6 +29,33 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
     }
   }
 
+
+
+  _showInfoDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -39,6 +68,28 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
 
     final AuthResult authResult = await FirebaseAuth.instance.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
+
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+    assert(user.uid == currentUser.uid);
+
+    return 'signInWithGoogle succeeded: $user';
+  }
+
+  Future<String> signInWithFacebook() async {
+    var facebookLogin = new FacebookLogin();
+    var result = await facebookLogin.logIn(['email', 'public_profile']);
+
+    FirebaseUser user;
+
+    if (result.status == FacebookLoginStatus.loggedIn){
+      FacebookAccessToken facebookAccessToken = result.accessToken;
+      AuthCredential authCredential = FacebookAuthProvider.getCredential(accessToken: facebookAccessToken.token);
+
+      user = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
+    }
 
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
@@ -72,13 +123,18 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
             Divider(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
-              child: Card(child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(title: Text("Phone Number", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                leading: Image(image: AssetImage('assets/images/password.png'), height: 48, width: 48,),
-                subtitle: Text("Sign in with phone number", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                trailing: Icon(Icons.arrow_forward_ios)),
-              )),
+              child: InkWell(
+                onTap: (){
+                  signInWithFacebook();
+                },
+                child: Card(child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(title: Text("Sign in with Facebook", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  leading: Image(image: AssetImage('assets/images/facebook_logo.png'), height: 48, width: 48,),
+                  subtitle: Text("Sign in using your Facebook account!", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  trailing: Icon(Icons.arrow_forward_ios)),
+                )),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),

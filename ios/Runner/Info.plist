@@ -18,6 +18,12 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+
+    <key>FacebookAppID</key>
+    <string>380692156175685</string>
+    <key>FacebookDisplayName</key>
+    <string>QuickGrab</string>
+
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -28,6 +34,12 @@
 				<string>com.googleusercontent.apps.765431265467-mi3vsa22l0uickce3bvv8fr93unsta64</string>
 			</array>
 		</dict>
+		<dict>
+              <key>CFBundleURLSchemes</key>
+              <array>
+                <string>fb380692156175685</string>
+              </array>
+        </dict>
 	</array>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>This app needs your location to test the location feature of the Google Maps location picker plugin.</string>
@@ -58,5 +70,23 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>fbapi</string>
+      <string>fbapi20130214</string>
+      <string>fbapi20130410</string>
+      <string>fbapi20130702</string>
+      <string>fbapi20131010</string>
+      <string>fbapi20131219</string>
+      <string>fbapi20140410</string>
+      <string>fbapi20140116</string>
+      <string>fbapi20150313</string>
+      <string>fbapi20150629</string>
+      <string>fbapi20160328</string>
+      <string>fbauth</string>
+      <string>fb-messenger-share-api</string>
+      <string>fbauth2</string>
+      <string>fbshareextension</string>
+    </array>
 </dict>
 </plist>
