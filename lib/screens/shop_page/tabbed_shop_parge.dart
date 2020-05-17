@@ -389,7 +389,7 @@ class _ShopPageState extends State<ShopPage> {
                                   padding: const EdgeInsets.fromLTRB(
                                       8.0, 12.0, 8.0, 4.0),
                                   child: Text(
-                                    item.data['item_name'],
+                                    item.data['item_name'] + " (" + item.data['item_quantity'] + ")",
                                     style: TextStyle(fontSize: 16.0),
                                     maxLines: 3,
                                   ),

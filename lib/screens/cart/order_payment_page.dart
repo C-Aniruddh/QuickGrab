@@ -501,7 +501,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   check24hrsHistory() {
     var date = new DateTime.now();
-    var date24 = new DateTime(date.year, date.month, date.day - 1);
+    var date24 = new DateTime(date.year, date.month, date.day - 1, date.hour, date.minute);
     print(date);
     print(date24);
 
