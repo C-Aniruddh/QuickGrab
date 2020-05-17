@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:badges/badges.dart';
 
@@ -77,7 +79,9 @@ class _ShopHomePageState extends State<ShopHomePage> {
   }
 
   void setUserData(String uid) async {
-    token = await FirebaseNotifications().setUpFirebase();
+    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid){
+      token = await FirebaseNotifications().setUpFirebase();
+    }
     await Firestore.instance
         .collection('shops')
         .document(uid)

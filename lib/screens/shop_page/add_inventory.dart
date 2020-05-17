@@ -31,7 +31,7 @@ class _AddInventoryState extends State<AddInventory> {
   final _formKey = GlobalKey<FormState>();
   String _uploadedFileURL;
 
-  String _categorySelect = 'Other';
+  String _categorySelect = 'Select Category';
 
   TextEditingController itemNameController = new TextEditingController();
   TextEditingController itemPriceController = new TextEditingController();
@@ -503,38 +503,60 @@ class _AddInventoryState extends State<AddInventory> {
                     borderRadius: BorderRadius.circular(18.0),
                     side: BorderSide(color: Colors.orangeAccent)),
                 onPressed: () async {
-                  if (_formKey.currentState.validate()) {
-                    if (itemNameController.text.isNotEmpty) {
-                      _showDialog(context);
-                      String itemPrice = "NA";
-                      if (!itemPriceController.text.isEmpty){
-                        itemPrice = itemPriceController.text.toString();
+                  if (_image != null) {
+                    if (_formKey.currentState.validate()) {
+                      if (itemNameController.text.isNotEmpty) {
+                        if(_categorySelect != 'Select Category'){
+                          if(itemQuantityController.text.isNotEmpty){
+                            _showDialog(context);
+                            String itemPrice = "NA";
+                            if (!itemPriceController.text.isEmpty) {
+                              itemPrice = itemPriceController.text.toString();
+                            }
+                            String _url = await uploadFile(_image, widget
+                                .shopData['uid'] + itemNameController.text);
+                            Firestore.instance.collection('products').add({
+                              "shop_uid": widget.shopData['uid'],
+                              "item_name": itemNameController.text,
+                              "item_price": itemPrice,
+                              "item_quantity": itemQuantityController.text,
+                              "item_description": itemDescriptionController.text,
+                              "item_category": _categorySelect,
+                              "shop_industry": widget.shopData['industry'],
+                              "img_url": _url
+                            }).then((result) {
+                              Firestore.instance.collection('shops')
+                                  .document(widget.shopData.documentID)
+                                  .get()
+                                  .then((doc) {
+                                List<dynamic> inventory = doc.data['inventory'];
+                                inventory.add(result.documentID);
+                                Firestore.instance.collection('shops')
+                                    .document(widget.shopData.documentID)
+                                    .updateData({'inventory': inventory});
+                              });
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            }).catchError((err) => print(err));
+                          } else {
+                            _showInfoDialog(
+                                context, "Please mention item size (eg. 1kg, 1 dozen, etc).");
+                          }
+                        } else {
+                          _showInfoDialog(
+                              context, "Please select item category.");
+                        }
+                      } else {
+                        _showInfoDialog(
+                            context, "Please enter name of the Item.");
                       }
-                      String _url = await uploadFile(_image, widget.shopData['uid'] + itemNameController.text);
-                      Firestore.instance.collection('products').add({
-                        "shop_uid": widget.shopData['uid'],
-                        "item_name": itemNameController.text,
-                        "item_price": itemPrice,
-                        "item_quantity": itemQuantityController.text,
-                        "item_description": itemDescriptionController.text,
-                        "item_category": _categorySelect,
-                        "shop_industry": widget.shopData['industry'],
-                        "img_url": _url
-                      }).then((result) {
-                        Firestore.instance.collection('shops')
-                        .document(widget.shopData.documentID)
-                        .get()
-                        .then((doc){
-                          List<dynamic> inventory = doc.data['inventory'];
-                          inventory.add(result.documentID);
-                          Firestore.instance.collection('shops')
-                          .document(widget.shopData.documentID)
-                          .updateData({'inventory': inventory});
-                        });
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      }).catchError((err) => print(err));
+                    } else {
+                      _showInfoDialog(
+                          context, "Please check the form for errors.");
                     }
+                  } else {
+                    _showInfoDialog(
+                        context, "Please select an image.");
                   }
                 },
                 color: Colors.orangeAccent,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
@@ -27,6 +28,7 @@ import 'package:app/screens/user_options/rate_app.dart' as rateApp;
 import 'package:app/screens/utils/fab_bottom_app_bar.dart';
 import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
 import 'package:app/screens/utils/order_data_card.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MapUtils {
   MapUtils._();
@@ -94,7 +96,9 @@ class _UserHomePageState extends State<UserHomePage> {
   final suggestionformKey = GlobalKey<FormState>();
 
   void setUserData(String uid) async {
-    token = await FirebaseNotifications().setUpFirebase();
+    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid){
+      token = await FirebaseNotifications().setUpFirebase();
+    }
     await Firestore.instance
         .collection('users')
         .document(uid)
