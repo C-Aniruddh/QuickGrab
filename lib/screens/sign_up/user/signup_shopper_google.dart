@@ -40,6 +40,29 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
     }
   }
 
+  _showSignUpDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(text),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   showAlertDialog(BuildContext context, String title, String content) {
     // set up the button
     Widget okButton = FlatButton(
@@ -100,6 +123,7 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
       showAlertDialog(context, "Invalid phone number", "Please check the entered phone number.");
     } else {
       final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+      _showSignUpDialog(context, "Signing you up...");
       final GoogleSignInAuthentication googleSignInAuthentication =
       await googleSignInAccount.authentication;
 
