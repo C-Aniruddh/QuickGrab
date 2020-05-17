@@ -693,7 +693,7 @@ class _ShopPageState extends State<ShopPage> {
               SliverAppBar(
                 title: Text(
                   widget.shopDetails['shop_name'],
-                  style: TextStyle(color: Colors.black.withOpacity(0.0)),
+                  style: TextStyle(color: Colors.black.withOpacity(0.5)),
                 ),
                 actions: [cartIcon(context), SizedBox(width: 10)],
                 expandedHeight: 250.0,
