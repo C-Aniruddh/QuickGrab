@@ -172,6 +172,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
       }, merge: true);
 
       assert(user.uid == currentUser.uid);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
@@ -365,7 +366,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
                   darkMode: true,
                   onPressed: () async {
                     await signInWithGoogle();
-                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+
                   }
               ),
             ),

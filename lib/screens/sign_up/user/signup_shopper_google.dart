@@ -140,6 +140,7 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
 
 
       assert(user.uid == currentUser.uid);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
@@ -324,7 +325,6 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
                 darkMode: true,
                 onPressed: () async {
                   await signInWithGoogle();
-                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                 }
               ),
             ),

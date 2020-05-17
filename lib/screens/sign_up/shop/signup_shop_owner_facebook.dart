@@ -174,6 +174,7 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
       }, merge: true);
 
       assert(user.uid == currentUser.uid);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
@@ -365,7 +366,7 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
               padding: const EdgeInsets.all(16.0),
               child: FacebookSignInButton(onPressed: () async {
                 await signInWithFacebook();
-                Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+
               }),
             ),
             SizedBox(height: 30)
