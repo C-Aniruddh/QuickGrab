@@ -300,9 +300,17 @@ class _UserHomePageState extends State<UserHomePage> {
             });
           }),
       items: upcomingAppointments.map((appointment) {
+        String total = totalAmount(appointment.data['items']);
         return Builder(builder: (BuildContext context) {
           return Container(
-            child: buildOrderScheduledBanner(appointment),
+            child: OrderDataNew(
+              isExpanded: false,
+              displayOTP: true,
+              document: appointment,
+              total: total,
+              isShop: false,
+              isInvoice: false,
+            ),
           );
         });
       }).toList(),
@@ -327,18 +335,26 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
+  Widget offersOrAppointment(){
+    if(upcomingAppointments.length < 1){
+      if(offers.length < 1){
+        return SizedBox(height: 1);
+      } else {
+        return offersView();
+      }
+    } else {
+      return appView();
+    }
+  }
+
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-      addressView(),
-      offers.length < 1 ? SizedBox(height: 1) : offersView(),
-      Divider(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
-      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-      nearbyView()
+          addressView(),
+          offers.length < 1 ? SizedBox(height: 1) : offersView(),
+          Divider(),
+          userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+          nearbyView()
     ]));
   }
 
@@ -486,6 +502,73 @@ class _UserHomePageState extends State<UserHomePage> {
         ),
       ),
     );
+  }
+
+  Widget appView() {
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text("Favourites",
+                style: TextStyle(
+                    fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection('appointments')
+                  .where('shopper_uid', isEqualTo: userData['uid'])
+                  .where('appointment_status', isEqualTo: "scheduled")
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError)
+                  return new Text('Error: ${snapshot.error}');
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return new Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Theme.of(context).accentColor,
+                      ),
+                    );
+                  default:
+                    List<DocumentSnapshot> documents = new List();
+                    documents = (snapshot.data.documents);
+                    if (documents.length < 1) {
+                      return Center(
+                        child: Text("You have no appointment requests.",
+                            style: TextStyle(
+                                fontFamily: AppFontFamilies.mainFont)),
+                      );
+                    } else {
+                      return LimitedBox(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: documents.length,
+                            itemBuilder: (BuildContext ctxt, int index) {
+                              DocumentSnapshot document =
+                              documents[index];
+                              String total = totalAmount(document.data['items']);
+                              return OrderDataNew(
+                                document: document,
+                                total: total,
+                                displayOTP: false,
+                                isInvoice: true,
+                                isExpanded: false,
+                              );
+                            }),
+                      );
+                    }
+                }
+              },
+            ),
+          ),
+          Divider(),
+        ]);
   }
 
   Widget favoritesView() {
