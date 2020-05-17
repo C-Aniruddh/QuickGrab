@@ -77,7 +77,7 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
 
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    _showLoginDialog(context, "Logging you in...");
+    //_showLoginDialog(context, "Logging you in...");
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
@@ -101,7 +101,7 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
 
   Future<String> signInWithFacebook() async {
     var facebookLogin = new FacebookLogin();
-    _showLoginDialog(context, "Logging you in...");
+    //_showLoginDialog(context, "Logging you in...");
     var result = await facebookLogin.logIn(['email', 'public_profile']);
 
     FirebaseUser user;
@@ -159,7 +159,7 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
               child: InkWell(
                 onTap: () async {
                   await signInWithFacebook();
-                  Navigator.pop(context);
+                  //Navigator.pop(context);
                 },
                 child: Card(
                     child: Padding(
@@ -185,7 +185,7 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
               child: InkWell(
                 onTap: () async {
                   await signInWithGoogle();
-                  Navigator.pop(context);
+                  //Navigator.pop(context);
                 },
                 child: Card(
                     child: Padding(

@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="app">
+  <meta name="google-signin-client_id" content="765431265467-la36fngiktebmieqd0751cqajh6tmn02.apps.googleusercontent.com">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -28,6 +29,31 @@
       });
     }
   </script>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+       https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-auth.js"></script>
+
+  <script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyB4uxDJcZ9fW-LWVqxmgeMvqvFstQGlIEA",
+    authDomain: "shopapp-15d39.firebaseapp.com",
+    databaseURL: "https://shopapp-15d39.firebaseio.com",
+    projectId: "shopapp-15d39",
+    storageBucket: "shopapp-15d39.appspot.com",
+    messagingSenderId: "765431265467",
+    appId: "1:765431265467:web:05069dab9ddbb7fcd5519e",
+    measurementId: "G-GD912Y9V5Y"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>
