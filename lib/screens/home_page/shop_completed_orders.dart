@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -329,165 +330,17 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                       itemBuilder: (BuildContext ctxt, int index) {
                         DocumentSnapshot document = documents[index];
                         String total = totalAmount(document['items']);
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            margin: EdgeInsets.all(10.0),
-                            elevation: 2,
-                            child: Container(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ExpansionTile(
-                                  leading: Icon(Icons.check_circle),
-                                  title: Text(
-                                    document['shopper_name'] ,
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                              EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                              child: Text(
-                                                "Date:",
-                                                style: TextStyle(fontSize: 16.0),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                              EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                              child: Text(
-                                                document['appointment_date'] != null
-                                                    ? document['appointment_date']
-                                                    : "Pending",
-                                                style: TextStyle(fontSize: 16.0),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                          child: Text(
-                                            "Time Slot:",
-                                            style: TextStyle(fontSize: 16.0),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                          child: Text(
-                                            document['appointment_start'] != null &&
-                                                document['appointment_end'] != null
-                                                ? document['appointment_start'] +
-                                                " - " +
-                                                document['appointment_end']
-                                                : "Pending",
-                                            style: TextStyle(fontSize: 16.0),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Divider(
-                                      color: Colors.grey,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                            child: Text(
-                                              "Item",
-                                              style: TextStyle(fontSize: 16.0),
-                                            ),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                                child: Text(
-                                                  "Quantity",
-                                                  style: TextStyle(fontSize: 16.0),
-                                                ),
-                                              ),
-                                              Text(
-                                                "|",
-                                                style: TextStyle(fontSize: 16.0),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                                child: Text(
-                                                  "Price",
-                                                  style: TextStyle(fontSize: 16.0),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    _buildInvoiceContentCompressed(document['items']),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 20.0),
-                                      child: Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: Container(
-                                          width:
-                                          MediaQuery.of(context).size.width * 0.4,
-                                          child: Divider(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                            child: Text(
-                                              "Total",
-                                              style: TextStyle(fontSize: 16.0),
-                                            ),
-                                          ),
-                                          Text(
-                                            "|",
-                                            style: TextStyle(fontSize: 16.0),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                            child: Text(
-                                              total.toString(),
-                                              style: TextStyle(fontSize: 16.0),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                        return OrderDataNew(
+                          document: document,
+                          total: total,
+                          isInvoice: true,
+                          isExpanded: true,
+                          isShop: true,
+                          displayOTP: false,
                         );
                       },
                     ),
-                  );;
+                  );
                 }
             }
           },

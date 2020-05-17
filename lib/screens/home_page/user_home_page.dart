@@ -5,6 +5,7 @@ import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
+import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -1151,7 +1152,7 @@ class _UserHomePageState extends State<UserHomePage> {
                     DocumentSnapshot document = documents[index];
                     String total = totalAmount(document['items']);
                     // return scheduledAppointments(document, total);
-                    return OrderData(
+                    return OrderDataNew(
                       document: document,
                       total: total,
                       displayOTP: true,
@@ -1279,177 +1280,12 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
                     String total = totalAmount(document['items']);
-                    return Card(
-                      margin: EdgeInsets.all(10.0),
-                      elevation: 2,
-                      child: Container(
-                        child: ExpansionTile(
-                          title: Text(
-                            document['shop_name'] +
-                                " on " +
-                                document['appointment_date'],
-                            style: TextStyle(fontSize: 16.0),
-                          ),
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                      child: Text(
-                                        "Date:",
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                      child: Text(
-                                        document['appointment_date'] != null
-                                            ? document['appointment_date']
-                                            : "Pending",
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                  child: Text(
-                                    "Time Slot:",
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                  child: Text(
-                                    document['appointment_start'] != null &&
-                                            document['appointment_end'] != null
-                                        ? document['appointment_start'] +
-                                            " - " +
-                                            document['appointment_end']
-                                        : "Pending",
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                    child: Text(
-                                      "Item",
-                                      style: TextStyle(fontSize: 16.0),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                        child: Text(
-                                          "Quantity",
-                                          style: TextStyle(fontSize: 16.0),
-                                        ),
-                                      ),
-                                      Text(
-                                        "|",
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                        child: Text(
-                                          "Price",
-                                          style: TextStyle(fontSize: 16.0),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            _buildInvoiceContentCompressed(document['items']),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 20.0),
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  child: Divider(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                    child: Text(
-                                      "Total",
-                                      style: TextStyle(fontSize: 16.0),
-                                    ),
-                                  ),
-                                  Text(
-                                    "|",
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                    child: Text(
-                                      total.toString(),
-                                      style: TextStyle(fontSize: 16.0),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child: Center(
-                                child: RaisedButton(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                      side: BorderSide(
-                                          color: Colors.orangeAccent)),
-                                  onPressed: () {},
-                                  color: Colors.orangeAccent,
-                                  textColor: Colors.white,
-                                  child: Padding(
-                                    padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                                    child: Text(
-                                      "Mail Invoice",
-                                      style: TextStyle(fontSize: 16.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                    return OrderDataNew(
+                      document: document,
+                      total: total,
+                      displayOTP: false,
+                      isInvoice: true,
+                      isExpanded: false,
                     );
                   },
                 ),

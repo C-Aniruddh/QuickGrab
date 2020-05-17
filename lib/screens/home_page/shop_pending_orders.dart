@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app/screens/appointment_details.dart';
+import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -116,40 +117,46 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
         });
   }
 
+  String totalAmount(var items) {
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+
+      if (item['cost'] == "NA") {
+        return "NA";
+      }
+
+      total = total +
+          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
+    }
+
+    return total.toString();
+  }
+
   Widget buildAppDet(DocumentSnapshot document){
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: InkWell(
-        onTap: (){
-          if(shopScheduled == null){
-            Firestore.instance.collection('appointments')
-                .where('target_shop', isEqualTo: widget.userData.documentID)
-                .where('appointment_status', isEqualTo: "scheduled")
-                .getDocuments()
-                .then((docs) => {
-              shopScheduled = docs.documents
-            });
-          }
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document, timeSlots: timeSlots, shopScheduled: shopScheduled, shopData: widget.userData,)));
-        },
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(document['shopper_name'], overflow: TextOverflow.ellipsis,),
-                ],
-              ),
-              subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(document['items'].length.toString() + "  items")
-                ],
-              ),
-            ),
-          )
+    String total = totalAmount(document['items']);
+    return InkWell(
+      onTap: (){
+        if(shopScheduled == null){
+          Firestore.instance.collection('appointments')
+              .where('target_shop', isEqualTo: widget.userData.documentID)
+              .where('appointment_status', isEqualTo: "scheduled")
+              .getDocuments()
+              .then((docs) => {
+            shopScheduled = docs.documents
+          });
+        }
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AppointmentDetails(appointmentData: document, timeSlots: timeSlots, shopScheduled: shopScheduled, shopData: widget.userData,)));
+      },
+      child: IgnorePointer(
+        child: OrderDataNew(
+          document: document,
+          total: total,
+          displayOTP: false,
+          isInvoice: true,
+          isExpanded: true,
+          isShop: true,
         ),
       ),
     );
