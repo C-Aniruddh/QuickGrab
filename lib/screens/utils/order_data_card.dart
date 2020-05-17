@@ -372,7 +372,7 @@ class _OrderDataState extends State<OrderData> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: orderCardTicket(widget.document, widget.total),
+      child: orderCard(widget.document, widget.total),
     );
   }
 }
