@@ -1,3 +1,4 @@
+import 'package:app/screens/sign_up/shop/signup_shop_owner_facebook.dart';
 import 'package:app/screens/sign_up/shop/signup_shop_owner_google.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -70,13 +71,18 @@ class _SignUpShopOwnerState extends State<SignUpShopOwner> {
             Divider(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
-              child: Card(child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(title: Text("Phone Number", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                leading: Image(image: AssetImage('assets/images/password.png'), height: 48, width: 48,),
-                subtitle: Text("Sign in with phone number", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                trailing: Icon(Icons.arrow_forward_ios)),
-              )),
+              child: InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpShopOwnerFacebook()));
+                },
+                child: Card(child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(title: Text("Facebook", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  leading: Image(image: AssetImage('assets/images/facebook_logo.png'), height: 48, width: 48,),
+                  subtitle: Text("Sign in with your facebook account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  trailing: Icon(Icons.arrow_forward_ios)),
+                )),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 4),
@@ -86,9 +92,9 @@ class _SignUpShopOwnerState extends State<SignUpShopOwner> {
                 },
                 child: Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(title: Text("Sign in with Google", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  child: ListTile(title: Text("Google", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       leading: Image(image: AssetImage('assets/images/g-logo.png'), height: 48, width: 48,),
-                      subtitle: Text("Sign in using your google account!", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      subtitle: Text("Sign in using your google account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),

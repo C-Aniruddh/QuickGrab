@@ -2,22 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:app/fonts.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 
-class SignUpShopperGoogle extends StatefulWidget {
-  SignUpShopperGoogle({Key key, this.title}) : super(key: key);
+class SignUpShopperFacebook extends StatefulWidget {
+  SignUpShopperFacebook({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _SignUpShopperGoogleState createState() => _SignUpShopperGoogleState();
+  _SignUpShopperFacebookState createState() => _SignUpShopperFacebookState();
 }
 
-class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
+class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -93,23 +94,24 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
     }
   }
 
-  Future<String> signInWithGoogle() async {
+  Future<String> signInWithFacebook() async {
     if (userAddress == "") {
       showAlertDialog(context, "Invalid address", "Please check the entered address.");
     } else if (_phoneNumberController.text.length == 0){
       showAlertDialog(context, "Invalid phone number", "Please check the entered phone number.");
     } else {
-      final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
+      var facebookLogin = new FacebookLogin();
+      var result = await facebookLogin.logIn(['email', 'public_profile']);
 
-      final AuthResult authResult = await FirebaseAuth.instance.signInWithCredential(credential);
-      final FirebaseUser user = authResult.user;
+      FirebaseUser user;
+
+      if (result.status == FacebookLoginStatus.loggedIn){
+        FacebookAccessToken facebookAccessToken = result.accessToken;
+        AuthCredential authCredential = FacebookAuthProvider.getCredential(accessToken: facebookAccessToken.token);
+
+         user = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
+      }
 
       assert(!user.isAnonymous);
       assert(await user.getIdToken() != null);
@@ -227,12 +229,12 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
-              child: Image(image: AssetImage('assets/images/sign_up_form.png'), height: 250, width: 300,),
+              child: Hero(tag: "facebook", child: Image(image: AssetImage('assets/images/facebook_logo.png'), height: 250, width: 300,)),
             ),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(child: Text("Sign up with Google!", style: TextStyle(fontSize: 24, fontFamily: AppFontFamilies.mainFont))),
+              child: Center(child: Text("Sign up with Facebook!", style: TextStyle(fontSize: 24, fontFamily: AppFontFamilies.mainFont))),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -318,17 +320,14 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
                   )),
             ),
           ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GoogleSignInButton(
-                darkMode: true,
-                onPressed: () async {
-                  await signInWithGoogle();
-                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                }
-              ),
-            ),
 
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FacebookSignInButton(onPressed: () async {
+              await signInWithFacebook();
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            }),
+          ),
             SizedBox(height: 30)
           ],
         ),
