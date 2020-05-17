@@ -220,77 +220,50 @@ class _ShopPageState extends State<ShopPage> {
                 ),
               );
             } else {
-              return ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                primary: true,
-                shrinkWrap: true,
-                itemCount: filterList.length,
-                //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //    crossAxisCount: 2, childAspectRatio: (1/1)),
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(filterList[index].data['img_url']),
-                          ),
-                          subtitle: Text(
-                              "₹" + filterList[index].data['item_price'],
-                              style: TextStyle(
-                                  fontFamily: AppFontFamilies.mainFont)),
-                          title: Text(filterList[index].data['item_name'],
-                              style: TextStyle(
-                                  fontFamily: AppFontFamilies.mainFont)),
-                          trailing: IconButton(
-                            icon: Icon(Icons.add_shopping_cart),
-                            onPressed: () {
-                              print("Pressed");
-                              Firestore.instance
-                                  .collection('cart')
-                                  .document(widget.userDetails.documentID)
-                                  .get()
-                                  .then((document) {
-                                List<dynamic> cart;
-                                if (document.exists) {
-                                  print("Does exist");
-                                  cart = document.data['cart'];
-                                } else {
-                                  print("Created");
-                                  cart = [];
-                                }
-
-                                if (cart.length < 1) {
-                                  cart.add({
-                                    'user_uid': widget.userDetails.documentID,
-                                    'product': filterList[index].data,
-                                    'timestamp':
-                                        DateTime.now().millisecondsSinceEpoch,
-                                    'cost':
-                                        filterList[index].data['item_price'],
-                                    'quantity': 1,
-                                    'productID': filterList[index].documentID
-                                  });
-                                } else {
-                                  List<String> productsInCart = [];
-
-                                  for (var i = 0; i < cart.length; i++) {
-                                    var item = cart[i];
-                                    productsInCart
-                                        .add(item['productID'].toString());
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  primary: true,
+                  shrinkWrap: true,
+                  itemCount: filterList.length,
+                  //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  //    crossAxisCount: 2, childAspectRatio: (3/4)),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(filterList[index].data['img_url']),
+                            ),
+                            subtitle: Text(
+                                "₹" + filterList[index].data['item_price'],
+                                style: TextStyle(
+                                    fontFamily: AppFontFamilies.mainFont)),
+                            title: Text(filterList[index].data['item_name'],
+                                style: TextStyle(
+                                    fontFamily: AppFontFamilies.mainFont)),
+                            trailing: IconButton(
+                              icon: Icon(Icons.add_shopping_cart),
+                              onPressed: () {
+                                print("Pressed");
+                                Firestore.instance
+                                    .collection('cart')
+                                    .document(widget.userDetails.documentID)
+                                    .get()
+                                    .then((document) {
+                                  List<dynamic> cart;
+                                  if (document.exists) {
+                                    print("Does exist");
+                                    cart = document.data['cart'];
+                                  } else {
+                                    print("Created");
+                                    cart = [];
                                   }
 
-                                  if (productsInCart
-                                      .contains(filterList[index].documentID)) {
-                                    for (var j = 0; j < cart.length; j++) {
-                                      var it = cart[j];
-                                      if (it['productID'] ==
-                                          filterList[index].documentID) {
-                                        it['quantity'] = it['quantity'] + 1;
-                                      }
-                                    }
-                                  } else {
+                                  if (cart.length < 1) {
                                     cart.add({
                                       'user_uid': widget.userDetails.documentID,
                                       'product': filterList[index].data,
@@ -301,21 +274,51 @@ class _ShopPageState extends State<ShopPage> {
                                       'quantity': 1,
                                       'productID': filterList[index].documentID
                                     });
-                                  }
-                                }
-                                Firestore.instance
-                                    .collection('cart')
-                                    .document(widget.userDetails.documentID)
-                                    .setData({'cart': cart}, merge: true);
+                                  } else {
+                                    List<String> productsInCart = [];
 
-                                _showInfoDialog(
-                                    context, "Item has been added to cart.");
-                              });
-                            },
-                          )),
-                    ),
-                  );
-                },
+                                    for (var i = 0; i < cart.length; i++) {
+                                      var item = cart[i];
+                                      productsInCart
+                                          .add(item['productID'].toString());
+                                    }
+
+                                    if (productsInCart
+                                        .contains(filterList[index].documentID)) {
+                                      for (var j = 0; j < cart.length; j++) {
+                                        var it = cart[j];
+                                        if (it['productID'] ==
+                                            filterList[index].documentID) {
+                                          it['quantity'] = it['quantity'] + 1;
+                                        }
+                                      }
+                                    } else {
+                                      cart.add({
+                                        'user_uid': widget.userDetails.documentID,
+                                        'product': filterList[index].data,
+                                        'timestamp':
+                                            DateTime.now().millisecondsSinceEpoch,
+                                        'cost':
+                                            filterList[index].data['item_price'],
+                                        'quantity': 1,
+                                        'productID': filterList[index].documentID
+                                      });
+                                    }
+                                  }
+                                  Firestore.instance
+                                      .collection('cart')
+                                      .document(widget.userDetails.documentID)
+                                      .setData({'cart': cart}, merge: true);
+
+                                  _showInfoDialog(
+                                      context, "Item has been added to cart.");
+                                });
+                              },
+                            )),
+                      ),
+                    );
+                  },
+                ),
               );
             }
         }
