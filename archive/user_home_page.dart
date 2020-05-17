@@ -1,3 +1,4 @@
+/*
 import 'dart:async';
 import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
@@ -25,7 +26,6 @@ import 'package:share/share.dart';
 import 'package:app/screens/user_options/rate_app.dart' as rateApp;
 import 'package:app/screens/utils/fab_bottom_app_bar.dart';
 import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
-import 'package:app/screens/utils/order_data_card.dart';
 
 class MapUtils {
   MapUtils._();
@@ -175,7 +175,7 @@ class _UserHomePageState extends State<UserHomePage> {
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
 
-    if (meter.round() > 1000) {
+    if (meter.round() > 1000){
       return (meter.round() / 1000).toString() + " kms away";
     }
     return meter.round().toString() + " meters away";
@@ -184,8 +184,7 @@ class _UserHomePageState extends State<UserHomePage> {
   List<DocumentSnapshot> filterByDistance(List<DocumentSnapshot> allDocs) {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
-      if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
-          200000) {
+      if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) < 200000) {
         toReturn.add(allDocs[i]);
       } else {
         // do nothing
@@ -329,15 +328,15 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-      addressView(),
-      offers.length < 1 ? SizedBox(height: 1) : offersView(),
-      Divider(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
-      //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
-      // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
-      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-      nearbyView()
+            addressView(),
+            offers.length < 1 ? SizedBox(height: 1) : offersView(),
+            Divider(),
+            // upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledBanner(),
+            //upcomingAppointments.length < 1 ? SizedBox(height: 1) : buildOrderScheduledCarousel(),
+            //upcomingAppointments.length < 1 ? SizedBox(height: 1) : indicatorDots(),
+            // upcomingAppointments.length < 1 ? SizedBox(height: 1) :  Divider(),
+            userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+            nearbyView()
     ]));
   }
 
@@ -623,18 +622,17 @@ class _UserHomePageState extends State<UserHomePage> {
 
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-      stream: userData.data['is21']
-          ? Firestore.instance
-              .collection('shops')
-              .where("shop_geohash", isGreaterThanOrEqualTo: lower)
-              .where("shop_geohash", isLessThanOrEqualTo: upper)
-              .snapshots()
+      stream: userData.data['is21'] ? Firestore.instance
+          .collection('shops')
+          .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+          .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .snapshots()
           : Firestore.instance
-              .collection('shops')
-              .where('industry', whereIn: _industryListNoLiqour)
-              .where("shop_geohash", isGreaterThanOrEqualTo: lower)
-              .where("shop_geohash", isLessThanOrEqualTo: upper)
-              .snapshots(),
+          .collection('shops')
+          .where('industry', whereIn: _industryListNoLiqour)
+          .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+          .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
@@ -678,8 +676,8 @@ class _UserHomePageState extends State<UserHomePage> {
                                     filterList[index].data['shop_image']),
                               ),
                               subtitle: Text(
-                                  distanceBetween(
-                                      filterList[index].data['shop_geohash']),
+                                  distanceBetween(filterList[index]
+                                          .data['shop_geohash']),
                                   style: TextStyle(
                                       fontFamily: AppFontFamilies.mainFont)),
                               title: Text(filterList[index].data['shop_name'],
@@ -1150,12 +1148,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   itemBuilder: (BuildContext ctxt, int index) {
                     DocumentSnapshot document = documents[index];
                     String total = totalAmount(document['items']);
-                    // return scheduledAppointments(document, total);
-                    return OrderData(
-                      document: document,
-                      total: total,
-                      displayOTP: true,
-                    );
+                    return scheduledAppointments(document, total);
                   },
                 ),
               );
@@ -1220,32 +1213,23 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
-  String totalAmount(var items) {
+  String totalAmount(var items){
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
 
-      if (item['cost'] == "NA") {
+      if (item['cost'] == "NA"){
         return "NA";
       }
 
       total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
+          (int.parse(item['cost']) *
+              int.parse(
+                  item['quantity'].toString()));
     }
 
     return total.toString();
-  }
-
-  int totalItems(var items) {
-    int total = 0;
-
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      total = total + int.parse(item['quantity'].toString());
-    }
-
-    return total;
   }
 
   Widget buildAppointmentsDoneUser() {
@@ -1285,9 +1269,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       child: Container(
                         child: ExpansionTile(
                           title: Text(
-                            document['shop_name'] +
-                                " on " +
-                                document['appointment_date'],
+                            document['shop_name'] + " on " + document['appointment_date'],
                             style: TextStyle(fontSize: 16.0),
                           ),
                           children: [
@@ -1524,11 +1506,12 @@ class _UserHomePageState extends State<UserHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: SingleChildScrollView(
-                child: Center(
-              child: Container(
-                child: Text("This page is currently under construction."),
-              ),
-            )),
+              child: Center(
+                child: Container(
+                  child: Text("This page is currently under construction."),
+                ),
+              )
+            ),
             actions: <Widget>[
               FlatButton(
                 onPressed: () {
@@ -1863,7 +1846,7 @@ class _UserHomePageState extends State<UserHomePage> {
               .where('read', isEqualTo: false)
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
+            if (!snapshot.hasData){
               return IconButton(
                 icon: Icon(Icons.notifications,
                     color: Theme.of(context).accentColor),
@@ -1894,7 +1877,9 @@ class _UserHomePageState extends State<UserHomePage> {
                 badgeContent: SizedBox(height: 20),
                 child: new IconButton(
                   icon: Icon(Icons.notifications,
-                      color: Theme.of(context).accentColor),
+                      color: Theme
+                          .of(context)
+                          .accentColor),
                   onPressed: () async {
                     Navigator.push(
                         context,
@@ -1990,13 +1975,8 @@ class _UserHomePageState extends State<UserHomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => SearchPage(
-                        userData: userData,
-                      )));
-        },
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPage(userData: userData,)));
+         },
         tooltip: 'Search',
         child: Icon(Icons.search),
         elevation: 2.0,
@@ -2004,3 +1984,4 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 }
+*/
