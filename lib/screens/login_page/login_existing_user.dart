@@ -1,4 +1,5 @@
 import 'package:app/screens/sign_up/user/signup_shopper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -27,6 +28,40 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
     }
   }
 
+  Future<void> _signOut() async {
+    try {
+      await googleSignIn.signOut();
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      print(e); // TODO: show dialog with error
+    }
+  }
+
+  _showInfoDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -45,6 +80,16 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
 
     final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
     assert(user.uid == currentUser.uid);
+
+    Firestore.instance.collection('uid_type')
+      .document(user.uid)
+      .get()
+      .then((doc){
+        if(!doc.exists){
+          _showInfoDialog(context, "You do not have an account. Please sign up first. ");
+          _signOut();
+        }
+    });
 
     return 'signInWithGoogle succeeded: $user';
   }
