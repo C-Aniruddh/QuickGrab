@@ -499,29 +499,33 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     );
   }
 
-  bool check24hrsHistory() {
+  check24hrsHistory() {
     var date = new DateTime.now();
     var date24 = new DateTime(date.year, date.month, date.day - 1);
     print(date);
     print(date24);
-    bool isIn24 = false;
+
     Firestore.instance
         .collection('appointments')
         .where('shopper_uid', isEqualTo: widget.userData.documentID)
         .where('timestamp', isGreaterThan: date24)
         .getDocuments()
         .then((documents) {
+
       for (var i = 0; i < documents.documents.length; i++) {
         var items = documents.documents[i].data['items'];
         for (var j = 0; j < items.length; j++) {
           var item = items[j];
+          print(item);
           if (item['product']['shop_industry'] == 'Liquor') {
-            isIn24 = true;
+            print("yes");
+            setState(() {
+              hasOrderedIn24Hours = true;
+            });
           }
         }
       }
     });
-    return isIn24;
   }
 
   @override
@@ -529,7 +533,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     setState(() {
       hasLiquor = checkLiquor();
       isOverflow = checkLiquorOverflow();
-      // hasOrderedIn24Hours = check24hrsHistory();
+      check24hrsHistory();
     });
     super.initState();
   }
@@ -608,7 +612,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                           borderRadius: new BorderRadius.circular(30.0),
                         ),
                         onPressed: () async {
-                          if (!isOverflow) {
+                          if (!isOverflow && !hasOrderedIn24Hours) {
                             _showInfoDialog(
                                 context, "Your order is being placed");
                             var rng = new Random();
