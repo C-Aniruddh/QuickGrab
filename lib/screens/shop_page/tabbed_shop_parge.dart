@@ -190,11 +190,16 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildProductGrid(String category) {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
-          .collection('products')
-          .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
-          .where('item_category', isEqualTo: category)
-          .snapshots(),
+      stream: category == "All Products"
+          ? Firestore.instance
+              .collection('products')
+              .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
+              .snapshots()
+          : Firestore.instance
+              .collection('products')
+              .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
+              .where('item_category', isEqualTo: category)
+              .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
@@ -210,7 +215,8 @@ class _ShopPageState extends State<ShopPage> {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 96.0, 16.0, 16.0),
-                  child: Text("There are no products in this category available."),
+                  child:
+                      Text("There are no products in this category available."),
                 ),
               );
             } else {
@@ -401,38 +407,82 @@ class _ShopPageState extends State<ShopPage> {
         });
   }
 
-  List<String> categoriesByIndustry(String industry){
-    if (industry == 'Agriculure'){
+  List<String> categoriesByIndustry(String industry) {
+    if (industry == 'Agriculure') {
       return ['Pesticides', 'Grains', 'Seeds', 'Other'];
-    } else if (industry == 'Consurmer durables'){
+    } else if (industry == 'Consurmer durables') {
       return ['Other'];
-    } else if (industry == 'Education'){
+    } else if (industry == 'Education') {
       return ['Other'];
-    } else if (industry == 'Engineering and capital goods'){
-      return ['Electronic Parts', 'Electronic gadgets',  'Other'];
-    } else if (industry == 'Gems and Jwellery'){
-      return ['Ring', 'Necklace', 'Pendant', 'Gold', 'Silver',  'Other'];
+    } else if (industry == 'Engineering and capital goods') {
+      return ['Electronic Parts', 'Electronic gadgets', 'Other'];
+    } else if (industry == 'Gems and Jwellery') {
+      return ['Ring', 'Necklace', 'Pendant', 'Gold', 'Silver', 'Other'];
     } else if (industry == 'Grocery') {
-      return ['Beverages', 'Bread/Bakery', 'Canned/Jarred Goods', 'Dairy', 'Baking Goods',
-        'Frozen Goods', 'Snacks', 'Spices', 'Meat', 'Milk Produce', 'Grains', 'Cleaners',
-        'Paper Goods', 'Personal Care', 'Other'];
-    } else if (industry == 'Liquor'){
-      return ['Whiskey', 'Beer', 'Brandy', 'Vodka', 'Rum', 'Gin', 'Tequila',  'Other'];
-    } else if (industry == 'Manufacturing'){
+      return [
+        'Beverages',
+        'Bread/Bakery',
+        'Canned/Jarred Goods',
+        'Dairy',
+        'Baking Goods',
+        'Frozen Goods',
+        'Snacks',
+        'Spices',
+        'Meat',
+        'Milk Produce',
+        'Grains',
+        'Cleaners',
+        'Paper Goods',
+        'Personal Care',
+        'Other'
+      ];
+    } else if (industry == 'Liquor') {
+      return [
+        'Whiskey',
+        'Beer',
+        'Brandy',
+        'Vodka',
+        'Rum',
+        'Gin',
+        'Tequila',
+        'Other'
+      ];
+    } else if (industry == 'Manufacturing') {
       return ['Other'];
-    } else if (industry == 'Oil and Gas'){
+    } else if (industry == 'Oil and Gas') {
       return ['Petrol', 'Diesel', 'CNG', 'Other'];
-    } else if (industry == 'Pharmaceuticals'){
+    } else if (industry == 'Pharmaceuticals') {
       return ['General', 'Prescription', 'Other'];
-    } else if (industry == 'Retail'){
-      return ['Tshirts', 'Pants', 'Jeans', 'Shirts', 'Inners', 'Jackets', 'Accessories', 'Socks and shoes',  'Other'];
-    } else if (industry == 'Stationary'){
-      return ['Paper', 'Envelopes', 'Chart Paper', 'Books', 'Study Material', 'Stapler',
-        'Notepads', 'Notebooks', 'Pens/Pencils', 'Journal Sheets', 'Other'];
-    } else if (industry == 'Textile'){
+    } else if (industry == 'Retail') {
+      return [
+        'Tshirts',
+        'Pants',
+        'Jeans',
+        'Shirts',
+        'Inners',
+        'Jackets',
+        'Accessories',
+        'Socks and shoes',
+        'Other'
+      ];
+    } else if (industry == 'Stationary') {
+      return [
+        'Paper',
+        'Envelopes',
+        'Chart Paper',
+        'Books',
+        'Study Material',
+        'Stapler',
+        'Notepads',
+        'Notebooks',
+        'Pens/Pencils',
+        'Journal Sheets',
+        'Other'
+      ];
+    } else if (industry == 'Textile') {
       return ['Other'];
-    } else if (industry == 'Vegetables and Fruits'){
-      return ['Vegetables', 'Fruits', 'Extras',  'Other'];
+    } else if (industry == 'Vegetables and Fruits') {
+      return ['Vegetables', 'Fruits', 'Extras', 'Other'];
     } else {
       return ['Other'];
     }
@@ -440,6 +490,7 @@ class _ShopPageState extends State<ShopPage> {
 
   getCategories() {
     categories = categoriesByIndustry(widget.shopDetails['industry']);
+    categories.insert(0, "All Products");
   }
 
   Widget tabWidget(String category) {
@@ -503,18 +554,20 @@ class _ShopPageState extends State<ShopPage> {
               SliverPersistentHeader(
                 delegate: SliverAppBarDelegate(
                   TabBar(
-                    isScrollable: true,
-                    indicatorColor: Theme.of(context).hintColor,
-                    labelColor: Colors.black,
-                    unselectedLabelColor: Colors.grey,
-                    tabs: categories.map((category) => Tab(text: category)).toList()
-                  ),
+                      isScrollable: true,
+                      indicatorColor: Theme.of(context).hintColor,
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey,
+                      tabs: categories
+                          .map((category) => Tab(text: category))
+                          .toList()),
                 ),
               )
             ];
           },
           body: TabBarView(
-            children: categories.map((category) => tabWidget(category)).toList(),
+            children:
+                categories.map((category) => tabWidget(category)).toList(),
             /*
             [
               SingleChildScrollView(
