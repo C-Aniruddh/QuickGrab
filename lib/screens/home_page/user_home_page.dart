@@ -6,6 +6,7 @@ import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
+import 'package:app/screens/user_options/cancel_order.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:badges/badges.dart';
@@ -1956,6 +1957,19 @@ class _UserHomePageState extends State<UserHomePage> {
         SizedBox(width: 10),
       ];
     }
+  }
+
+  _showUserCancelDialog(
+      BuildContext context, DocumentSnapshot document) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: CancelReason(),
+            ),
+          );
+        });
   }
 
   @override
