@@ -1966,7 +1966,7 @@ class _UserHomePageState extends State<UserHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: SingleChildScrollView(
-              child: CancelReason(),
+              child: CancelUserReason(),
             ),
           );
         });
