@@ -2,12 +2,12 @@ class AppFontFamilies {
   static final List<String> fonts = [
     'CircularBook',
     'Avenir',
-    'Proxima Nova',
+    'ProximaNova',
     'Britanica',
     'RobotoMono'
   ];
 
-  static final String mainFont = fonts[1];
+  static final String mainFont = fonts[0];
   static final String titleFont = fonts[1];
   static final String subtitileFont = fonts[1];
   static final String secondaryFont = fonts[3];
