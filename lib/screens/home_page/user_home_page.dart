@@ -19,7 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
-import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart' as gmfp;
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as gmfp;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:latlong/latlong.dart';
@@ -102,7 +103,7 @@ class _UserHomePageState extends State<UserHomePage> {
   final suggestionformKey = GlobalKey<FormState>();
 
   void setUserData(String uid) async {
-    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid){
+    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid) {
       token = await FirebaseNotifications().setUpFirebase();
     }
     await Firestore.instance
@@ -133,11 +134,12 @@ class _UserHomePageState extends State<UserHomePage> {
     updateNotificationToken();
   }
 
-  updateNotificationToken(){
-    if (token == null){
+  updateNotificationToken() {
+    if (token == null) {
       token = "none";
     }
-    Firestore.instance.collection('users')
+    Firestore.instance
+        .collection('users')
         .document(userData.documentID)
         .updateData({'token': token});
   }
@@ -227,7 +229,8 @@ class _UserHomePageState extends State<UserHomePage> {
       }
     }
 
-    toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash']).compareTo(distanceBetweenDouble(b['shop_geohash'])));
+    toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash'])
+        .compareTo(distanceBetweenDouble(b['shop_geohash'])));
 
     return toReturn;
   }
@@ -372,9 +375,9 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget offersOrAppointment(){
-    if(upcomingAppointments.length < 1){
-      if(offers.length < 1){
+  Widget offersOrAppointment() {
+    if (upcomingAppointments.length < 1) {
+      if (offers.length < 1) {
         return SizedBox(height: 1);
       } else {
         return offersView();
@@ -387,11 +390,11 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-          addressView(),
-          offers.length < 1 ? SizedBox(height: 1) : offersView(),
-          Divider(),
-          userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-          nearbyView()
+      addressView(),
+      offers.length < 1 ? SizedBox(height: 1) : offersView(),
+      Divider(),
+      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+      nearbyView()
     ]));
   }
 
@@ -411,72 +414,95 @@ class _UserHomePageState extends State<UserHomePage> {
               child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
             child: ListTile(
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () async {
-                  Firestore.instance.collection('location_change')
-                    .document(userData.documentID)
-                    .get()
-                    .then((doc) async{
-                    var date = new DateTime.now();
-                    var date24 = new DateTime(date.year, date.month, date.day - 1, date.hour, date.minute);
-
-                    if(!doc.exists){
-                      LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137));
-                      print(result.address);
-                      print(result.latLng);
-                      GeoHasher geoHasher = GeoHasher();
-                      String userGeoHash = geoHasher.encode(result.latLng.longitude, result.latLng.latitude, precision: 8);
-
-                      Firestore.instance.collection('users')
-                          .document(userData.documentID)
-                          .updateData({'address': result.address,
-                        'geohash': userGeoHash,
-                        'lat': result.latLng.latitude,
-                        'lon': result.latLng.longitude
-                      });
-                      Firestore.instance.collection('location_change')
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () async {
+                    Firestore.instance
+                        .collection('location_change')
                         .document(userData.documentID)
-                        .setData({'last_change': date}, merge: true);
+                        .get()
+                        .then((doc) async {
+                      var date = new DateTime.now();
+                      var date24 = new DateTime(date.year, date.month,
+                          date.day - 1, date.hour, date.minute);
 
-                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                    } else {
-                      DateTime lastChange = doc.data['last_change'].toDate();
-                      Jiffy lastChangeJ = new Jiffy(lastChange);
-                      Jiffy currentTime = new Jiffy(date);
-                      Jiffy newTime = Jiffy(lastChangeJ.add(duration: Duration(hours: 24)));
-
-                      if (currentTime.isAfter(newTime)){
-                        LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137), requiredGPS: false, );
+                      if (!doc.exists) {
+                        LocationResult result = await showLocationPicker(
+                            context, apiKey,
+                            initialCenter: gmfp.LatLng(19.074376, 72.871137));
                         print(result.address);
                         print(result.latLng);
                         GeoHasher geoHasher = GeoHasher();
-                        String userGeoHash = geoHasher.encode(result.latLng.longitude, result.latLng.latitude, precision: 8);
+                        String userGeoHash = geoHasher.encode(
+                            result.latLng.longitude, result.latLng.latitude,
+                            precision: 8);
 
-                        Firestore.instance.collection('users')
+                        Firestore.instance
+                            .collection('users')
                             .document(userData.documentID)
-                            .updateData({'address': result.address,
+                            .updateData({
+                          'address': result.address,
                           'geohash': userGeoHash,
                           'lat': result.latLng.latitude,
                           'lon': result.latLng.longitude
                         });
-                        Firestore.instance.collection('location_change')
+                        Firestore.instance
+                            .collection('location_change')
                             .document(userData.documentID)
                             .setData({'last_change': date}, merge: true);
 
-                        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/home', (route) => false);
                       } else {
-                        _showInfoDialog(context, "You have already changed your location once in the last 24 hours. Please wait before trying again.");
+                        DateTime lastChange = doc.data['last_change'].toDate();
+                        Jiffy lastChangeJ = new Jiffy(lastChange);
+                        Jiffy currentTime = new Jiffy(date);
+                        Jiffy newTime = Jiffy(
+                            lastChangeJ.add(duration: Duration(hours: 24)));
+
+                        if (currentTime.isAfter(newTime)) {
+                          LocationResult result = await showLocationPicker(
+                            context,
+                            apiKey,
+                            initialCenter: gmfp.LatLng(19.074376, 72.871137),
+                            requiredGPS: false,
+                          );
+                          print(result.address);
+                          print(result.latLng);
+                          GeoHasher geoHasher = GeoHasher();
+                          String userGeoHash = geoHasher.encode(
+                              result.latLng.longitude, result.latLng.latitude,
+                              precision: 8);
+
+                          Firestore.instance
+                              .collection('users')
+                              .document(userData.documentID)
+                              .updateData({
+                            'address': result.address,
+                            'geohash': userGeoHash,
+                            'lat': result.latLng.latitude,
+                            'lon': result.latLng.longitude
+                          });
+                          Firestore.instance
+                              .collection('location_change')
+                              .document(userData.documentID)
+                              .setData({'last_change': date}, merge: true);
+
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/home', (route) => false);
+                        } else {
+                          _showInfoDialog(context,
+                              "You have already changed your location once in the last 24 hours. Please wait before trying again.");
+                        }
                       }
-                    }
-                  });
-                },
-              ),
+                    });
+                  },
+                ),
                 title: Text(
-              userData['address'],
-              style: TextStyle(fontFamily: AppFontFamilies.mainFont),
-              overflow: TextOverflow.ellipsis,
-            )),
+                  userData['address'],
+                  style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+                  overflow: TextOverflow.ellipsis,
+                )),
           )),
         ),
       ),
@@ -644,13 +670,13 @@ class _UserHomePageState extends State<UserHomePage> {
                     } else {
                       return LimitedBox(
                         child: ListView.builder(
-                          shrinkWrap: true,
+                            shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             itemCount: documents.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              DocumentSnapshot document =
-                              documents[index];
-                              String total = totalAmount(document.data['items']);
+                              DocumentSnapshot document = documents[index];
+                              String total =
+                                  totalAmount(document.data['items']);
                               return OrderDataNew(
                                 document: document,
                                 total: total,
@@ -1959,17 +1985,11 @@ class _UserHomePageState extends State<UserHomePage> {
     }
   }
 
-  _showUserCancelDialog(
-      BuildContext context, DocumentSnapshot document) {
+  _showUserCancelDialog(BuildContext context, DocumentSnapshot document) {
     return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: CancelUserReason(),
-            ),
-          );
-        });
+      context: context,
+      child: CancelUserReason(),
+    );
   }
 
   @override
