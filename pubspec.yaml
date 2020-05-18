@@ -50,7 +50,7 @@ dependencies:
   ticket_pass_package: ^0.1.0
   flutter_facebook_login:
     git:
-      url: 'git@github.com:romulojjunior/flutter_facebook_login.git'
+      url: 'git://github.com/romulojjunior/flutter_facebook_login.git'
       ref: 'v1.3.0-web'
   flutter_auth_buttons: ^0.8.0
   flutter_advanced_networkimage: ^0.7.0

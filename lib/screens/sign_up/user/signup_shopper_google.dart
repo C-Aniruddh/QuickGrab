@@ -272,7 +272,7 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: InkWell(
                   onTap: () async {
-                    LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137));
+                    LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137), requiredGPS: false);
                     print(result.address);
                     print(result.latLng);
                     GeoHasher geoHasher = GeoHasher();

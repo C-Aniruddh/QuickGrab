@@ -446,7 +446,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       Jiffy newTime = Jiffy(lastChangeJ.add(duration: Duration(hours: 24)));
 
                       if (currentTime.isAfter(newTime)){
-                        LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137));
+                        LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137), requiredGPS: false, );
                         print(result.address);
                         print(result.latLng);
                         GeoHasher geoHasher = GeoHasher();
