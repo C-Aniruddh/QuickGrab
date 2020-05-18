@@ -66,7 +66,7 @@ class _CartPageState extends State<CartPage> {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: ListTile(
               leading: SizedBox(
                 child: CircleAvatar(
@@ -74,9 +74,8 @@ class _CartPageState extends State<CartPage> {
                 ),
               ),
               title: Text(item['product']['item_name'],
-                  style: TextStyle(
-                      fontSize: 20, fontFamily: AppFontFamilies.mainFont)),
-              subtitle: Text("₹" + item['product']['item_price'],
+                  style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+              subtitle: Text(item['product']['item_quantity'] + " | " + "₹" +  item['product']['item_price'],
                   style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

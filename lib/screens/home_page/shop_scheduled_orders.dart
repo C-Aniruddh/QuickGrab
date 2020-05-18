@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 import '../../fonts.dart';
 
@@ -136,7 +137,30 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                   );
                 } else {
                   return new Container(
-                    child: ListView.builder(
+                    child: GroupedListView(
+                      elements: documents,
+                      groupBy: (element) => element['appointment_start'],
+                      groupSeparatorBuilder: (dynamic groupByValue){
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text("Appointments scheduled at " + '$groupByValue'),
+                        );
+                      },
+                      itemBuilder: (context, element) {
+                        DocumentSnapshot document = element;
+                        String total = totalAmount(document['items']);
+                        return OrderDataScheduled(
+                          document: document,
+                          total: total,
+                          isInvoice: false,
+                          isExpanded: false,
+                          displayOTP: false,
+                          isShop: true,
+                        );
+                      },
+                      order: GroupedListOrder.ASC,
+                    ),
+                    /*ListView.builder(
                       itemCount: documents.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         DocumentSnapshot document = documents[index];
@@ -150,7 +174,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                           isShop: true,
                         );
                       },
-                    ),
+                    )*/
                   );
 
                   /* Container(

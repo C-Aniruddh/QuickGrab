@@ -93,6 +93,16 @@ class _ShopHomePageState extends State<ShopHomePage> {
       userLoaded = true;
     });
 
+    updateNotificationToken();
+  }
+
+  updateNotificationToken(){
+    if (token == null){
+      token = "none";
+    }
+    Firestore.instance.collection('users')
+        .document(userData.documentID)
+        .updateData({'token': token});
   }
 
   Widget notificationIcon(BuildContext context) {
