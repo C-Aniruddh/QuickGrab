@@ -59,7 +59,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                               .document(documentID)
                               .get()
                               .then((doc) async {
-                            var title = "Apopintment completed";
+                            var title = "Appointment completed";
                             var body = "Your appointment at " +
                                 doc['shop_name'] +
                                 " was marked completed";
@@ -299,11 +299,14 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
 
 
   Widget buildCompletedShop() {
+
+    List<String> statusStrings = ['completed', 'cancelled'];
+
     return Container(
         child: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance
               .collection('appointments')
-              .where('appointment_status', isEqualTo: 'completed')
+              .where('appointment_status', whereIn: statusStrings)
               .where('target_shop', isEqualTo: widget.userData['uid'])
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -333,7 +336,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                         return OrderDataNew(
                           document: document,
                           total: total,
-                          isInvoice: true,
+                          isInvoice: false,
                           isExpanded: true,
                           isShop: true,
                           displayOTP: false,

@@ -1531,11 +1531,12 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   Widget buildAppointmentsDoneUser() {
+    List<String> statusStrings = ['completed', 'cancelled'];
     return Container(
         child: StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('appointments')
-          .where('appointment_status', isEqualTo: 'completed')
+          .where('appointment_status', whereIn: statusStrings)
           .where('shopper_uid', isEqualTo: userData['uid'])
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -1565,7 +1566,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       document: document,
                       total: total,
                       displayOTP: false,
-                      isInvoice: true,
+                      isInvoice: false,
                       isExpanded: false,
                     );
                   },
@@ -1605,7 +1606,7 @@ class _UserHomePageState extends State<UserHomePage> {
                           .document(documentID)
                           .get()
                           .then((doc) async {
-                        var title = "Apopintment completed";
+                        var title = "Appointment completed";
                         var body = "Your appointment at " +
                             doc['shop_name'] +
                             " was marked completed";

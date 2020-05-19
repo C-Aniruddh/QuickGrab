@@ -313,7 +313,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                         .document(widget.appointmentData.documentID)
                         .get()
                         .then((doc) async {
-                      var title = "Apopintment scheduled";
+                      var title = "Appointment scheduled";
                       var body = "Your appointment at " +
                           doc['shop_name'] +
                           " is scheduled";

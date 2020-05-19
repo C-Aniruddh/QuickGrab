@@ -102,9 +102,16 @@ class _AppointmentListState extends State<AppointmentList> {
 
 
   Widget buildAppointmentsUser() {
+    List<String> statusStrings = ['completed', 'cancelled'];
+
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
+          stream: widget.appointmentStatus == "completed" ? Firestore.instance
+              .collection('appointments')
+              .where('appointment_status', whereIn: statusStrings)
+              .where('shopper_uid', isEqualTo: widget.userData.documentID)
+              .snapshots()
+          : Firestore.instance
               .collection('appointments')
               .where('appointment_status', isEqualTo: widget.appointmentStatus)
               .where('shopper_uid', isEqualTo: widget.userData.documentID)

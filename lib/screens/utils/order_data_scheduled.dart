@@ -3,6 +3,7 @@ import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
+import 'package:mdi/mdi.dart';
 
 class OrderDataScheduled extends StatefulWidget {
   final DocumentSnapshot document;
@@ -174,7 +175,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                           .document(documentID)
                           .get()
                           .then((doc) async {
-                        var title = "Apopintment completed";
+                        var title = "Appointment completed";
                         var body = "Your appointment at " +
                             doc['shop_name'] +
                             " was marked completed";
@@ -241,7 +242,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "What do you want to do?",
+                        "Are you sure?",
                       ),
                       IconButton(
                         icon: Icon(Icons.cancel),
@@ -251,7 +252,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                       ),
                     ],
                   ),
-                  ListTile(
+                  /* ListTile(
                     title: Text("Reschedule Order"),
                     leading: Icon(Icons.restore),
                     onTap: () {
@@ -266,24 +267,14 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                           " " +
                           document['appointment_start'].toString() +
                           ":00");
-                      if (DateTime.now().isAfter(time)) {
-                         _showTimeDialog(context, "The time slot has already passed and cannot be rescheduled now.");
-                      } else {
-                        var difference = time.difference(DateTime.now());
-                        if (difference.inHours < 18) {
-                          _showTimeDialog(context, "An order can be rescheduled until 18 hours before the time slot.");
-                        } else {
-                          // Aniruddh, do your stuff here
-                          Navigator.pop(context);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ShopPendingOrders(userData: document)));
-                        }
-                      }
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ShopPendingOrders(userData: document)));
                     },
-                  ),
+                  ),*/
                   ListTile(
                     title: Text("Cancel Order"),
                     leading: Icon(Icons.delete_forever),
@@ -291,7 +282,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                       Navigator.pop(context);
                       showDialog(
                         context: context,
-                        child: CancelReason(),
+                        child: CancelReason(widget.document),
                       );
                     },
                   ),
@@ -358,7 +349,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                               child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.comment),
+                                    Icon(Mdi.currencyInr),
                                     SizedBox(
                                       width: 10,
                                     ),
@@ -462,7 +453,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Text(
-                        "Reschedule or Cancel Order",
+                        "Cancel Order",
                         style: TextStyle(fontSize: 16.0),
                       ),
                     ),

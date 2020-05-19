@@ -87,7 +87,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                           .document(documentID)
                           .get()
                           .then((doc) async {
-                        var title = "Apopintment completed";
+                        var title = "Appointment completed";
                         var body = "Your appointment at " +
                             doc['shop_name'] +
                             " was marked completed";
@@ -230,7 +230,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                                 .document(document.documentID)
                                 .get()
                                 .then((doc) async {
-                              var title = "Apopintment scheduled";
+                              var title = "Appointment scheduled";
                               var body = "Your appointment at " + doc['shop_name'] + " is scheduled";
                               await Firestore.instance.collection('notifications').add({
                                 'sender_type': "shops",

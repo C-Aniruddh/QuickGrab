@@ -1,6 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CancelReason extends StatefulWidget {
+
+  DocumentSnapshot appointmentDetails;
+
+  CancelReason(this.appointmentDetails);
   @override
   State createState() => new CancelReasonState();
 }
@@ -86,7 +91,7 @@ class CancelReasonState extends State<CancelReason> {
   Widget build(BuildContext context) {
     return new SimpleDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      title: new Text("Cancel Order"),
+      title: new Text("Specify Reason"),
       children: <Widget>[
         Container(
           padding: const EdgeInsets.all(10.0),
@@ -159,17 +164,46 @@ class CancelReasonState extends State<CancelReason> {
                   onPressed: selectedRadioTile == 0
                       ? null
                       : () {
-                          if (selectedRadioTile == 1) {
+                          if (selectedRadioTile == 1 || selectedRadioTile == 2) {
                             // Items Not Available
-                            // TODO: send data
-                          } else if (selectedRadioTile == 2) {
-                            // Shop Closing Early
-                            // TODO: send data
+                            Firestore.instance.collection('appointments')
+                                .document(widget.appointmentDetails.documentID)
+                                .updateData({'appointment_status': 'cancelled',
+                                'reason': reason});
+
+                            String body = 'Your appointment at ' + widget.appointmentDetails.data['shop_name'] + ' has been cancelled.';
+                            String title = 'Appointment cancelled';
+                            Firestore.instance.collection('notifications')
+                              .add({
+                              'body': body,
+                              'title': title,
+                              'receiver_uid': widget.appointmentDetails.data['shopper_uid'],
+                              'sender_type': 'shops',
+                              'read': false,
+                            });
+
+                            Navigator.pop(context);
                           } else if (selectedRadioTile == 3) {
                             // Other selected
                             if (_formKey.currentState.validate()) {
                               reason = reasonController.text;
-                              // TODO: send data
+                              Firestore.instance.collection('appointments')
+                                  .document(widget.appointmentDetails.documentID)
+                                  .updateData({'appointment_status': 'cancelled',
+                                'reason': reason});
+
+                              String body = 'Your appointment at ' + widget.appointmentDetails.data['shop_name'] + ' has been cancelled.';
+                              String title = 'Appointment cancelled';
+                              Firestore.instance.collection('notifications')
+                                  .add({
+                                'body': body,
+                                'title': title,
+                                'receiver_uid': widget.appointmentDetails.data['shopper_uid'],
+                                'sender_type': 'shops',
+                                'read': false,
+                              });
+
+                              Navigator.pop(context);
                             }
                           }
                         },

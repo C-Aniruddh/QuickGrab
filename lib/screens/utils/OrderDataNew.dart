@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // import 'package:ticket_pass_package/ticket_pass.dart';
 import 'package:app/screens/utils/custom_ticket_pass.dart';
+import 'package:mdi/mdi.dart';
 
 class OrderDataNew extends StatefulWidget {
   final DocumentSnapshot document;
@@ -173,7 +174,7 @@ class _OrderDataNewState extends State<OrderDataNew> {
                           child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.comment),
+                                Icon(Mdi.currencyInr),
                                 SizedBox(width: 10,),
                                 Text(total, style: TextStyle(color: Colors.black))
                               ]
