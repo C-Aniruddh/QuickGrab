@@ -17,10 +17,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
     as gmfp;
+import 'package:google_maps_webservice/places.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:latlong/latlong.dart';
@@ -427,46 +429,45 @@ class _UserHomePageState extends State<UserHomePage> {
                           date.day - 1, date.hour, date.minute);
 
                       if (!doc.exists) {
-                        LocationResult result = await showLocationPicker(
-                            context, apiKey,
-                            initialCenter: gmfp.LatLng(19.074376, 72.871137));
-                        print(result.address);
-                        print(result.latLng);
-                        GeoHasher geoHasher = GeoHasher();
-                        String userGeoHash = geoHasher.encode(
-                            result.latLng.longitude, result.latLng.latitude,
-                            precision: 8);
+                        if (UniversalPlatform.isWeb){
+                          Prediction p = await PlacesAutocomplete.show(
+                              location: Location(19.074376, 72.871137),
+                              proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                              context: context,
+                              apiKey: apiKey,
+                              mode: Mode.overlay, // Mode.fullscreen
+                              language: "en",
+                              components: [new Component(Component.country, "in")]);
 
-                        Firestore.instance
-                            .collection('users')
-                            .document(userData.documentID)
-                            .updateData({
-                          'address': result.address,
-                          'geohash': userGeoHash,
-                          'lat': result.latLng.latitude,
-                          'lon': result.latLng.longitude
-                        });
-                        Firestore.instance
-                            .collection('location_change')
-                            .document(userData.documentID)
-                            .setData({'last_change': date}, merge: true);
+                          var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                          var place = await places.getDetailsByPlaceId(p.placeId);
+                          GeoHasher geoHasher = GeoHasher();
+                          String userGeoHash = geoHasher.encode(
+                              place.result.geometry.location.lng, place.result.geometry.location.lat,
+                              precision: 8);
 
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/home', (route) => false);
-                      } else {
-                        DateTime lastChange = doc.data['last_change'].toDate();
-                        Jiffy lastChangeJ = new Jiffy(lastChange);
-                        Jiffy currentTime = new Jiffy(date);
-                        Jiffy newTime = Jiffy(
-                            lastChangeJ.add(duration: Duration(hours: 24)));
 
-                        if (currentTime.isAfter(newTime)) {
+                          Firestore.instance
+                              .collection('users')
+                              .document(userData.documentID)
+                              .updateData({
+                            'address': place.result.formattedAddress,
+                            'geohash': userGeoHash,
+                            'lat': place.result.geometry.location.lat,
+                            'lon': place.result.geometry.location.lng
+                          });
+                          Firestore.instance
+                              .collection('location_change')
+                              .document(userData.documentID)
+                              .setData({'last_change': date}, merge: true);
+
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/home', (route) => false);
+
+                        } else {
                           LocationResult result = await showLocationPicker(
-                            context,
-                            apiKey,
-                            initialCenter: gmfp.LatLng(19.074376, 72.871137),
-                            requiredGPS: false,
-                          );
+                              context, apiKey,
+                              initialCenter: gmfp.LatLng(19.074376, 72.871137));
                           print(result.address);
                           print(result.latLng);
                           GeoHasher geoHasher = GeoHasher();
@@ -490,6 +491,79 @@ class _UserHomePageState extends State<UserHomePage> {
 
                           Navigator.pushNamedAndRemoveUntil(
                               context, '/home', (route) => false);
+                        }
+
+                      } else {
+                        DateTime lastChange = doc.data['last_change'].toDate();
+                        Jiffy lastChangeJ = new Jiffy(lastChange);
+                        Jiffy currentTime = new Jiffy(date);
+                        Jiffy newTime = Jiffy(
+                            lastChangeJ.add(duration: Duration(hours: 24)));
+
+                        if (currentTime.isAfter(newTime)) {
+                          if (UniversalPlatform.isWeb){
+                            Prediction p = await PlacesAutocomplete.show(
+                                location: Location(19.074376, 72.871137),
+                                proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                                context: context,
+                                apiKey: apiKey,
+                                mode: Mode.overlay, // Mode.fullscreen
+                                language: "en",
+                                components: [new Component(Component.country, "in")]);
+
+                            var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                            var place = await places.getDetailsByPlaceId(p.placeId);
+                            GeoHasher geoHasher = GeoHasher();
+                            String userGeoHash = geoHasher.encode(
+                                place.result.geometry.location.lng, place.result.geometry.location.lat,
+                                precision: 8);
+
+
+                            Firestore.instance
+                                .collection('users')
+                                .document(userData.documentID)
+                                .updateData({
+                              'address': place.result.formattedAddress,
+                              'geohash': userGeoHash,
+                              'lat': place.result.geometry.location.lat,
+                              'lon': place.result.geometry.location.lng
+                            });
+                            Firestore.instance
+                                .collection('location_change')
+                                .document(userData.documentID)
+                                .setData({'last_change': date}, merge: true);
+
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/home', (route) => false);
+
+                          } else {
+                            LocationResult result = await showLocationPicker(
+                                context, apiKey,
+                                initialCenter: gmfp.LatLng(19.074376, 72.871137));
+                            print(result.address);
+                            print(result.latLng);
+                            GeoHasher geoHasher = GeoHasher();
+                            String userGeoHash = geoHasher.encode(
+                                result.latLng.longitude, result.latLng.latitude,
+                                precision: 8);
+
+                            Firestore.instance
+                                .collection('users')
+                                .document(userData.documentID)
+                                .updateData({
+                              'address': result.address,
+                              'geohash': userGeoHash,
+                              'lat': result.latLng.latitude,
+                              'lon': result.latLng.longitude
+                            });
+                            Firestore.instance
+                                .collection('location_change')
+                                .document(userData.documentID)
+                                .setData({'last_change': date}, merge: true);
+
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/home', (route) => false);
+                          }
                         } else {
                           _showInfoDialog(context,
                               "You have already changed your location once in the last 24 hours. Please wait before trying again.");
