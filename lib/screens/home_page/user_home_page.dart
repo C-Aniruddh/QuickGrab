@@ -19,6 +19,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_native_admob/native_admob_controller.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
@@ -96,6 +97,8 @@ class _UserHomePageState extends State<UserHomePage> {
     'Vegetables and Fruits',
     'Other'
   ];
+
+  final _controller = NativeAdmobController();
 
   TextEditingController startTimeController = new TextEditingController();
   TextEditingController endTimeController = new TextEditingController();
