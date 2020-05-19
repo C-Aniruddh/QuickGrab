@@ -63,9 +63,10 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
   showAlertDialog(BuildContext context, String title, String content) {
     // set up the button
     Widget okButton = FlatButton(
-      child: Text("OK"),
+      child: Text("Okay"),
       onPressed: () {
         Navigator.pop(context);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       },
     );
 
@@ -81,6 +82,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
     // show the dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return alert;
       },
@@ -204,11 +206,12 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
               'inventory': []
             }, merge: true);
           } else {
+            Navigator.pop(context);
+            assert(user.uid == currentUser.uid);
             showAlertDialog(context, "You already have an account.", "Signing in to that account.");
           }
       });
 
-      assert(user.uid == currentUser.uid);
       // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 

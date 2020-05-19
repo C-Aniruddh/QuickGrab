@@ -70,9 +70,10 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
   showAlertDialog(BuildContext context, String title, String content) {
     // set up the button
     Widget okButton = FlatButton(
-      child: Text("OK"),
+      child: Text("Okay"),
       onPressed: () {
         Navigator.pop(context);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       },
     );
 
@@ -172,12 +173,12 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
               }, merge: true);
 
             } else {
+              Navigator.pop(context);
+              assert(user.uid == currentUser.uid);
               showAlertDialog(context, "You already have an account.", "Logging you to your account.");
             }
       });
-
       assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
