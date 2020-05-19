@@ -145,27 +145,36 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
       final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
       assert(user.uid == currentUser.uid);
 
-      Firestore.instance.collection('uid_type').document(user.uid)
-          .setData({'type': 'user'}, merge: true);
+      Firestore.instance.collection('uid_type')
+          .document(user.uid)
+          .get()
+          .then((doc){
+            if (!doc.exists){
+              Firestore.instance.collection('uid_type').document(user.uid)
+                  .setData({'type': 'user'}, merge: true);
 
-      Firestore.instance.collection('cart').document(user.uid)
-          .setData({'cart': []}, merge: true);
+              Firestore.instance.collection('cart').document(user.uid)
+                  .setData({'cart': []}, merge: true);
 
-      Firestore.instance.collection('users').document(user.uid)
-          .setData({
-        'phone_number': _phoneNumberController.text,
-        'address': userAddress,
-        'token': 'none',
-        'uid': user.uid,
-        'geohash': userGeoHash,
-        'lat': userCoordinates.latitude,
-        'lon': userCoordinates.longitude,
-        'name': user.displayName,
-        'dob': selectedDate,
-        'is21': isTwentyOne(),
-        'favorites': []
-      }, merge: true);
+              Firestore.instance.collection('users').document(user.uid)
+                  .setData({
+                'phone_number': _phoneNumberController.text,
+                'address': userAddress,
+                'token': 'none',
+                'uid': user.uid,
+                'geohash': userGeoHash,
+                'lat': userCoordinates.latitude,
+                'lon': userCoordinates.longitude,
+                'name': user.displayName,
+                'dob': selectedDate,
+                'is21': isTwentyOne(),
+                'favorites': []
+              }, merge: true);
 
+            } else {
+              showAlertDialog(context, "You already have an account.", "Logging you to your account.");
+            }
+      });
 
       assert(user.uid == currentUser.uid);
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);

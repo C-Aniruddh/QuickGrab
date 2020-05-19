@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app/screens/utils/OrderDataNew.dart';
+import 'package:app/screens/utils/order_data_pending.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -144,15 +145,16 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA"){
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) *
-              int.parse(
-                  item['quantity'].toString()));
     }
 
     return total.toString();
@@ -195,13 +197,14 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
   }
 
   Widget scheduledAppointments(DocumentSnapshot document, String total) {
-    return OrderDataNew(
+    return OrderDataPending(
       document: widget.appointmentData,
       total: total,
       displayOTP: false,
       isInvoice: true,
       isExpanded: true,
       isShop: true,
+      items: widget.appointmentData.data['items']
     );
   }
 
@@ -209,7 +212,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     String total = totalAmount(widget.appointmentData['items']);
     return Container(
         child: SizedBox(
-      height: MediaQuery.of(context).size.height * 0.485,
+      height: MediaQuery.of(context).size.height * 0.55,
       child: SingleChildScrollView(
         child: scheduledAppointments(widget.appointmentData, total),
       ),
@@ -306,24 +309,18 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     'appointment_start': startTime,
                     'appointment_end': endTime,
                     'appointment_date': formattedDate,
-                    'appointment_status': 'scheduled'
+                    'appointment_status': 'scheduled',
                   }).then((value) async {
-                    await Firestore.instance
-                        .collection('appointments')
-                        .document(widget.appointmentData.documentID)
-                        .get()
-                        .then((doc) async {
-                      var title = "Appointment scheduled";
-                      var body = "Your appointment at " +
-                          doc['shop_name'] +
-                          " is scheduled";
-                      await Firestore.instance.collection('notifications').add({
-                        'sender_type': "shops",
-                        'receiver_uid': doc['shopper_uid'],
-                        'title': title,
-                        'body': body,
-                        'read': false,
-                      });
+                    var title = "Appointment scheduled";
+                    var body = "Your appointment at " +
+                        widget.appointmentData.data['shop_name'] +
+                        " is scheduled";
+                    await Firestore.instance.collection('notifications').add({
+                      'sender_type': "shops",
+                      'receiver_uid': widget.appointmentData.data['shopper_uid'],
+                      'title': title,
+                      'body': body,
+                      'read': false,
                     });
                   });
 

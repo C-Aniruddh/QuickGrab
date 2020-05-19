@@ -110,7 +110,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
         padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
         child: OrderTable(
           document: widget.items,
-          total: totalAmount(),
+          total: totalAmount(widget.items),
         ),
       ),
       availabilityNotice(),
@@ -238,18 +238,21 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     return column;
   }
 
-  String totalAmount() {
+  String totalAmount(var items){
     double total = 0;
 
-    for (var i = 0; i < widget.items.length; i++) {
-      var item = widget.items[i];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA") {
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
     }
 
     return total.toString();
@@ -373,7 +376,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Text(
-                  totalAmount().toString(),
+                  totalAmount(widget.items).toString(),
                   style: TextStyle(fontSize: 16.0),
                 ),
               )

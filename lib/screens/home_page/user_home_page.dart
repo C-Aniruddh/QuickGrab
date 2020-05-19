@@ -9,6 +9,7 @@ import 'package:app/screens/search_page.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
+import 'package:app/screens/utils/order_data_users.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
@@ -1433,7 +1434,7 @@ class _UserHomePageState extends State<UserHomePage> {
                     DocumentSnapshot document = documents[index];
                     String total = totalAmount(document['items']);
                     // return scheduledAppointments(document, total);
-                    return OrderDataNew(
+                    return OrderDataUsers(
                       document: document,
                       total: total,
                       displayOTP: true,
@@ -1502,18 +1503,21 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
-  String totalAmount(var items) {
+  String totalAmount(var items){
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA") {
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
     }
 
     return total.toString();

@@ -100,7 +100,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
     if (token == null){
       token = "none";
     }
-    Firestore.instance.collection('users')
+    Firestore.instance.collection('shops')
         .document(userData.documentID)
         .updateData({'token': token});
   }

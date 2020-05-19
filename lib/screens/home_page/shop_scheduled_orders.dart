@@ -31,18 +31,21 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
 
   TextEditingController otpController = new TextEditingController();
 
-  String totalAmount(var items) {
+  String totalAmount(var items){
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA") {
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
     }
 
     return total.toString();

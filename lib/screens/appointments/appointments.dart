@@ -20,15 +20,16 @@ class _AppointmentListState extends State<AppointmentList> {
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA"){
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) *
-              int.parse(
-                  item['quantity'].toString()));
     }
 
     return total.toString();

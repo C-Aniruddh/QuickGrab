@@ -177,30 +177,39 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
       final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
       assert(user.uid == currentUser.uid);
 
-      Firestore.instance.collection('uid_type').document(user.uid)
-          .setData({'type': 'shop'}, merge: true);
+      Firestore.instance.collection('uid_type')
+        .document(user.uid)
+        .get()
+        .then((doc){
+          if(!doc.exists){
+            Firestore.instance.collection('uid_type').document(user.uid)
+                .setData({'type': 'shop'}, merge: true);
 
-      Firestore.instance.collection('shops').document(user.uid)
-          .setData({
-        'industry': _industrySelect,
-        'limit': 10,
-        'phone_number': _phoneNumberController.text,
-        'shop_GST': _shopGSTController.text,
-        'shop_address': shopAddress,
-        'shop_contact_name': _shopContactNameController.text,
-        'shop_name': _shopNameController.text,
-        'token': 'none',
-        'uid': user.uid,
-        'shop_geohash': shopGeoHash,
-        'shop_lat': shopCoordinates.latitude,
-        'shop_lon': shopCoordinates.longitude,
-        'shop_image': profilePicByIndustry(_industrySelect),
-        'shop_payment_methods': ['Cash'],
-        'inventory': []
-      }, merge: true);
+            Firestore.instance.collection('shops').document(user.uid)
+                .setData({
+              'industry': _industrySelect,
+              'limit': 10,
+              'phone_number': _phoneNumberController.text,
+              'shop_GST': _shopGSTController.text,
+              'shop_address': shopAddress,
+              'shop_contact_name': _shopContactNameController.text,
+              'shop_name': _shopNameController.text,
+              'token': 'none',
+              'uid': user.uid,
+              'shop_geohash': shopGeoHash,
+              'shop_lat': shopCoordinates.latitude,
+              'shop_lon': shopCoordinates.longitude,
+              'shop_image': profilePicByIndustry(_industrySelect),
+              'shop_payment_methods': ['Cash'],
+              'inventory': []
+            }, merge: true);
+          } else {
+            showAlertDialog(context, "You already have an account.", "Signing in to that account.");
+          }
+      });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
