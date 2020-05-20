@@ -1,3 +1,4 @@
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,7 +74,8 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
       child: Text("Okay"),
       onPressed: () {
         Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
       },
     );
 

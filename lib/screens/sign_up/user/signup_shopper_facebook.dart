@@ -1,3 +1,4 @@
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -178,7 +179,9 @@ class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
       });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushAndRemoveUntil(
+          context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';

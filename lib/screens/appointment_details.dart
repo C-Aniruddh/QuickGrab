@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/order_data_pending.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -188,7 +189,9 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
 
     for (var i = 0; i < allStartTimes.length; i++){
       if (startTimes.contains(allStartTimes[i])){
-        remaningSlots.add(widget.timeSlots[i] + "-- Remaining Slots (" + (widget.shopData.data['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i])).toString() + ")");
+        if (widget.shopData.data['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i]) > 0) {
+          remaningSlots.add(widget.timeSlots[i] + "-- Remaining Slots (" + (widget.shopData.data['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i])).toString() + ")");
+        }
       } else {
         remaningSlots.add(widget.timeSlots[i] + "-- Remaining Slots (" + widget.shopData.data['limit'].toString() + ")");
       }
@@ -324,8 +327,8 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     });
                   });
 
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/home', (route) => false);
+                  Navigator.pushAndRemoveUntil(
+                      context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                 }
               },
               color: Colors.orangeAccent,

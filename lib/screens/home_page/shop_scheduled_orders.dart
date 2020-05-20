@@ -134,6 +134,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
             } else {
               return new Container(
                 child: GroupedListView(
+                  useStickyGroupSeparators: false,
                   elements: documents,
                   groupBy: (element) => element['appointment_start'],
                   groupSeparatorBuilder: (dynamic groupByValue) {
@@ -153,6 +154,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                       isExpanded: false,
                       displayOTP: false,
                       isShop: true,
+                      items: document['items'],
                     );
                   },
                   order: GroupedListOrder.ASC,

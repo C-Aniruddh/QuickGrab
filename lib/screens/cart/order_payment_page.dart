@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:app/notificationHandler.dart';
+import 'package:app/screens/cart/order_completed_page.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
@@ -77,14 +78,6 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   List<String> timeSlots;
   double total_liquor = 0;
-
-  MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-    keywords: <String>['shopping', 'online shopping', 'grocery', 'liquor', 'stationary', 'stores', 'offline stores', 'token'],
-    contentUrl: 'https://quickgrabb.com',
-    testDevices: <String>["336D173B02DF43D5BE59FA7AD3351247"], // Android emulators are considered test devices
-  );
-
-  var adInstance = RewardedVideoAd.instance;
 
   setupAds() async {
     String device_id = await DeviceId.getID;
@@ -694,20 +687,23 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                     'body': body,
                                     'read': false,
                                   });
+
+                                  await Firestore.instance
+                                      .collection('cart')
+                                      .document(widget.userData.documentID)
+                                      .setData({'cart': []});
+
+                                  await Firestore.instance
+                                    .collection('appointments')
+                                    .document(value.documentID)
+                                    .get()
+                                    .then((DocumentSnapshot document){
+                                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => OrderCompletedPage(appointmentData: document)), (route) => false);
+                                  });
+
                                 });
                               });
 
-                              await Firestore.instance
-                                  .collection('cart')
-                                  .document(widget.userData.documentID)
-                                  .setData({'cart': []});
-
-                              if (UniversalPlatform.isAndroid){
-                                adInstance..load(adUnitId: "ca-app-pub-7265536593732931/9713512067", targetingInfo: targetingInfo)..show();
-                              }
-
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/home', (route) => false);
                             }
                           } else {
                             _showInfoDialog(context,

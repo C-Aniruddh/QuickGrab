@@ -1,5 +1,6 @@
 import 'package:app/fonts.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
@@ -7,11 +8,12 @@ import 'package:mdi/mdi.dart';
 
 class OrderDataScheduled extends StatefulWidget {
   final DocumentSnapshot document;
-  final String total;
+  String total;
   final bool displayOTP;
   final bool isInvoice;
   final bool isExpanded;
   final bool isShop;
+  var items;
 
   OrderDataScheduled(
       {Key key,
@@ -20,7 +22,8 @@ class OrderDataScheduled extends StatefulWidget {
       this.displayOTP = false,
       this.isInvoice = false,
       this.isExpanded = true,
-      this.isShop = false})
+      this.isShop = false,
+      this.items})
       : super(key: key);
 
   @override
@@ -31,24 +34,53 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
   int totalQty = 0;
   TextEditingController otpController = new TextEditingController();
 
+
+  String totalAmount(var items){
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
+
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
+      }
+    }
+
+    return total.toString();
+  }
+
   rowContent(invoiceData, total) {
     List<DataRow> rows = [];
 
-    for (dynamic content in invoiceData) {
+    for (var i = 0; i < widget.items.length; i++) {
+      var content = widget.items[i];
       rows.add(
         DataRow(
+          selected: content['available'],
+          onSelectChanged: (value){
+            setState(() {
+              widget.items[i]['available'] = value;
+              widget.total = totalAmount(widget.items);
+              Firestore.instance.collection('appointments')
+                  .document(widget.document.documentID)
+                  .updateData({'items': widget.items});
+            });
+          },
           cells: [
             DataCell(
-              Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Text(
-                  content['product']['item_name'].toString(),
-                  style: TextStyle(
-                    fontFamily: AppFontFamilies.mainFont,
-                    color: Colors.black87,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              Text(
+                content['product']['item_name'].toString(),
+                style: TextStyle(
+                  fontFamily: AppFontFamilies.mainFont,
+                  color: Colors.black87,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
@@ -71,10 +103,10 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                 ),
               ),
             ),
+
           ],
         ),
       );
-      totalQty = totalQty + int.parse(content['quantity'].toString());
     }
     rows.add(
       DataRow(
@@ -190,8 +222,8 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                         });
                       });
                     });
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, '/home', (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                   } else {
                     Navigator.pop(context);
                     _showInfoDialog(context, "The entered OTP is wrong");
@@ -467,6 +499,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
 
   Widget orderCardTable(DocumentSnapshot document, String total) {
     return DataTable(
+      showCheckboxColumn: true,
       dividerThickness: 0.0,
       columns: [
         DataColumn(

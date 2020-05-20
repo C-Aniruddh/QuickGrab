@@ -1,3 +1,4 @@
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -202,7 +203,9 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
             'shop_lon': shopCoordinates.longitude,
             'shop_image': profilePicByIndustry(_industrySelect),
             'shop_payment_methods': ['Cash'],
-            'inventory': []
+            'inventory': [],
+            'paymentHold': false,
+            'verificationHold': true
           }, merge: true);
         } else {
           showAlertDialog(context, "You already have an account.", "Signing in to that account.");
@@ -210,7 +213,9 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
       });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushAndRemoveUntil(
+          context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';

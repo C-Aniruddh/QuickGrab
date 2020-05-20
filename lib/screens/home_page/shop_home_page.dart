@@ -198,20 +198,78 @@ class _ShopHomePageState extends State<ShopHomePage> {
     );
   }
 
+  Widget paymentHoldView() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.warning, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+                child: ListTile(
+                  trailing: FlatButton(child: Text("MORE INFO"), onPressed: (){
+
+                  },),
+                    title: Text("There is a problem with your payments.",
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget verificationHoldView() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.warning, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+                child: ListTile(
+                    trailing: FlatButton(child: Text("VERIFY"), onPressed: (){
+
+                    },),
+                    title: Text("Your shop has not been verified yet.",
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
+              )),
+        ),
+      ),
+    );
+  }
+
   Widget buildHomeShop() {
     return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          addressView(),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text("You are signed in as " + userData['shop_name'], style:TextStyle(
-                fontSize: 18,
-                fontFamily: AppFontFamilies.mainFont)),
-          ),
-          dashboardGrid()
+              addressView(),
+              Divider(),
+              userData['verificationHold'] ? verificationHoldView() : SizedBox(height: 1),
+              userData['verificationHold'] ? Divider() : SizedBox(height: 1),
+              userData['paymentHold'] ? paymentHoldView() : SizedBox(height: 1),
+              userData['paymentHold'] ? Divider() : SizedBox(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text("You are signed in as " + userData['shop_name'], style:TextStyle(
+                    fontSize: 18,
+                    fontFamily: AppFontFamilies.mainFont)),
+              ),
+              dashboardGrid()
     ]));
   }
 

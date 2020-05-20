@@ -4,6 +4,7 @@ import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
@@ -98,7 +99,7 @@ class _UserHomePageState extends State<UserHomePage> {
     'Other'
   ];
 
-  final _controller = NativeAdmobController();
+  // final _controller = NativeAdmobController();
 
   TextEditingController startTimeController = new TextEditingController();
   TextEditingController endTimeController = new TextEditingController();
@@ -465,8 +466,8 @@ class _UserHomePageState extends State<UserHomePage> {
                               .document(userData.documentID)
                               .setData({'last_change': date}, merge: true);
 
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/home', (route) => false);
+                          Navigator.pushAndRemoveUntil(
+                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
 
                         } else {
                           LocationResult result = await showLocationPicker(
@@ -493,8 +494,8 @@ class _UserHomePageState extends State<UserHomePage> {
                               .document(userData.documentID)
                               .setData({'last_change': date}, merge: true);
 
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/home', (route) => false);
+                          Navigator.pushAndRemoveUntil(
+                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                         }
 
                       } else {
@@ -537,8 +538,8 @@ class _UserHomePageState extends State<UserHomePage> {
                                 .document(userData.documentID)
                                 .setData({'last_change': date}, merge: true);
 
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/home', (route) => false);
+                            Navigator.pushAndRemoveUntil(
+                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
 
                           } else {
                             LocationResult result = await showLocationPicker(
@@ -565,8 +566,8 @@ class _UserHomePageState extends State<UserHomePage> {
                                 .document(userData.documentID)
                                 .setData({'last_change': date}, merge: true);
 
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/home', (route) => false);
+                            Navigator.pushAndRemoveUntil(
+                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                           }
                         } else {
                           _showInfoDialog(context,
@@ -914,12 +915,16 @@ class _UserHomePageState extends State<UserHomePage> {
               .collection('shops')
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
               .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
               .snapshots()
           : Firestore.instance
               .collection('shops')
               .where('industry', whereIn: _industryListNoLiqour)
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
               .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
               .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');

@@ -110,6 +110,8 @@ class _SearchPageState extends State<SearchPage> {
       Firestore.instance.collection('shops')
         .where("shop_geohash", isGreaterThanOrEqualTo: lower)
         .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .where('paymentHold', isEqualTo: false)
+          .where('verificationHold', isEqualTo: false)
         .getDocuments()
           .then((documents){
             shopsNearby = documents.documents;
@@ -138,6 +140,8 @@ class _SearchPageState extends State<SearchPage> {
           .where('industry', whereIn: _industryListNoLiqour)
           .where("shop_geohash", isGreaterThanOrEqualTo: lower)
           .where("shop_geohash", isLessThanOrEqualTo: upper)
+          .where('paymentHold', isEqualTo: false)
+          .where('verificationHold', isEqualTo: false)
           .getDocuments()
           .then((documents){
             shopsNearby = documents.documents;
