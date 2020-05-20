@@ -58,10 +58,20 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
         });
   }
 
-  void showRewardedAd() async {
+  void showRewardedAdAndroid() async {
     try {
       await RewardedVideoAd.instance.load(
           adUnitId: "ca-app-pub-7265536593732931/9713512067", targetingInfo: targetingInfo);
+      await RewardedVideoAd.instance.show();
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  void showRewardedAdiOS() async {
+    try {
+      await RewardedVideoAd.instance.load(
+          adUnitId: "ca-app-pub-7265536593732931/9116221042", targetingInfo: targetingInfo);
       await RewardedVideoAd.instance.show();
     } on PlatformException catch (e) {
       print(e.message);
@@ -72,7 +82,9 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
     Future.delayed(Duration(seconds: 3),
         (){
           if (UniversalPlatform.isAndroid){
-            showRewardedAd();
+            showRewardedAdAndroid();
+          } else if (UniversalPlatform.isIOS){
+            showRewardedAdiOS();
           }
         }
     );
