@@ -386,8 +386,10 @@ class _ShopHomePageState extends State<ShopHomePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
+        // height: MediaQuery.of(context).size.height * 0.65,
         child: GridView.count(
+          physics: ClampingScrollPhysics(),
+          shrinkWrap: true,
           crossAxisCount: 2,
           childAspectRatio: (3 / 4),
           children: [
