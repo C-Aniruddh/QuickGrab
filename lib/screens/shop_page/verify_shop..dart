@@ -233,7 +233,7 @@ class _VerifyShopState extends State<VerifyShop> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 24, 8),
+            padding: const EdgeInsets.fromLTRB(20, 0, 24, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -272,11 +272,11 @@ class _VerifyShopState extends State<VerifyShop> {
             color: Colors.grey,
           ),
           SizedBox(
-            height: 8.0,
+            height: 4.0,
           ),
           Container(
-            height: 275.0,
-            width: 275.0,
+            height: 225.0,
+            width: 225.0,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Center(
@@ -366,7 +366,7 @@ class _VerifyShopState extends State<VerifyShop> {
             color: Colors.grey,
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Center(
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
