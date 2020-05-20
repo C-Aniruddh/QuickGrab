@@ -59,7 +59,6 @@ class _ShopHomePageState extends State<ShopHomePage> {
   String profilePicUrl;
   String userEmail;
 
-  bool _isVerified = false;
 
   DocumentSnapshot userData;
 
@@ -99,7 +98,6 @@ class _ShopHomePageState extends State<ShopHomePage> {
         .get()
         .then((data) {
       userData = data;
-      _isVerified = userData['verificationHold'];
     });
     setState(() {
       userLoaded = true;
@@ -270,7 +268,9 @@ class _ShopHomePageState extends State<ShopHomePage> {
             child: ListTile(
                 trailing: FlatButton(
                   child: Text("MORE INFO"),
-                  onPressed: () {},
+                  onPressed: () {
+
+                  },
                 ),
                 title: Text(
                   "There is a problem with your payments.",
@@ -302,7 +302,16 @@ class _ShopHomePageState extends State<ShopHomePage> {
             child: ListTile(
                 trailing: FlatButton(
                   child: Text("VERIFY"),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VerifyShop(
+                          shopData: userData,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 title: Text(
                   "Your shop has not been verified yet.",
@@ -335,47 +344,6 @@ class _ShopHomePageState extends State<ShopHomePage> {
                 style: TextStyle(
                     fontSize: 18, fontFamily: AppFontFamilies.mainFont)),
           ),
-          _isVerified
-              ? Container()
-              : Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 20.0, 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Your shop is not verified",
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                      RaisedButton(
-                        color: Theme.of(context).accentColor,
-                        shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(30.0),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VerifyShop(
-                                shopData: userData,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Verify",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
           dashboardGrid(),
         ],
       ),

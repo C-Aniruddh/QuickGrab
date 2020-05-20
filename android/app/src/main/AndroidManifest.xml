@@ -55,7 +55,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+                <action android:name="FLUTTER_NOTIFICATION_CLIICK" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 

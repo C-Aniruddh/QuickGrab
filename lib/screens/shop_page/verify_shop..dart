@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VerifyShop extends StatefulWidget {
   VerifyShop({Key key, this.shopData}) : super(key: key);
@@ -251,7 +252,7 @@ class _VerifyShopState extends State<VerifyShop> {
                       borderRadius: BorderRadius.circular(18.0),
                       side: BorderSide(color: Colors.orangeAccent)),
                   onPressed: () async {
-                    _showUploadChoiceDialog(context);
+                    launch("tel://+919930533637");
                   },
                   color: Theme.of(context).accentColor,
                   textColor: Colors.white,
