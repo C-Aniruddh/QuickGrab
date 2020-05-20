@@ -109,18 +109,11 @@ class _AddInventoryState extends State<AddInventory> {
       aspectRatioPresets: [
         CropAspectRatioPreset.square,
       ],
-      maxWidth: 2048,
-      maxHeight: 2048,
+      maxWidth: 1024,
+      maxHeight: 1024,
     );
     setState(() {
       this._image = croppedImage;
-    });
-  }
-
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    setState(() {
-      this._image = image;
     });
   }
 
@@ -411,7 +404,7 @@ class _AddInventoryState extends State<AddInventory> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                       _image == null
-                          ? "Add an picture"
+                          ? "Add a picture"
                           : "Retake picture".toUpperCase(),
                       style: TextStyle(
                           fontSize: 14, fontFamily: AppFontFamilies.mainFont)),
