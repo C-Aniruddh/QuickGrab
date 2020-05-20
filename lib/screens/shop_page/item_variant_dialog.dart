@@ -162,16 +162,18 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
               side: BorderSide(color: Colors.orangeAccent)),
           onPressed: () async {
             if (_formKey.currentState.validate()) {
-              if (widget.industry == "Liquor") {
-                _selectedUnit = "mL";
+              if (_selectedUnit != null) {
+                if (widget.industry == "Liquor") {
+                  _selectedUnit = "mL";
+                }
+                List itemVariant = [
+                  sizeController.text,
+                  _selectedUnit,
+                  quantityController.text,
+                  priceController.text
+                ];
+                Navigator.pop(context, itemVariant);
               }
-              List itemVariant = [
-                sizeController.text,
-                _selectedUnit,
-                quantityController.text,
-                priceController.text
-              ];
-              Navigator.pop(context, itemVariant);
             }
           },
           color: Colors.orangeAccent,
@@ -248,6 +250,14 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
               ],
             ),
           ),
+          _selectedUnit == null
+              ? Text(
+                  "Please select a unit along with the size.",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13),
+                )
+              : Container(),
           customTextField(
             Icons.local_grocery_store,
             "Quantity",
