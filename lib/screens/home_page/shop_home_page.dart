@@ -7,6 +7,8 @@ import 'package:app/screens/home_page/shop_scheduled_orders.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
 import 'package:app/screens/home_page/shop_my_inventory.dart';
+import 'package:app/screens/shop_page/shop_edit_profile.dart';
+import 'package:app/screens/shop_page/verify_shop..dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -57,6 +59,8 @@ class _ShopHomePageState extends State<ShopHomePage> {
   String profilePicUrl;
   String userEmail;
 
+  bool _isVerified = false;
+
   DocumentSnapshot userData;
 
   GeoHasher gH = GeoHasher();
@@ -86,7 +90,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
   }
 
   void setUserData(String uid) async {
-    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid){
+    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid) {
       token = await FirebaseNotifications().setUpFirebase();
     }
     await Firestore.instance
@@ -95,6 +99,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
         .get()
         .then((data) {
       userData = data;
+      _isVerified = userData['verificationHold'];
     });
     setState(() {
       userLoaded = true;
@@ -103,17 +108,17 @@ class _ShopHomePageState extends State<ShopHomePage> {
     updateNotificationToken();
   }
 
-  updateNotificationToken(){
-    if (token == null){
+  updateNotificationToken() {
+    if (token == null) {
       token = "none";
     }
-    Firestore.instance.collection('shops')
+    Firestore.instance
+        .collection('shops')
         .document(userData.documentID)
         .updateData({'token': token});
   }
 
   _showVersionDialog(context) async {
-
     await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -124,28 +129,29 @@ class _ShopHomePageState extends State<ShopHomePage> {
         String btnLabel = "Update Now";
         return Platform.isIOS
             ? new CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            FlatButton(
-              child: Text(btnLabel),
-              onPressed: () => _launchURL(APP_STORE_URL),
-            ),
-          ],
-        )
+                title: Text(title),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(btnLabel),
+                    onPressed: () => _launchURL(APP_STORE_URL),
+                  ),
+                ],
+              )
             : new AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            FlatButton(
-              child: Text(btnLabel),
-              onPressed: () => _launchURL(PLAY_STORE_URL),
-            ),
-          ],
-        );
+                title: Text(title),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(btnLabel),
+                    onPressed: () => _launchURL(PLAY_STORE_URL),
+                  ),
+                ],
+              );
       },
     );
   }
+
   _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -163,7 +169,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
               .where('read', isEqualTo: false)
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData){
+            if (!snapshot.hasData) {
               return IconButton(
                 icon: Icon(Icons.notifications,
                     color: Theme.of(context).accentColor),
@@ -194,9 +200,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
                 badgeContent: SizedBox(height: 20),
                 child: new IconButton(
                   icon: Icon(Icons.notifications,
-                      color: Theme
-                          .of(context)
-                          .accentColor),
+                      color: Theme.of(context).accentColor),
                   onPressed: () async {
                     Navigator.push(
                         context,
@@ -221,8 +225,6 @@ class _ShopHomePageState extends State<ShopHomePage> {
     }
   }
 
-
-
   Widget addressView() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
@@ -237,11 +239,14 @@ class _ShopHomePageState extends State<ShopHomePage> {
           height: 64,
           child: Card(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
-                child: ListTile(
-                    title: Text(userData['shop_address'],
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis,)),
-              )),
+            padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
+            child: ListTile(
+                title: Text(
+              userData['shop_address'],
+              style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+              overflow: TextOverflow.ellipsis,
+            )),
+          )),
         ),
       ),
     );
@@ -261,14 +266,19 @@ class _ShopHomePageState extends State<ShopHomePage> {
           height: 64,
           child: Card(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
-                child: ListTile(
-                  trailing: FlatButton(child: Text("MORE INFO"), onPressed: (){
-
-                  },),
-                    title: Text("There is a problem with your payments.",
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
-              )),
+            padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
+            child: ListTile(
+                trailing: FlatButton(
+                  child: Text("MORE INFO"),
+                  onPressed: () {},
+                ),
+                title: Text(
+                  "There is a problem with your payments.",
+                  style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                )),
+          )),
         ),
       ),
     );
@@ -288,14 +298,19 @@ class _ShopHomePageState extends State<ShopHomePage> {
           height: 64,
           child: Card(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
-                child: ListTile(
-                    trailing: FlatButton(child: Text("VERIFY"), onPressed: (){
-
-                    },),
-                    title: Text("Your shop has not been verified yet.",
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
-              )),
+            padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
+            child: ListTile(
+                trailing: FlatButton(
+                  child: Text("VERIFY"),
+                  onPressed: () {},
+                ),
+                title: Text(
+                  "Your shop has not been verified yet.",
+                  style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                )),
+          )),
         ),
       ),
     );
@@ -303,23 +318,68 @@ class _ShopHomePageState extends State<ShopHomePage> {
 
   Widget buildHomeShop() {
     return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              addressView(),
-              Divider(),
-              userData['verificationHold'] ? verificationHoldView() : SizedBox(height: 1),
-              userData['verificationHold'] ? Divider() : SizedBox(height: 1),
-              userData['paymentHold'] ? paymentHoldView() : SizedBox(height: 1),
-              userData['paymentHold'] ? Divider() : SizedBox(height: 1),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text("You are signed in as " + userData['shop_name'], style:TextStyle(
-                    fontSize: 18,
-                    fontFamily: AppFontFamilies.mainFont)),
-              ),
-              dashboardGrid()
-    ]));
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          addressView(),
+          Divider(),
+          userData['verificationHold']
+              ? verificationHoldView()
+              : SizedBox(height: 1),
+          userData['verificationHold'] ? Divider() : SizedBox(height: 1),
+          userData['paymentHold'] ? paymentHoldView() : SizedBox(height: 1),
+          userData['paymentHold'] ? Divider() : SizedBox(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("You are signed in as " + userData['shop_name'],
+                style: TextStyle(
+                    fontSize: 18, fontFamily: AppFontFamilies.mainFont)),
+          ),
+          _isVerified
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 20.0, 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Your shop is not verified",
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      RaisedButton(
+                        color: Theme.of(context).accentColor,
+                        shape: new RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(30.0),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VerifyShop(
+                                shopData: userData,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Verify",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+          dashboardGrid(),
+        ],
+      ),
+    );
   }
 
   Widget dashboardGrid() {
@@ -347,165 +407,245 @@ class _ShopHomePageState extends State<ShopHomePage> {
                                 fontFamily: AppFontFamilies.mainFont)),
                       )),
                   Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0,0, 32),
-                        child: RaisedButton(
-                            color: Theme.of(context).accentColor,
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(30.0),
-                            ),
-                            onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ShopScheduledOrders(userData: userData,)));
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text("Check", style: TextStyle(color: Colors.white,
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                      child: RaisedButton(
+                          color: Theme.of(context).accentColor,
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ShopScheduledOrders(
+                                          userData: userData,
+                                        )));
+                          },
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Check",
+                                  style: TextStyle(
+                                      color: Colors.white,
                                       fontFamily: AppFontFamilies.mainFont)),
-                                ),
-                                Icon(Icons.arrow_forward_ios, color: Colors.white)
-                              ]
-                            )
                             ),
-                        ),
-                      ),
+                            Icon(Icons.arrow_forward_ios, color: Colors.white)
+                          ])),
+                    ),
+                  ),
                 ],
               )),
             ),
             Card(
               child: Container(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Pending Orders",
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: AppFontFamilies.mainFont)),
-                          )),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0,0, 32),
-                          child: RaisedButton(
-                              color: Theme.of(context).accentColor,
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0),
-                              ),
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ShopPendingOrders(userData: userData,)));
-                              },
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("Check", style: TextStyle(color: Colors.white,
-                                          fontFamily: AppFontFamilies.mainFont)),
-                                    ),
-                                    Icon(Icons.arrow_forward_ios, color: Colors.white)
-                                  ]
-                              )
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("Pending Orders",
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontFamily: AppFontFamilies.mainFont)),
+                      )),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                      child: RaisedButton(
+                          color: Theme.of(context).accentColor,
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0),
                           ),
-                        ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ShopPendingOrders(
+                                          userData: userData,
+                                        )));
+                          },
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Check",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: AppFontFamilies.mainFont)),
+                            ),
+                            Icon(Icons.arrow_forward_ios, color: Colors.white)
+                          ])),
+                    ),
+                  ),
+                ],
+              )),
+            ),
+            Card(
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text("Completed Orders",
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontFamily: AppFontFamilies.mainFont)),
+                        )),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                        child: RaisedButton(
+                            color: Theme.of(context).accentColor,
+                            shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ShopCompletedOrders(
+                                            userData: userData,
+                                          )));
+                            },
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text("Check",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: AppFontFamilies.mainFont)),
+                              ),
+                              Icon(Icons.arrow_forward_ios, color: Colors.white)
+                            ])),
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ),
             Card(
               child: Container(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("Completed Orders",
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: AppFontFamilies.mainFont)),
-                          )),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0,0, 32),
-                          child: RaisedButton(
-                              color: Theme.of(context).accentColor,
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0),
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text("My Inventory",
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontFamily: AppFontFamilies.mainFont)),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                      child: RaisedButton(
+                        color: Theme.of(context).accentColor,
+                        shape: new RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(30.0),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ShopMyInventory(
+                                userData: userData,
                               ),
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ShopCompletedOrders(userData: userData,)));
-                              },
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("Check", style: TextStyle(color: Colors.white,
-                                          fontFamily: AppFontFamilies.mainFont)),
-                                    ),
-                                    Icon(Icons.arrow_forward_ios, color: Colors.white)
-                                  ]
-                              )
-                          ),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Check",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: AppFontFamilies.mainFont)),
+                            ),
+                            Icon(Icons.arrow_forward_ios, color: Colors.white)
+                          ],
                         ),
                       ),
-                    ],
-                  )),
+                    ),
+                  ),
+                ],
+              )),
             ),
             Card(
               child: Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text("My Inventory",
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: AppFontFamilies.mainFont)),
-                          )),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0,0, 32),
-                          child: RaisedButton(
-                              color: Theme.of(context).accentColor,
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          "Edit Shop Details",
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontFamily: AppFontFamilies.mainFont),
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                        child: RaisedButton(
+                          color: Theme.of(context).accentColor,
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditShopProfile(
+                                  shopData: userData,
+                                ),
                               ),
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ShopMyInventory(userData: userData,)));
-                              },
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("Check", style: TextStyle(color: Colors.white,
-                                          fontFamily: AppFontFamilies.mainFont)),
-                                    ),
-                                    Icon(Icons.arrow_forward_ios, color: Colors.white)
-                                  ]
-                              )
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Check",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: AppFontFamilies.mainFont),
+                                ),
+                              ),
+                              Icon(Icons.arrow_forward_ios, color: Colors.white)
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             )
           ],
         ),
@@ -524,9 +664,9 @@ class _ShopHomePageState extends State<ShopHomePage> {
       });
     });
 
-    SystemChannels.lifecycle.setMessageHandler((msg){
+    SystemChannels.lifecycle.setMessageHandler((msg) {
       debugPrint('SystemChannels> $msg');
-      if(msg==AppLifecycleState.resumed.toString())setState((){});
+      if (msg == AppLifecycleState.resumed.toString()) setState(() {});
     });
     super.initState();
   }
@@ -546,8 +686,12 @@ class _ShopHomePageState extends State<ShopHomePage> {
         ),
         actions: [
           notificationIcon(context),
-          IconButton(icon: Icon(Icons.power_settings_new, color: Theme.of(context).accentColor,),
-            onPressed: (){
+          IconButton(
+            icon: Icon(
+              Icons.power_settings_new,
+              color: Theme.of(context).accentColor,
+            ),
+            onPressed: () {
               _signOut();
             },
           ),
