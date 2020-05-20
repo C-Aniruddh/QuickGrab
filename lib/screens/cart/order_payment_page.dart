@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:app/notificationHandler.dart';
+import 'package:app/screens/cart/order_completed_page.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
+import 'package:device_id/device_id.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:badges/badges.dart';
 import 'package:app/screens/utils/order_data_table.dart';
@@ -57,6 +61,8 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   DocumentSnapshot userData;
 
+  String appId = "ca-app-pub-7265536593732931~3339675400";
+
   GeoHasher gH = GeoHasher();
 
   String token;
@@ -72,6 +78,10 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   List<String> timeSlots;
   double total_liquor = 0;
+
+  setupAds() async {
+    String device_id = await DeviceId.getID;
+  }
 
   Future<void> _signOut() async {
     try {
@@ -110,7 +120,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
         padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
         child: OrderTable(
           document: widget.items,
-          total: totalAmount(),
+          total: totalAmount(widget.items),
         ),
       ),
       availabilityNotice(),
@@ -238,18 +248,21 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
     return column;
   }
 
-  String totalAmount() {
+  String totalAmount(var items){
     double total = 0;
 
-    for (var i = 0; i < widget.items.length; i++) {
-      var item = widget.items[i];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA") {
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
     }
 
     return total.toString();
@@ -373,7 +386,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Text(
-                  totalAmount().toString(),
+                  totalAmount(widget.items).toString(),
                   style: TextStyle(fontSize: 16.0),
                 ),
               )
@@ -530,11 +543,15 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
 
   @override
   void initState() {
+    FirebaseAdMob.instance.initialize(appId: appId);
     setState(() {
       hasLiquor = checkLiquor();
       isOverflow = checkLiquorOverflow();
-      check24hrsHistory();
+      if(hasLiquor){
+        check24hrsHistory();
+      }
     });
+    setupAds();
     super.initState();
   }
 
@@ -670,16 +687,23 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                     'body': body,
                                     'read': false,
                                   });
+
+                                  await Firestore.instance
+                                      .collection('cart')
+                                      .document(widget.userData.documentID)
+                                      .setData({'cart': []});
+
+                                  await Firestore.instance
+                                    .collection('appointments')
+                                    .document(value.documentID)
+                                    .get()
+                                    .then((DocumentSnapshot document){
+                                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => OrderCompletedPage(appointmentData: document)), (route) => false);
+                                  });
+
                                 });
                               });
 
-                              await Firestore.instance
-                                  .collection('cart')
-                                  .document(widget.userData.documentID)
-                                  .setData({'cart': []});
-
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/home', (route) => false);
                             }
                           } else {
                             _showInfoDialog(context,

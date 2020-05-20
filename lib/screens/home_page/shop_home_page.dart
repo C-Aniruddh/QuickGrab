@@ -10,6 +10,7 @@ import 'package:app/screens/home_page/shop_my_inventory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -69,6 +70,12 @@ class _ShopHomePageState extends State<ShopHomePage> {
 
   List<String> timeSlots;
 
+  static const APP_STORE_URL =
+      'https://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id=YOUR-APP-ID&mt=8';
+
+  static const PLAY_STORE_URL =
+      'https://play.google.com/store/apps/details?id=com.quickgrab.app';
+
   Future<void> _signOut() async {
     try {
       await googleSignIn.signOut();
@@ -100,9 +107,51 @@ class _ShopHomePageState extends State<ShopHomePage> {
     if (token == null){
       token = "none";
     }
-    Firestore.instance.collection('users')
+    Firestore.instance.collection('shops')
         .document(userData.documentID)
         .updateData({'token': token});
+  }
+
+  _showVersionDialog(context) async {
+
+    await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        String title = "New Update Available";
+        String message =
+            "There is a newer version of app available please update it now.";
+        String btnLabel = "Update Now";
+        return Platform.isIOS
+            ? new CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(APP_STORE_URL),
+            ),
+          ],
+        )
+            : new AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(PLAY_STORE_URL),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   Widget notificationIcon(BuildContext context) {
@@ -198,20 +247,78 @@ class _ShopHomePageState extends State<ShopHomePage> {
     );
   }
 
+  Widget paymentHoldView() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.warning, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+                child: ListTile(
+                  trailing: FlatButton(child: Text("MORE INFO"), onPressed: (){
+
+                  },),
+                    title: Text("There is a problem with your payments.",
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget verificationHoldView() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 4),
+      child: Badge(
+        position: BadgePosition.topLeft(top: 12),
+        badgeColor: Theme.of(context).accentColor,
+        badgeContent: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Icon(Icons.warning, color: Colors.white),
+        ),
+        child: SizedBox(
+          height: 64,
+          child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16,0, 0, 8),
+                child: ListTile(
+                    trailing: FlatButton(child: Text("VERIFY"), onPressed: (){
+
+                    },),
+                    title: Text("Your shop has not been verified yet.",
+                      style: TextStyle(fontFamily: AppFontFamilies.mainFont), overflow: TextOverflow.ellipsis, maxLines: 2,)),
+              )),
+        ),
+      ),
+    );
+  }
+
   Widget buildHomeShop() {
     return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          addressView(),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text("You are signed in as " + userData['shop_name'], style:TextStyle(
-                fontSize: 18,
-                fontFamily: AppFontFamilies.mainFont)),
-          ),
-          dashboardGrid()
+              addressView(),
+              Divider(),
+              userData['verificationHold'] ? verificationHoldView() : SizedBox(height: 1),
+              userData['verificationHold'] ? Divider() : SizedBox(height: 1),
+              userData['paymentHold'] ? paymentHoldView() : SizedBox(height: 1),
+              userData['paymentHold'] ? Divider() : SizedBox(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text("You are signed in as " + userData['shop_name'], style:TextStyle(
+                    fontSize: 18,
+                    fontFamily: AppFontFamilies.mainFont)),
+              ),
+              dashboardGrid()
     ]));
   }
 

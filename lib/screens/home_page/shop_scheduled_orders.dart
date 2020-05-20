@@ -18,7 +18,6 @@ class ShopScheduledOrders extends StatefulWidget {
 }
 
 class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
-
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   Future<void> _signOut() async {
@@ -32,22 +31,21 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
 
   TextEditingController otpController = new TextEditingController();
 
-
-
   String totalAmount(var items){
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA"){
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) *
-              int.parse(
-                  item['quantity'].toString()));
     }
 
     return total.toString();
@@ -108,59 +106,60 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
     return column;
   }
 
-
   Widget buildHomeShop_old() {
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('appointments')
-              .where('appointment_status', isEqualTo: 'scheduled')
-              .where('target_shop', isEqualTo: widget.userData['uid'])
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return new Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Theme.of(context).accentColor,
-                  ),
-                );
-              default:
-                List<DocumentSnapshot> documents = new List();
-                documents = (snapshot.data.documents);
-                if (documents.length < 1) {
-                  return Center(
-                    child: Text("You have no scheduled appointments.",
-                      style: TextStyle(
-                      fontFamily: AppFontFamilies.mainFont)),
-                  );
-                } else {
-                  return new Container(
-                    child: GroupedListView(
-                      elements: documents,
-                      groupBy: (element) => element['appointment_start'],
-                      groupSeparatorBuilder: (dynamic groupByValue){
-                        return Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text("Appointments scheduled at " + '$groupByValue'),
-                        );
-                      },
-                      itemBuilder: (context, element) {
-                        DocumentSnapshot document = element;
-                        String total = totalAmount(document['items']);
-                        return OrderDataScheduled(
-                          document: document,
-                          total: total,
-                          isInvoice: false,
-                          isExpanded: false,
-                          displayOTP: false,
-                          isShop: true,
-                        );
-                      },
-                      order: GroupedListOrder.ASC,
-                    ),
-                    /*ListView.builder(
+      stream: Firestore.instance
+          .collection('appointments')
+          .where('appointment_status', isEqualTo: 'scheduled')
+          .where('target_shop', isEqualTo: widget.userData['uid'])
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Theme.of(context).accentColor,
+              ),
+            );
+          default:
+            List<DocumentSnapshot> documents = new List();
+            documents = (snapshot.data.documents);
+            if (documents.length < 1) {
+              return Center(
+                child: Text("You have no scheduled appointments.",
+                    style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+              );
+            } else {
+              return new Container(
+                child: GroupedListView(
+                  useStickyGroupSeparators: false,
+                  elements: documents,
+                  groupBy: (element) => element['appointment_start'],
+                  groupSeparatorBuilder: (dynamic groupByValue) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child:
+                          Text("Appointments scheduled at " + '$groupByValue'),
+                    );
+                  },
+                  itemBuilder: (context, element) {
+                    DocumentSnapshot document = element;
+                    String total = totalAmount(document['items']);
+                    return OrderDataScheduled(
+                      document: document,
+                      total: total,
+                      isInvoice: false,
+                      isExpanded: false,
+                      displayOTP: false,
+                      isShop: true,
+                      items: document['items'],
+                    );
+                  },
+                  order: GroupedListOrder.ASC,
+                ),
+                /*ListView.builder(
                       itemCount: documents.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         DocumentSnapshot document = documents[index];
@@ -175,9 +174,9 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                         );
                       },
                     )*/
-                  );
+              );
 
-                  /* Container(
+              /* Container(
                       child: ListView.builder(
                           itemCount: documents.length,
                           itemBuilder: (BuildContext ctxt, int index) {
@@ -216,35 +215,37 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                                 ),
                               ),
                             );
-                          }))*/;
-                }
+                          }))*/
+              ;
             }
-          },
-        ));
+        }
+      },
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leading: IconButton(icon: Icon(Icons.close),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            color: Colors.black,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            child: Text("Scheduled Orders",
+                style: TextStyle(
+                    fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
+          ),
         ),
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Text("Scheduled Orders",
-              style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
-        ),
-      ),
-      body: buildHomeShop_old()
-      // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: buildHomeShop_old()
+        // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
 }

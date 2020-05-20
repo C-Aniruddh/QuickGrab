@@ -438,7 +438,8 @@ class _ShopPageState extends State<ShopPage> {
                                                 .millisecondsSinceEpoch,
                                             'cost': item.data['item_price'],
                                             'quantity': 1,
-                                            'productID': item.documentID
+                                            'productID': item.documentID,
+                                            'available': true
                                           });
                                         } else {
                                           List<String> productsInCart = [];
@@ -472,7 +473,8 @@ class _ShopPageState extends State<ShopPage> {
                                                   .millisecondsSinceEpoch,
                                               'cost': item.data['item_price'],
                                               'quantity': 1,
-                                              'productID': item.documentID
+                                              'productID': item.documentID,
+                                              'available': true
                                             });
                                           }
                                         }

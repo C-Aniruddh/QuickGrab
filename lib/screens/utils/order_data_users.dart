@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:app/screens/utils/custom_ticket_pass.dart';
 import 'package:mdi/mdi.dart';
 
-class OrderDataNew extends StatefulWidget {
+class OrderDataUsers extends StatefulWidget {
   final DocumentSnapshot document;
   final String total;
   final bool displayOTP;
@@ -13,15 +13,15 @@ class OrderDataNew extends StatefulWidget {
   final bool isExpanded;
   final bool isShop;
 
-  OrderDataNew({Key key, this.document, this.total, this.displayOTP = false,
+  OrderDataUsers({Key key, this.document, this.total, this.displayOTP = false,
     this.isInvoice = false, this.isExpanded = true, this.isShop=false})
       : super(key: key);
 
   @override
-  _OrderDataNewState createState() => _OrderDataNewState();
+  _OrderDataUsersState createState() => _OrderDataUsersState();
 }
 
-class _OrderDataNewState extends State<OrderDataNew> {
+class _OrderDataUsersState extends State<OrderDataUsers> {
   int totalQty = 0;
   rowContent(invoiceData, total) {
     List<DataRow> rows = [];
@@ -31,26 +31,26 @@ class _OrderDataNewState extends State<OrderDataNew> {
         DataRow(
           cells: [
             DataCell(
-              Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Text(
-                  content['product']['item_name'].toString(),
-                  style: TextStyle(
-                    fontFamily: AppFontFamilies.mainFont,
-                    color: Colors.black87,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              content['available'] ?
+              Icon(Icons.check)
+                  : Icon(Icons.close)
+            ),
+            DataCell(
+              Text(
+                content['product']['item_name'].toString(),
+                style: TextStyle(
+                  fontFamily: AppFontFamilies.mainFont,
+                  color: Colors.black87,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
-              Container(
-                child: Text(
-                  content['quantity'].toString(),
-                  style: TextStyle(
-                    fontFamily: AppFontFamilies.mainFont,
-                    color: Colors.black87,
-                  ),
+              Text(
+                content['quantity'].toString(),
+                style: TextStyle(
+                  fontFamily: AppFontFamilies.mainFont,
+                  color: Colors.black87,
                 ),
               ),
             ),
@@ -73,19 +73,15 @@ class _OrderDataNewState extends State<OrderDataNew> {
         cells: [
           DataCell(
             Container(
-              width: MediaQuery.of(context).size.width * 0.25,
-              child: Text(
-                "Total",
-                style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont,
-                  color: Colors.black87,
-                ),
-              ),
+
             ),
           ),
           DataCell(
+            Container()
+          ),
+          DataCell(
             Text(
-              totalQty.toString(),
+              "Total",
               style: TextStyle(
                 fontFamily: AppFontFamilies.mainFont,
                 color: Colors.black87,
@@ -235,8 +231,19 @@ class _OrderDataNewState extends State<OrderDataNew> {
 
   Widget orderCardTable(DocumentSnapshot document, String total) {
     return DataTable(
+      columnSpacing: 36,
       dividerThickness: 0.0,
       columns: [
+        DataColumn(
+          label: Text(
+            "",
+            style: TextStyle(
+              fontFamily: AppFontFamilies.mainFont,
+              color: Colors.black87,
+            ),
+          ),
+          numeric: false,
+        ),
         DataColumn(
           label: Text(
             "Item",

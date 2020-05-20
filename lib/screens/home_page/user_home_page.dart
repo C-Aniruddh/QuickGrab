@@ -4,24 +4,33 @@ import 'package:app/fonts.dart';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/appointments/appointments.dart';
 import 'package:app/screens/cart/cart_page.dart';
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
+import 'package:app/screens/user_options/cancel_order.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
+import 'package:app/screens/utils/order_data_users.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_native_admob/native_admob_controller.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
-import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart' as gmfp;
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as gmfp;
+import 'package:google_maps_webservice/places.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:latlong/latlong.dart';
+import 'package:package_info/package_info.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
@@ -92,6 +101,8 @@ class _UserHomePageState extends State<UserHomePage> {
     'Other'
   ];
 
+  // final _controller = NativeAdmobController();
+
   TextEditingController startTimeController = new TextEditingController();
   TextEditingController endTimeController = new TextEditingController();
   TextEditingController otpController = new TextEditingController();
@@ -100,9 +111,20 @@ class _UserHomePageState extends State<UserHomePage> {
   TextEditingController suggestionTextController = new TextEditingController();
   final suggestionformKey = GlobalKey<FormState>();
 
+  static const APP_STORE_URL =
+      'https://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id=YOUR-APP-ID&mt=8';
+
+  static const PLAY_STORE_URL =
+      'https://play.google.com/store/apps/details?id=YOUR-APP-ID';
+
   void setUserData(String uid) async {
-    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid){
+    if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid) {
       token = await FirebaseNotifications().setUpFirebase();
+      try {
+        versionCheck(context);
+      } catch (e) {
+        print(e);
+      }
     }
     await Firestore.instance
         .collection('users')
@@ -132,11 +154,91 @@ class _UserHomePageState extends State<UserHomePage> {
     updateNotificationToken();
   }
 
-  updateNotificationToken(){
-    if (token == null){
+  versionCheck(context) async {
+    //Get Current installed version of app
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    double currentVersion = double.parse(info.version.trim().replaceAll(".", ""));
+
+    //Get Latest version info from firebase config
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+
+    try {
+      // Using default duration to force fetching from remote server.
+      await remoteConfig.fetch(expiration: const Duration(seconds: 0));
+      await remoteConfig.activateFetched();
+
+      String updateString = "force_update_current_version";
+      if(UniversalPlatform.isAndroid) {
+        updateString = "force_update_current_version_android";
+      } else {
+        updateString = "force_update_current_version_ios";
+      }
+
+      remoteConfig.getString(updateString);
+      double newVersion = double.parse(remoteConfig
+          .getString(updateString)
+          .trim()
+          .replaceAll(".", ""));
+      if (newVersion > currentVersion) {
+        _showVersionDialog(context);
+      }
+    } on FetchThrottledException catch (exception) {
+      // Fetch throttled.
+      print(exception);
+    } catch (exception) {
+      print('Unable to fetch remote config. Cached or default values will be '
+          'used');
+    }
+  }
+
+  _showVersionDialog(context) async {
+
+    await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        String title = "New Update Available";
+        String message =
+            "There is a newer version of app available please update it now.";
+        String btnLabel = "Update Now";
+        return Platform.isIOS
+            ? new CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(APP_STORE_URL),
+            ),
+          ],
+        )
+            : new AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(PLAY_STORE_URL),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  updateNotificationToken() {
+    if (token == null) {
       token = "none";
     }
-    Firestore.instance.collection('users')
+    Firestore.instance
+        .collection('users')
         .document(userData.documentID)
         .updateData({'token': token});
   }
@@ -226,7 +328,8 @@ class _UserHomePageState extends State<UserHomePage> {
       }
     }
 
-    toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash']).compareTo(distanceBetweenDouble(b['shop_geohash'])));
+    toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash'])
+        .compareTo(distanceBetweenDouble(b['shop_geohash'])));
 
     return toReturn;
   }
@@ -371,9 +474,9 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget offersOrAppointment(){
-    if(upcomingAppointments.length < 1){
-      if(offers.length < 1){
+  Widget offersOrAppointment() {
+    if (upcomingAppointments.length < 1) {
+      if (offers.length < 1) {
         return SizedBox(height: 1);
       } else {
         return offersView();
@@ -386,11 +489,11 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget buildHomeUser() {
     return SingleChildScrollView(
         child: Column(children: [
-          addressView(),
-          offers.length < 1 ? SizedBox(height: 1) : offersView(),
-          Divider(),
-          userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
-          nearbyView()
+      addressView(),
+      offers.length < 1 ? SizedBox(height: 1) : offersView(),
+      Divider(),
+      userData['favorites'].length < 1 ? SizedBox(height: 1) : favoritesView(),
+      nearbyView()
     ]));
   }
 
@@ -410,72 +513,167 @@ class _UserHomePageState extends State<UserHomePage> {
               child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 0, 8),
             child: ListTile(
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () async {
-                  Firestore.instance.collection('location_change')
-                    .document(userData.documentID)
-                    .get()
-                    .then((doc) async{
-                    var date = new DateTime.now();
-                    var date24 = new DateTime(date.year, date.month, date.day - 1, date.hour, date.minute);
-
-                    if(!doc.exists){
-                      LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137));
-                      print(result.address);
-                      print(result.latLng);
-                      GeoHasher geoHasher = GeoHasher();
-                      String userGeoHash = geoHasher.encode(result.latLng.longitude, result.latLng.latitude, precision: 8);
-
-                      Firestore.instance.collection('users')
-                          .document(userData.documentID)
-                          .updateData({'address': result.address,
-                        'geohash': userGeoHash,
-                        'lat': result.latLng.latitude,
-                        'lon': result.latLng.longitude
-                      });
-                      Firestore.instance.collection('location_change')
+                trailing: IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () async {
+                    Firestore.instance
+                        .collection('location_change')
                         .document(userData.documentID)
-                        .setData({'last_change': date}, merge: true);
+                        .get()
+                        .then((doc) async {
+                      var date = new DateTime.now();
+                      var date24 = new DateTime(date.year, date.month,
+                          date.day - 1, date.hour, date.minute);
 
-                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                    } else {
-                      DateTime lastChange = doc.data['last_change'].toDate();
-                      Jiffy lastChangeJ = new Jiffy(lastChange);
-                      Jiffy currentTime = new Jiffy(date);
-                      Jiffy newTime = Jiffy(lastChangeJ.add(duration: Duration(hours: 24)));
+                      if (!doc.exists) {
+                        if (UniversalPlatform.isWeb){
+                          Prediction p = await PlacesAutocomplete.show(
+                              location: Location(19.074376, 72.871137),
+                              proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                              context: context,
+                              apiKey: apiKey,
+                              mode: Mode.overlay, // Mode.fullscreen
+                              language: "en",
+                              components: [new Component(Component.country, "in")]);
 
-                      if (currentTime.isAfter(newTime)){
-                        LocationResult result = await showLocationPicker(context, apiKey, initialCenter: gmfp.LatLng(19.074376, 72.871137), requiredGPS: false, );
-                        print(result.address);
-                        print(result.latLng);
-                        GeoHasher geoHasher = GeoHasher();
-                        String userGeoHash = geoHasher.encode(result.latLng.longitude, result.latLng.latitude, precision: 8);
+                          var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                          var place = await places.getDetailsByPlaceId(p.placeId);
+                          GeoHasher geoHasher = GeoHasher();
+                          String userGeoHash = geoHasher.encode(
+                              place.result.geometry.location.lng, place.result.geometry.location.lat,
+                              precision: 8);
 
-                        Firestore.instance.collection('users')
-                            .document(userData.documentID)
-                            .updateData({'address': result.address,
-                          'geohash': userGeoHash,
-                          'lat': result.latLng.latitude,
-                          'lon': result.latLng.longitude
-                        });
-                        Firestore.instance.collection('location_change')
-                            .document(userData.documentID)
-                            .setData({'last_change': date}, merge: true);
 
-                        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                          Firestore.instance
+                              .collection('users')
+                              .document(userData.documentID)
+                              .updateData({
+                            'address': place.result.formattedAddress,
+                            'geohash': userGeoHash,
+                            'lat': place.result.geometry.location.lat,
+                            'lon': place.result.geometry.location.lng
+                          });
+                          Firestore.instance
+                              .collection('location_change')
+                              .document(userData.documentID)
+                              .setData({'last_change': date}, merge: true);
+
+                          Navigator.pushAndRemoveUntil(
+                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+
+                        } else {
+                          LocationResult result = await showLocationPicker(
+                              context, apiKey,
+                              initialCenter: gmfp.LatLng(19.074376, 72.871137));
+                          print(result.address);
+                          print(result.latLng);
+                          GeoHasher geoHasher = GeoHasher();
+                          String userGeoHash = geoHasher.encode(
+                              result.latLng.longitude, result.latLng.latitude,
+                              precision: 8);
+
+                          Firestore.instance
+                              .collection('users')
+                              .document(userData.documentID)
+                              .updateData({
+                            'address': result.address,
+                            'geohash': userGeoHash,
+                            'lat': result.latLng.latitude,
+                            'lon': result.latLng.longitude
+                          });
+                          Firestore.instance
+                              .collection('location_change')
+                              .document(userData.documentID)
+                              .setData({'last_change': date}, merge: true);
+
+                          Navigator.pushAndRemoveUntil(
+                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+                        }
+
                       } else {
-                        _showInfoDialog(context, "You have already changed your location once in the last 24 hours. Please wait before trying again.");
+                        DateTime lastChange = doc.data['last_change'].toDate();
+                        Jiffy lastChangeJ = new Jiffy(lastChange);
+                        Jiffy currentTime = new Jiffy(date);
+                        Jiffy newTime = Jiffy(
+                            lastChangeJ.add(duration: Duration(hours: 24)));
+
+                        if (currentTime.isAfter(newTime)) {
+                          if (UniversalPlatform.isWeb){
+                            Prediction p = await PlacesAutocomplete.show(
+                                location: Location(19.074376, 72.871137),
+                                proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                                context: context,
+                                apiKey: apiKey,
+                                mode: Mode.overlay, // Mode.fullscreen
+                                language: "en",
+                                components: [new Component(Component.country, "in")]);
+
+                            var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                            var place = await places.getDetailsByPlaceId(p.placeId);
+                            GeoHasher geoHasher = GeoHasher();
+                            String userGeoHash = geoHasher.encode(
+                                place.result.geometry.location.lng, place.result.geometry.location.lat,
+                                precision: 8);
+
+
+                            Firestore.instance
+                                .collection('users')
+                                .document(userData.documentID)
+                                .updateData({
+                              'address': place.result.formattedAddress,
+                              'geohash': userGeoHash,
+                              'lat': place.result.geometry.location.lat,
+                              'lon': place.result.geometry.location.lng
+                            });
+                            Firestore.instance
+                                .collection('location_change')
+                                .document(userData.documentID)
+                                .setData({'last_change': date}, merge: true);
+
+                            Navigator.pushAndRemoveUntil(
+                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+
+                          } else {
+                            LocationResult result = await showLocationPicker(
+                                context, apiKey,
+                                initialCenter: gmfp.LatLng(19.074376, 72.871137));
+                            print(result.address);
+                            print(result.latLng);
+                            GeoHasher geoHasher = GeoHasher();
+                            String userGeoHash = geoHasher.encode(
+                                result.latLng.longitude, result.latLng.latitude,
+                                precision: 8);
+
+                            Firestore.instance
+                                .collection('users')
+                                .document(userData.documentID)
+                                .updateData({
+                              'address': result.address,
+                              'geohash': userGeoHash,
+                              'lat': result.latLng.latitude,
+                              'lon': result.latLng.longitude
+                            });
+                            Firestore.instance
+                                .collection('location_change')
+                                .document(userData.documentID)
+                                .setData({'last_change': date}, merge: true);
+
+                            Navigator.pushAndRemoveUntil(
+                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+                          }
+                        } else {
+                          _showInfoDialog(context,
+                              "You have already changed your location once in the last 24 hours. Please wait before trying again.");
+                        }
                       }
-                    }
-                  });
-                },
-              ),
+                    });
+                  },
+                ),
                 title: Text(
-              userData['address'],
-              style: TextStyle(fontFamily: AppFontFamilies.mainFont),
-              overflow: TextOverflow.ellipsis,
-            )),
+                  userData['address'],
+                  style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+                  overflow: TextOverflow.ellipsis,
+                )),
           )),
         ),
       ),
@@ -643,13 +841,13 @@ class _UserHomePageState extends State<UserHomePage> {
                     } else {
                       return LimitedBox(
                         child: ListView.builder(
-                          shrinkWrap: true,
+                            shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             itemCount: documents.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              DocumentSnapshot document =
-                              documents[index];
-                              String total = totalAmount(document.data['items']);
+                              DocumentSnapshot document = documents[index];
+                              String total =
+                                  totalAmount(document.data['items']);
                               return OrderDataNew(
                                 document: document,
                                 total: total,
@@ -809,12 +1007,16 @@ class _UserHomePageState extends State<UserHomePage> {
               .collection('shops')
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
               .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
               .snapshots()
           : Firestore.instance
               .collection('shops')
               .where('industry', whereIn: _industryListNoLiqour)
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
               .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
               .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
@@ -1332,7 +1534,7 @@ class _UserHomePageState extends State<UserHomePage> {
                     DocumentSnapshot document = documents[index];
                     String total = totalAmount(document['items']);
                     // return scheduledAppointments(document, total);
-                    return OrderDataNew(
+                    return OrderDataUsers(
                       document: document,
                       total: total,
                       displayOTP: true,
@@ -1401,18 +1603,21 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
-  String totalAmount(var items) {
+  String totalAmount(var items){
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
 
-      if (item['cost'] == "NA") {
-        return "NA";
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
       }
-
-      total = total +
-          (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
     }
 
     return total.toString();
@@ -1430,11 +1635,12 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   Widget buildAppointmentsDoneUser() {
+    List<String> statusStrings = ['completed', 'cancelled'];
     return Container(
         child: StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('appointments')
-          .where('appointment_status', isEqualTo: 'completed')
+          .where('appointment_status', whereIn: statusStrings)
           .where('shopper_uid', isEqualTo: userData['uid'])
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -1464,7 +1670,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       document: document,
                       total: total,
                       displayOTP: false,
-                      isInvoice: true,
+                      isInvoice: false,
                       isExpanded: false,
                     );
                   },
@@ -1504,7 +1710,7 @@ class _UserHomePageState extends State<UserHomePage> {
                           .document(documentID)
                           .get()
                           .then((doc) async {
-                        var title = "Apopintment completed";
+                        var title = "Appointment completed";
                         var body = "Your appointment at " +
                             doc['shop_name'] +
                             " was marked completed";
@@ -1956,6 +2162,13 @@ class _UserHomePageState extends State<UserHomePage> {
         SizedBox(width: 10),
       ];
     }
+  }
+
+  _showUserCancelDialog(BuildContext context, DocumentSnapshot document) {
+    return showDialog(
+      context: context,
+      child: CancelUserReason(),
+    );
   }
 
   @override

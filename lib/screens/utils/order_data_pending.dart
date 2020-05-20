@@ -5,42 +5,73 @@ import 'package:flutter/material.dart';
 import 'package:app/screens/utils/custom_ticket_pass.dart';
 import 'package:mdi/mdi.dart';
 
-class OrderDataNew extends StatefulWidget {
+class OrderDataPending extends StatefulWidget {
   final DocumentSnapshot document;
-  final String total;
+  String total;
   final bool displayOTP;
   final bool isInvoice;
   final bool isExpanded;
   final bool isShop;
+  var items;
 
-  OrderDataNew({Key key, this.document, this.total, this.displayOTP = false,
-    this.isInvoice = false, this.isExpanded = true, this.isShop=false})
+  OrderDataPending({Key key, this.document, this.total, this.displayOTP = false,
+    this.isInvoice = false, this.isExpanded = true, this.isShop=false, this.items})
       : super(key: key);
 
   @override
-  _OrderDataNewState createState() => _OrderDataNewState();
+  _OrderDataPendingState createState() => _OrderDataPendingState();
 }
 
-class _OrderDataNewState extends State<OrderDataNew> {
+class _OrderDataPendingState extends State<OrderDataPending> {
   int totalQty = 0;
+
+  String totalAmount(var items){
+    double total = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if(item['available']){
+        if (item['cost'] == "NA"){
+          return "NA";
+        }
+
+        total = total +
+            (int.parse(item['cost']) *
+                int.parse(
+                    item['quantity'].toString()));
+      }
+    }
+
+    return total.toString();
+  }
+
   rowContent(invoiceData, total) {
     List<DataRow> rows = [];
 
-    for (dynamic content in invoiceData) {
+    for (var i = 0; i < widget.items.length; i++) {
+      var content = widget.items[i];
       rows.add(
         DataRow(
+          selected: content['available'],
+          onSelectChanged: (value){
+            setState(() {
+              widget.items[i]['available'] = value;
+              widget.total = totalAmount(widget.items);
+              Firestore.instance.collection('appointments')
+              .document(widget.document.documentID)
+              .updateData({'items': widget.items});
+            });
+
+          },
           cells: [
             DataCell(
-              Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Text(
-                  content['product']['item_name'].toString(),
-                  style: TextStyle(
-                    fontFamily: AppFontFamilies.mainFont,
-                    color: Colors.black87,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              Text(
+                content['product']['item_name'].toString(),
+                style: TextStyle(
+                  fontFamily: AppFontFamilies.mainFont,
+                  color: Colors.black87,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
@@ -63,29 +94,20 @@ class _OrderDataNewState extends State<OrderDataNew> {
                 ),
               ),
             ),
+
           ],
         ),
       );
-      totalQty = totalQty + int.parse(content['quantity'].toString());
     }
     rows.add(
       DataRow(
         cells: [
           DataCell(
-            Container(
-              width: MediaQuery.of(context).size.width * 0.25,
-              child: Text(
-                "Total",
-                style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
+            Container()
           ),
           DataCell(
             Text(
-              totalQty.toString(),
+              "Total",
               style: TextStyle(
                 fontFamily: AppFontFamilies.mainFont,
                 color: Colors.black87,
@@ -149,7 +171,6 @@ class _OrderDataNewState extends State<OrderDataNew> {
 
           initiallyExpanded: widget.isExpanded,
           children: [
-            Divider(),
             widget.isInvoice ?
             SizedBox(height: 1)
             : Padding(
@@ -216,17 +237,8 @@ class _OrderDataNewState extends State<OrderDataNew> {
                 ],
               ),
             ),
-            widget.isInvoice ? SizedBox(height: 1) :
-            Divider(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(32, 8, 16, 0),
-                child: Text("Order Items"),
-              ),
-            ),
-            orderCardTable(document, total),
 
+            orderCardTable(widget.document, widget.total),
           ],
         )
       ),
@@ -235,6 +247,7 @@ class _OrderDataNewState extends State<OrderDataNew> {
 
   Widget orderCardTable(DocumentSnapshot document, String total) {
     return DataTable(
+      showCheckboxColumn: true,
       dividerThickness: 0.0,
       columns: [
         DataColumn(
@@ -267,6 +280,7 @@ class _OrderDataNewState extends State<OrderDataNew> {
           ),
           numeric: false,
         ),
+
       ],
       rows: rowContent(document['items'], total),
     );
@@ -411,7 +425,11 @@ class _OrderDataNewState extends State<OrderDataNew> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: orderCardNew(widget.document, widget.total),
+      child: Column(
+        children: [
+          orderCardNew(widget.document, widget.total),
+        ],
+      ),
     );
   }
 }

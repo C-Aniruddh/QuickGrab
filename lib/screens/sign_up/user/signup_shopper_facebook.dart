@@ -1,13 +1,17 @@
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:app/fonts.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dart_geohash/dart_geohash.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SignUpShopperFacebook extends StatefulWidget {
   SignUpShopperFacebook({Key key, this.title}) : super(key: key);
@@ -143,30 +147,41 @@ class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
       final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
       assert(user.uid == currentUser.uid);
 
-      Firestore.instance.collection('uid_type').document(user.uid)
-          .setData({'type': 'user'}, merge: true);
+      Firestore.instance.collection('uid_type')
+          .document(user.uid)
+          .get()
+          .then((doc){
+        if (!doc.exists){
+          Firestore.instance.collection('uid_type').document(user.uid)
+              .setData({'type': 'user'}, merge: true);
 
-      Firestore.instance.collection('cart').document(user.uid)
-          .setData({'cart': []}, merge: true);
+          Firestore.instance.collection('cart').document(user.uid)
+              .setData({'cart': []}, merge: true);
 
-      Firestore.instance.collection('users').document(user.uid)
-          .setData({
-        'phone_number': _phoneNumberController.text,
-        'address': userAddress,
-        'token': 'none',
-        'uid': user.uid,
-        'geohash': userGeoHash,
-        'lat': userCoordinates.latitude,
-        'lon': userCoordinates.longitude,
-        'name': user.displayName,
-        'dob': selectedDate,
-        'is21': isTwentyOne(),
-        'favorites': []
-      }, merge: true);
+          Firestore.instance.collection('users').document(user.uid)
+              .setData({
+            'phone_number': _phoneNumberController.text,
+            'address': userAddress,
+            'token': 'none',
+            'uid': user.uid,
+            'geohash': userGeoHash,
+            'lat': userCoordinates.latitude,
+            'lon': userCoordinates.longitude,
+            'name': user.displayName,
+            'dob': selectedDate,
+            'is21': isTwentyOne(),
+            'favorites': []
+          }, merge: true);
 
+        } else {
+          showAlertDialog(context, "You already have an account.", "Logging you to your account.");
+        }
+      });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushAndRemoveUntil(
+          context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
@@ -274,16 +289,40 @@ class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: InkWell(
                   onTap: () async {
-                    LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137), requiredGPS: false);
-                    print(result.address);
-                    print(result.latLng);
-                    GeoHasher geoHasher = GeoHasher();
-                    setState(() {
-                      _userAddressController.text = result.address;
-                      userAddress = result.address;
-                      userCoordinates = result.latLng;
-                      userGeoHash = geoHasher.encode(userCoordinates.longitude, userCoordinates.latitude, precision: 8);
-                    });
+
+                    if (UniversalPlatform.isWeb){
+                      Prediction p = await PlacesAutocomplete.show(
+                          location: Location(19.074376, 72.871137),
+                          proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                          context: context,
+                          apiKey: apiKey,
+                          mode: Mode.overlay, // Mode.fullscreen
+                          language: "en",
+                          components: [new Component(Component.country, "in")]);
+
+                      var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                      var place = await places.getDetailsByPlaceId(p.placeId);
+                      GeoHasher geoHasher = GeoHasher();
+
+                      setState(() {
+                        _userAddressController.text = place.result.formattedAddress;
+                        userAddress = place.result.formattedAddress;
+                        userCoordinates = LatLng(place.result.geometry.location.lat, place.result.geometry.location.lng);
+                        userGeoHash = geoHasher.encode(userCoordinates.longitude, userCoordinates.latitude, precision: 8);
+                      });
+
+                    } else {
+                      LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137), requiredGPS: false);
+                      print(result.address);
+                      print(result.latLng);
+                      GeoHasher geoHasher = GeoHasher();
+                      setState(() {
+                        _userAddressController.text = result.address;
+                        userAddress = result.address;
+                        userCoordinates = result.latLng;
+                        userGeoHash = geoHasher.encode(userCoordinates.longitude, userCoordinates.latitude, precision: 8);
+                      });
+                    }
                   },
                   child: customTextField(Icons.location_on, "Home Location", _userAddressController, enabled: false)),
             ),

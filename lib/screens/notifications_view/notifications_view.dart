@@ -67,7 +67,6 @@ class _NotificationsViewState extends State<NotificationsView> {
                       separatorBuilder: (BuildContext cxtc, int index){
                         return Divider();
                       },
-                      physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: filterList.length,
                       //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

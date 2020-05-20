@@ -1,12 +1,17 @@
+import 'package:app/screens/login_page/landing_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:app/fonts.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dart_geohash/dart_geohash.dart';
+import "package:google_maps_webservice/places.dart";
+import 'package:universal_platform/universal_platform.dart';
 
 class SignUpShopOwnerGoogle extends StatefulWidget {
   SignUpShopOwnerGoogle({Key key, this.title}) : super(key: key);
@@ -59,9 +64,11 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
   showAlertDialog(BuildContext context, String title, String content) {
     // set up the button
     Widget okButton = FlatButton(
-      child: Text("OK"),
+      child: Text("Okay"),
       onPressed: () {
         Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+            context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
       },
     );
 
@@ -77,6 +84,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
     // show the dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return alert;
       },
@@ -173,30 +181,42 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
       final FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
       assert(user.uid == currentUser.uid);
 
-      Firestore.instance.collection('uid_type').document(user.uid)
-          .setData({'type': 'shop'}, merge: true);
+      Firestore.instance.collection('uid_type')
+        .document(user.uid)
+        .get()
+        .then((doc){
+          if(!doc.exists){
+            Firestore.instance.collection('uid_type').document(user.uid)
+                .setData({'type': 'shop'}, merge: true);
 
-      Firestore.instance.collection('shops').document(user.uid)
-          .setData({
-        'industry': _industrySelect,
-        'limit': 10,
-        'phone_number': _phoneNumberController.text,
-        'shop_GST': _shopGSTController.text,
-        'shop_address': shopAddress,
-        'shop_contact_name': _shopContactNameController.text,
-        'shop_name': _shopNameController.text,
-        'token': 'none',
-        'uid': user.uid,
-        'shop_geohash': shopGeoHash,
-        'shop_lat': shopCoordinates.latitude,
-        'shop_lon': shopCoordinates.longitude,
-        'shop_image': profilePicByIndustry(_industrySelect),
-        'shop_payment_methods': ['Cash'],
-        'inventory': []
-      }, merge: true);
+            Firestore.instance.collection('shops').document(user.uid)
+                .setData({
+              'industry': _industrySelect,
+              'limit': 10,
+              'phone_number': _phoneNumberController.text,
+              'shop_GST': _shopGSTController.text,
+              'shop_address': shopAddress,
+              'shop_contact_name': _shopContactNameController.text,
+              'shop_name': _shopNameController.text,
+              'token': 'none',
+              'uid': user.uid,
+              'shop_geohash': shopGeoHash,
+              'shop_lat': shopCoordinates.latitude,
+              'shop_lon': shopCoordinates.longitude,
+              'shop_image': profilePicByIndustry(_industrySelect),
+              'shop_payment_methods': ['Cash'],
+              'inventory': [],
+              'paymentHold': false,
+              'verificationHold': true
+            }, merge: true);
+          } else {
+            Navigator.pop(context);
+            assert(user.uid == currentUser.uid);
+            showAlertDialog(context, "You already have an account.", "Signing in to that account.");
+          }
+      });
 
-      assert(user.uid == currentUser.uid);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
@@ -358,16 +378,39 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: InkWell(
                   onTap: () async {
-                    LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137), requiredGPS: false);
-                    print(result.address);
-                    print(result.latLng);
-                    GeoHasher geoHasher = GeoHasher();
-                    setState(() {
-                      _shopAddressController.text = result.address;
-                      shopAddress = result.address;
-                      shopCoordinates = result.latLng;
-                      shopGeoHash = geoHasher.encode(shopCoordinates.longitude, shopCoordinates.latitude, precision: 8);
-                    });
+                    if (UniversalPlatform.isWeb){
+                      Prediction p = await PlacesAutocomplete.show(
+                          location: Location(19.074376, 72.871137),
+                          proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                          context: context,
+                          apiKey: apiKey,
+                          mode: Mode.overlay, // Mode.fullscreen
+                          language: "en",
+                          components: [new Component(Component.country, "in")]);
+
+                      var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                      var place = await places.getDetailsByPlaceId(p.placeId);
+                      GeoHasher geoHasher = GeoHasher();
+                      setState(() {
+                        _shopAddressController.text = place.result.formattedAddress;
+                        shopAddress = place.result.formattedAddress;
+                        shopCoordinates = LatLng(place.result.geometry.location.lat, place.result.geometry.location.lng);
+                        shopGeoHash = geoHasher.encode(shopCoordinates.longitude, shopCoordinates.latitude, precision: 8);
+                      });
+
+                    } else {
+                      LocationResult result = await showLocationPicker(context, apiKey, initialCenter: LatLng(19.074376, 72.871137), requiredGPS: false);
+                      print(result.address);
+                      print(result.latLng);
+                      GeoHasher geoHasher = GeoHasher();
+                      setState(() {
+                        _shopAddressController.text = result.address;
+                        shopAddress = result.address;
+                        shopCoordinates = result.latLng;
+                        shopGeoHash = geoHasher.encode(shopCoordinates.longitude, shopCoordinates.latitude, precision: 8);
+                      });
+                    }
+
                   },
                   child: customTextField(Icons.location_on, "Shop Location", _shopAddressController, enabled: false)),
             ),
