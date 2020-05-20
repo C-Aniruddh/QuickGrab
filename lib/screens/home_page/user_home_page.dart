@@ -16,6 +16,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -29,6 +30,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:latlong/latlong.dart';
+import 'package:package_info/package_info.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
@@ -109,9 +111,20 @@ class _UserHomePageState extends State<UserHomePage> {
   TextEditingController suggestionTextController = new TextEditingController();
   final suggestionformKey = GlobalKey<FormState>();
 
+  static const APP_STORE_URL =
+      'https://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id=YOUR-APP-ID&mt=8';
+
+  static const PLAY_STORE_URL =
+      'https://play.google.com/store/apps/details?id=YOUR-APP-ID';
+
   void setUserData(String uid) async {
     if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid) {
       token = await FirebaseNotifications().setUpFirebase();
+      try {
+        versionCheck(context);
+      } catch (e) {
+        print(e);
+      }
     }
     await Firestore.instance
         .collection('users')
@@ -139,6 +152,85 @@ class _UserHomePageState extends State<UserHomePage> {
     });
 
     updateNotificationToken();
+  }
+
+  versionCheck(context) async {
+    //Get Current installed version of app
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    double currentVersion = double.parse(info.version.trim().replaceAll(".", ""));
+
+    //Get Latest version info from firebase config
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+
+    try {
+      // Using default duration to force fetching from remote server.
+      await remoteConfig.fetch(expiration: const Duration(seconds: 0));
+      await remoteConfig.activateFetched();
+
+      String updateString = "force_update_current_version";
+      if(UniversalPlatform.isAndroid) {
+        updateString = "force_update_current_version_android";
+      } else {
+        updateString = "force_update_current_version_ios";
+      }
+
+      remoteConfig.getString(updateString);
+      double newVersion = double.parse(remoteConfig
+          .getString(updateString)
+          .trim()
+          .replaceAll(".", ""));
+      if (newVersion > currentVersion) {
+        _showVersionDialog(context);
+      }
+    } on FetchThrottledException catch (exception) {
+      // Fetch throttled.
+      print(exception);
+    } catch (exception) {
+      print('Unable to fetch remote config. Cached or default values will be '
+          'used');
+    }
+  }
+
+  _showVersionDialog(context) async {
+
+    await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        String title = "New Update Available";
+        String message =
+            "There is a newer version of app available please update it now.";
+        String btnLabel = "Update Now";
+        return Platform.isIOS
+            ? new CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(APP_STORE_URL),
+            ),
+          ],
+        )
+            : new AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(btnLabel),
+              onPressed: () => _launchURL(PLAY_STORE_URL),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   updateNotificationToken() {
