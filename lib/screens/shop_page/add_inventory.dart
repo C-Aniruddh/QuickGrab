@@ -1,17 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:app/screens/shop_page/item_variant_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dart_geohash/dart_geohash.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
 import '../../fonts.dart';
@@ -34,6 +30,9 @@ class _AddInventoryState extends State<AddInventory> {
   String _uploadedFileURL;
 
   String _categorySelect = 'Select Category';
+
+  List<Widget> itemVariants = new List<Widget>();
+  List items = new List();
 
   TextEditingController itemNameController = new TextEditingController();
   TextEditingController itemPriceController = new TextEditingController();
@@ -373,14 +372,60 @@ class _AddInventoryState extends State<AddInventory> {
     }
   }
 
+  Widget buildVariant(
+      {String size, String quantity, String unit, String price}) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: Colors.grey[200],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              "Size: " + size + "  " + unit,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15.0,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              "Quantity: " + quantity,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15.0,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              "Price: " + price,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildBody() {
     return Form(
       key: _formKey,
       child: Column(
         children: [
           Container(
-            height: 275.0,
-            width: 275.0,
+            height: 225.0,
+            width: 225.0,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Center(
@@ -389,7 +434,7 @@ class _AddInventoryState extends State<AddInventory> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 2, 16, 2),
+            padding: EdgeInsets.fromLTRB(16, 2, 16, 8),
             child: Center(
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
@@ -419,82 +464,182 @@ class _AddInventoryState extends State<AddInventory> {
             height: 16.0,
           ),
           customTextField(Icons.text_fields, "Item Name", itemNameController),
-          customTextField(Icons.attach_money, "Item Price", itemPriceController,
-              keyType: TextInputType.number),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: Container(
-                height: 56.0,
-                margin: EdgeInsets.all(8.0),
-                child: new Container(
-                  padding: const EdgeInsets.only(left: 8, right: 5),
-                  width: MediaQuery.of(context).size.width * .90,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(32),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 1.0,
-                        // has the effect of softening the shadow
-                        spreadRadius: 0.0,
-                        // has the effect of extending the shadow
-                        offset: Offset(
-                          0.0, // horizontal, move right 10
-                          0.0, // vertical, move down 10
-                        ),
-                      )
-                    ],
-                  ),
-                  child: new Row(
-                    children: <Widget>[
-                      new Container(
-                        child: new IconButton(
-                            icon: new Icon(
-                              Icons.business,
-                            ),
-                            onPressed: null),
+              height: 56.0,
+              margin: EdgeInsets.all(8.0),
+              child: new Container(
+                padding: const EdgeInsets.only(left: 8, right: 5),
+                width: MediaQuery.of(context).size.width * .90,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 1.0,
+                      // has the effect of softening the shadow
+                      spreadRadius: 0.0,
+                      // has the effect of extending the shadow
+                      offset: Offset(
+                        0.0, // horizontal, move right 10
+                        0.0, // vertical, move down 10
                       ),
-                      new Flexible(
-                        child: new DropdownButtonHideUnderline(
-                          child: new DropdownButton(
-                            iconDisabledColor: Colors.grey,
-                            iconEnabledColor: Colors.grey,
-                            hint: Text("Select Category",
-                                style: TextStyle(
-                                    fontFamily: AppFontFamilies.mainFont,
-                                    color: Colors.grey)),
-                            value: _categorySelect,
-                            isDense: true,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _categorySelect = newValue;
-                              });
-                            },
-                            items: widget.categories.map((String value) {
-                              return new DropdownMenuItem(
-                                value: value,
-                                child: new Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontFamily: AppFontFamilies.mainFont,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                    )
+                  ],
+                ),
+                child: new Row(
+                  children: <Widget>[
+                    new Container(
+                      child: new IconButton(
+                          icon: new Icon(
+                            Icons.business,
                           ),
+                          onPressed: null),
+                    ),
+                    new Flexible(
+                      child: new DropdownButtonHideUnderline(
+                        child: new DropdownButton(
+                          iconDisabledColor: Colors.grey,
+                          iconEnabledColor: Colors.grey,
+                          hint: Text("Select Category",
+                              style: TextStyle(
+                                  fontFamily: AppFontFamilies.mainFont,
+                                  color: Colors.grey)),
+                          value: _categorySelect,
+                          isDense: true,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _categorySelect = newValue;
+                            });
+                          },
+                          items: widget.categories.map((String value) {
+                            return new DropdownMenuItem(
+                              value: value,
+                              child: new Text(
+                                value,
+                                style: TextStyle(
+                                  fontFamily: AppFontFamilies.mainFont,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          customTextField(
-              Icons.format_list_numbered, itemQu(), itemQuantityController,
-              keyType: TextInputType.text, validate: false),
-          customLargeTextField(Icons.description, "Item Description (Optional)",
-              itemDescriptionController,
-              validate: false),
+          itemVariants.length == 0
+              ? Container(
+                  margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 4.0),
+                  width: MediaQuery.of(context).size.width * .85,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[400]),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "No variants added yet. Press the 'Add a variant' button to add one.",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 4.0),
+                  width: MediaQuery.of(context).size.width * .85,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[400]),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
+                      spacing: 12.0,
+                      runSpacing: 12.0,
+                      children: itemVariants,
+                    ),
+                  ),
+                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(32, 0, 16, 12),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      side: BorderSide(color: Colors.orangeAccent)),
+                  onPressed: () async {
+                    var data = await showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      child: ItemVariantDialog(),
+                    );
+                    if (data != null) {
+                      setState(() {
+                        itemVariants.add(buildVariant(
+                            size: data[0],
+                            unit: data[1],
+                            quantity: data[2],
+                            price: data[3]));
+                      });
+                      items.add({
+                        "size": data[0],
+                        "unit": data[1],
+                        "quantity": data[2],
+                        "price": data[3],
+                      });
+                    }
+                  },
+                  color: Colors.orangeAccent,
+                  textColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Add a variant",
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(8, 0, 16, 12),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      side: BorderSide(color: Colors.orangeAccent)),
+                  onPressed: () async {
+                    setState(() {
+                      itemVariants.clear();
+                    });
+                    items.clear();
+                  },
+                  color: Colors.orangeAccent,
+                  textColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Remove all variants",
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          customLargeTextField(
+            Icons.description,
+            "\nItem Description (Optional)",
+            itemDescriptionController,
+            validate: false,
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
             child: Center(
@@ -506,12 +651,11 @@ class _AddInventoryState extends State<AddInventory> {
                   if (_formKey.currentState.validate()) {
                     if (itemNameController.text.isNotEmpty) {
                       if (_categorySelect != 'Select Category') {
-                        if (itemQuantityController.text.isNotEmpty) {
+                        if (items.length != 0) {
                           _showDialog(context);
                           String itemPrice = "NA";
-                          if (!itemPriceController.text.isEmpty) {
-                            itemPrice = itemPriceController.text.toString();
-                          }
+                          // TODO: Handle adding to firebase
+                          itemPrice = itemPriceController.text.toString();
                           String _url;
                           if (_image == null) {
                             String url =
@@ -524,8 +668,10 @@ class _AddInventoryState extends State<AddInventory> {
                             _url = hits[0]['previewURL'];
                             print(_url);
                           } else {
-                            _url = await uploadFile(_image,
-                                widget.shopData['uid'] + itemNameController.text);
+                            _url = await uploadFile(
+                                _image,
+                                widget.shopData['uid'] +
+                                    itemNameController.text);
                           }
                           Firestore.instance.collection('products').add({
                             "shop_uid": widget.shopData['uid'],
@@ -553,8 +699,10 @@ class _AddInventoryState extends State<AddInventory> {
                             Navigator.pop(context);
                           }).catchError((err) => print(err));
                         } else {
-                          _showInfoDialog(context,
-                              "Please mention item size (eg. 1kg, 1 dozen, etc).");
+                          _showInfoDialog(
+                            context,
+                            "No variants added yet. Press the 'Add a variant' button to add one.",
+                          );
                         }
                       } else {
                         _showInfoDialog(
