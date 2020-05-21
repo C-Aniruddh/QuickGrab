@@ -108,74 +108,26 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
         'Other'
       ];
     } else if (industry == 'Grocery') {
-      return [
-        'Select Category',
-        'Beverages',
-        'Bread/Bakery',
-        'Canned/Jarred Goods',
-        'Dairy',
-        'Baking Goods',
-        'Frozen Goods',
-        'Snacks',
-        'Spices',
-        'Meat',
-        'Milk Produce',
-        'Grains',
-        'Cleaners',
-        'Paper Goods',
-        'Personal Care',
-        'Other'
-      ];
-    } else if (industry == 'Liquor') {
-      return [
-        'Select Category',
-        'Whiskey',
-        'Beer',
-        'Brandy',
-        'Vodka',
-        'Rum',
-        'Gin',
-        'Tequila',
-        'Other'
-      ];
-    } else if (industry == 'Manufacturing') {
-      return ['Select Category', 'Other'];
-    } else if (industry == 'Oil and Gas') {
-      return ['Select Category', 'Petrol', 'Diesel', 'CNG', 'Other'];
-    } else if (industry == 'Pharmaceuticals') {
-      return ['Select Category', 'General', 'Prescription', 'Other'];
-    } else if (industry == 'Retail') {
-      return [
-        'Select Category',
-        'Tshirts',
-        'Pants',
-        'Jeans',
-        'Shirts',
-        'Inners',
-        'Jackets',
-        'Accessories',
-        'Socks and shoes',
-        'Other'
-      ];
-    } else if (industry == 'Stationary') {
-      return [
-        'Select Category',
-        'Paper',
-        'Envelopes',
-        'Chart Paper',
-        'Books',
-        'Study Material',
-        'Stapler',
-        'Notepads',
-        'Notebooks',
-        'Pens/Pencils',
-        'Journal Sheets',
-        'Other'
-      ];
-    } else if (industry == 'Textile') {
-      return ['Select Category', 'Other'];
-    } else if (industry == 'Vegetables and Fruits') {
-      return ['Select Category', 'Vegetables', 'Fruits', 'Extras', 'Other'];
+      return ['Select Category','Beverages', 'Rice', 'Atta', 'Bread', 'Canned/Jarred Goods', 'Dairy/Tea', 'Baking Goods',
+        'Frozen Goods', 'Snacks', 'Spices', 'Meat', 'Milk Produce', 'Grains', 'Cleaners', 'Spreads and sauces', 'Sweets'
+        'Paper Goods', 'Personal Care', 'Other'];
+    } else if (industry == 'Liquor'){
+      return ['Select Category','Whiskey', 'Beer', 'Brandy', 'Vodka', 'Rum', 'Gin', 'Tequila', 'Wine', 'Other'];
+    } else if (industry == 'Manufacturing'){
+      return ['Select Category','Other'];
+    } else if (industry == 'Oil and Gas'){
+      return ['Select Category','Petrol/Diesel/CNG', 'Other'];
+    } else if (industry == 'Pharmaceuticals'){
+      return ['Select Category','General', 'Prescription', 'Other'];
+    } else if (industry == 'Retail'){
+      return ['Select Category','Clothing', 'Socks and shoes',  'Other'];
+    } else if (industry == 'Stationary'){
+      return ['Select Category','Paper', 'Envelopes', 'Chart Paper', 'Books', 'Study Material', 'Stapler',
+        'Notepads', 'Notebooks', 'Pens/Pencils', 'Journal Sheets', 'Other'];
+    } else if (industry == 'Textile'){
+      return ['Select Category','Other'];
+    } else if (industry == 'Vegetables and Fruits'){
+      return ['Select Category','Vegetables', 'Fruits', 'Extras',  'Other'];
     } else {
       return ['Select Category', 'Other'];
     }
