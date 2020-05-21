@@ -7,9 +7,11 @@ import 'package:app/screens/cart/cart_page.dart';
 import 'package:app/screens/login_page/landing_page.dart';
 import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
+import 'package:app/screens/shop_page/all_shops_tabbed.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
+import 'package:app/screens/utils/custom_responsive_grid.dart';
 import 'package:app/screens/utils/order_data_users.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -332,6 +334,28 @@ class _UserHomePageState extends State<UserHomePage> {
         .compareTo(distanceBetweenDouble(b['shop_geohash'])));
 
     return toReturn;
+  }
+
+  List<DocumentSnapshot> filterByDistanceLimited(List<DocumentSnapshot> allDocs) {
+    List<DocumentSnapshot> toReturn = [];
+    for (var i = 0; i < allDocs.length; i++) {
+      if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
+          200000) {
+        toReturn.add(allDocs[i]);
+      } else {
+        // do nothing
+      }
+    }
+
+    toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash'])
+        .compareTo(distanceBetweenDouble(b['shop_geohash'])));
+
+    if (toReturn.length > 5){
+      return toReturn.sublist(0, 5);
+    } else {
+      return toReturn;
+    }
+
   }
 
   String getCity(String address) {
@@ -693,7 +717,7 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: buildNearbyGrid(),
+            child: buildNearby(),
           )
         ]);
   }
@@ -997,6 +1021,159 @@ class _UserHomePageState extends State<UserHomePage> {
         ),
       );
     }
+  }
+
+  String titleString(String s) => s[0].toUpperCase() + s.substring(1);
+
+  List<Widget> getNearbyChildren(List<DocumentSnapshot> filteredList){
+    List<Widget> children = [];
+    for (var item in filteredList){
+      children.add(Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0)),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12.0),
+                topRight: Radius.circular(12.0),
+              ),
+              child: Hero(
+                tag: item.documentID,
+                child: Image.network(
+                  item.data['shop_image'],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  8.0, 12.0, 8.0, 4.0),
+              child: Text(
+                titleString(item.data['shop_name']),
+                style: TextStyle(fontSize: 16.0),
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  8.0, 0.0, 8.0, 0.0),
+              child: Text(
+                distanceBetween(
+                    item.data['shop_geohash']).toString(),
+                style: TextStyle(fontSize: 16.0),
+                maxLines: 2,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+              child: OutlineButton(
+                // icon: Icon(Icons.add_shopping_cart),
+                shape: StadiumBorder(),
+                borderSide: BorderSide(
+                  color: Colors.orange,
+                ),
+                child: Text(
+                  "View Shop",
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onPressed: () {
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ShopPage(
+                              shopDetails: item,
+                              userDetails: userData)));
+
+                },
+              ),
+            ),
+          ],
+        ),
+      ));
+    }
+
+    children.add(InkWell(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AllShopsTabbed(userDetails: userData,)));
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 230,
+            child: Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                child: Text(
+                  "View More Shops",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),),
+
+          ],
+        ),
+      ),
+    ));
+
+    return children;
+  }
+
+
+  Widget buildNearby() {
+    List<String> upperLower = calculateFilter();
+    String upper = upperLower[0];
+    String lower = upperLower[1];
+
+    return Container(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: userData.data['is21']
+              ? Firestore.instance
+              .collection('shops')
+              .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+              .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
+              .snapshots()
+              : Firestore.instance
+              .collection('shops')
+              .where('industry', whereIn: _industryListNoLiqour)
+              .where("shop_geohash", isGreaterThanOrEqualTo: lower)
+              .where("shop_geohash", isLessThanOrEqualTo: upper)
+              .where('paymentHold', isEqualTo: false)
+              .where('verificationHold', isEqualTo: false)
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return new Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Theme.of(context).accentColor,
+                  ),
+                );
+              default:
+                List<DocumentSnapshot> filterList =
+                filterByDistanceLimited(snapshot.data.documents);
+                if (filterList.length < 1) {
+                  return Center(
+                    child: Text("There are no shops around you."),
+                  );
+                } else {
+                  return ResponsiveGridList(
+                    desiredItemWidth: 150,
+                    minSpacing: 8,
+                    children: getNearbyChildren(filterList)
+                  );
+                }
+            }
+          },
+        ));
   }
 
   Widget buildNearbyGrid() {

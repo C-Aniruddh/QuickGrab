@@ -713,12 +713,15 @@ class _ShopPageState extends State<ShopPage> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image(
-                          image: NetworkImage(
-                              widget.shopDetails.data['shop_image']),
-                          height: 250,
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover),
+                      Hero(
+                        tag: widget.shopDetails.documentID,
+                        child: Image(
+                            image: NetworkImage(
+                                widget.shopDetails.data['shop_image']),
+                            height: 250,
+                            width: MediaQuery.of(context).size.width,
+                            fit: BoxFit.cover),
+                      ),
                       Container(
                         height: 250,
                         width: MediaQuery.of(context).size.width,
