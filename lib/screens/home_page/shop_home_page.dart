@@ -8,7 +8,7 @@ import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
 import 'package:app/screens/home_page/shop_my_inventory.dart';
 import 'package:app/screens/shop_page/shop_edit_profile.dart';
-import 'package:app/screens/shop_page/verify_shop..dart';
+import 'package:app/screens/shop_page/verify_shop.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -34,6 +34,8 @@ class _AddInventoryState extends State<AddInventory> {
   List<Widget> itemVariants = new List<Widget>();
   List items = new List();
 
+  Map<int, dynamic> itemMap;
+
   TextEditingController itemNameController = new TextEditingController();
   TextEditingController itemPriceController = new TextEditingController();
   TextEditingController itemQuantityController = new TextEditingController();
@@ -337,10 +339,8 @@ class _AddInventoryState extends State<AddInventory> {
                 enabled: enabled,
                 keyboardType: keyType,
                 decoration: new InputDecoration.collapsed(
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      fontFamily: AppFontFamilies.mainFont,
-                    )),
+                  hintText: hint,
+                ),
                 controller: textEditingController,
                 style: new TextStyle(
                   fontFamily: AppFontFamilies.mainFont,
@@ -372,38 +372,126 @@ class _AddInventoryState extends State<AddInventory> {
     }
   }
 
+  _showOnTapChoiceDialog(BuildContext parentContext, String size,
+      String quantity, String unit, String price) {
+    return showDialog(
+        context: parentContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Edit or Remove the variant...',
+              style: TextStyle(fontFamily: AppFontFamilies.mainFont),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  ListTile(
+                    title: Text(
+                      'Edit Variant',
+                      style: TextStyle(
+                          fontFamily: AppFontFamilies.mainFont, fontSize: 18.0),
+                    ),
+                    leading: Icon(Icons.edit),
+                    onTap: () async {
+                      itemVariants.forEach((element) async {
+                        if (element.key ==
+                            buildVariant(
+                              size: size,
+                              unit: unit,
+                              quantity: quantity,
+                              price: price,
+                            ).key) {
+                          var data = await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            child: ItemVariantDialog(),
+                          );
+                          if (data != null) {
+                            setState(() {
+                              itemVariants.remove(element);
+                              itemVariants.add(buildVariant(
+                                size: data[0],
+                                unit: data[1],
+                                quantity: data[2],
+                                price: data[3],
+                              ));
+                            });
+                            items.remove({
+                              "size": size,
+                              "unit": unit,
+                              "quantity": quantity,
+                              "price": price,
+                            });
+                          }
+                        }
+                      });
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Remove Variant',
+                      style: TextStyle(
+                          fontFamily: AppFontFamilies.mainFont, fontSize: 18.0),
+                    ),
+                    leading: Icon(Icons.delete),
+                    onTap: () async {
+                      await getCameraImage();
+                      await _cropImage(_image);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   Widget buildVariant(
       {String size, String quantity, String unit, String price}) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: Colors.grey[200],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              "Size: " + size + "  " + unit,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 15.0,
+    return InkWell(
+      onTap: () {
+        _showOnTapChoiceDialog(context, size, quantity, unit, price);
+      },
+      child: Container(
+        padding: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 2), // changes position of shadow
+            ),
+          ],
+          borderRadius: BorderRadius.circular(12.0),
+          color: Colors.grey[200],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                "Size: " + size + "  " + unit,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15.0,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              "Price: " + price,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 15.0,
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                "Price: " + price,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15.0,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -579,13 +667,13 @@ class _AddInventoryState extends State<AddInventory> {
                         itemVariants.add(buildVariant(
                             size: data[0],
                             unit: data[1],
-                            quantity: data[2],
+                            quantity: data[2].toString(),
                             price: data[3]));
                       });
                       items.add({
                         "size": data[0],
                         "unit": data[1],
-                        "quantity": data[2],
+                        "quantity": data[2].toString(),
                         "price": data[3],
                       });
                     }
@@ -663,14 +751,16 @@ class _AddInventoryState extends State<AddInventory> {
                                     itemNameController.text);
                           }
 
-                          for (var i = 0; i < items.length; i++){
+                          for (var i = 0; i < items.length; i++) {
                             var item = items[i];
                             Firestore.instance.collection('products').add({
                               "shop_uid": widget.shopData['uid'],
                               "item_name": itemNameController.text,
                               "item_price": item['price'],
-                              "item_quantity": item['size'].toString() + item['unit'],
-                              "item_description": itemDescriptionController.text,
+                              "item_quantity":
+                                  item['size'].toString() + item['unit'],
+                              "item_description":
+                                  itemDescriptionController.text,
                               "item_category": _categorySelect,
                               "shop_industry": widget.shopData['industry'],
                               "img_url": _url

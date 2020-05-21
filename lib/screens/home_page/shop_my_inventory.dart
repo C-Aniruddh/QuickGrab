@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/screens/shop_page/add_general_items.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -82,40 +83,101 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
     );
   }
 
-  List<String> categoriesByIndustry(String industry){
-    if (industry == 'Agriculure'){
+  List<String> categoriesByIndustry(String industry) {
+    if (industry == 'Agriculure') {
       return ['Select Category', 'Pesticides', 'Grains', 'Seeds', 'Other'];
-    } else if (industry == 'Consurmer durables'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Education'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Engineering and capital goods'){
-      return ['Select Category','Electronic Parts', 'Electronic gadgets',  'Other'];
-    } else if (industry == 'Gems and Jwellery'){
-      return ['Select Category','Ring', 'Necklace', 'Pendant', 'Gold', 'Silver',  'Other'];
+    } else if (industry == 'Consurmer durables') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Education') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Engineering and capital goods') {
+      return [
+        'Select Category',
+        'Electronic Parts',
+        'Electronic gadgets',
+        'Other'
+      ];
+    } else if (industry == 'Gems and Jwellery') {
+      return [
+        'Select Category',
+        'Ring',
+        'Necklace',
+        'Pendant',
+        'Gold',
+        'Silver',
+        'Other'
+      ];
     } else if (industry == 'Grocery') {
-      return ['Select Category','Beverages', 'Bread/Bakery', 'Canned/Jarred Goods', 'Dairy', 'Baking Goods',
-        'Frozen Goods', 'Snacks', 'Spices', 'Meat', 'Milk Produce', 'Grains', 'Cleaners',
-        'Paper Goods', 'Personal Care', 'Other'];
-    } else if (industry == 'Liquor'){
-      return ['Select Category','Whiskey', 'Beer', 'Brandy', 'Vodka', 'Rum', 'Gin', 'Tequila',  'Other'];
-    } else if (industry == 'Manufacturing'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Oil and Gas'){
-      return ['Select Category','Petrol', 'Diesel', 'CNG', 'Other'];
-    } else if (industry == 'Pharmaceuticals'){
-      return ['Select Category','General', 'Prescription', 'Other'];
-    } else if (industry == 'Retail'){
-      return ['Select Category','Tshirts', 'Pants', 'Jeans', 'Shirts', 'Inners', 'Jackets', 'Accessories', 'Socks and shoes',  'Other'];
-    } else if (industry == 'Stationary'){
-      return ['Select Category','Paper', 'Envelopes', 'Chart Paper', 'Books', 'Study Material', 'Stapler',
-        'Notepads', 'Notebooks', 'Pens/Pencils', 'Journal Sheets', 'Other'];
-    } else if (industry == 'Textile'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Vegetables and Fruits'){
-      return ['Select Category','Vegetables', 'Fruits', 'Extras',  'Other'];
+      return [
+        'Select Category',
+        'Beverages',
+        'Bread/Bakery',
+        'Canned/Jarred Goods',
+        'Dairy',
+        'Baking Goods',
+        'Frozen Goods',
+        'Snacks',
+        'Spices',
+        'Meat',
+        'Milk Produce',
+        'Grains',
+        'Cleaners',
+        'Paper Goods',
+        'Personal Care',
+        'Other'
+      ];
+    } else if (industry == 'Liquor') {
+      return [
+        'Select Category',
+        'Whiskey',
+        'Beer',
+        'Brandy',
+        'Vodka',
+        'Rum',
+        'Gin',
+        'Tequila',
+        'Other'
+      ];
+    } else if (industry == 'Manufacturing') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Oil and Gas') {
+      return ['Select Category', 'Petrol', 'Diesel', 'CNG', 'Other'];
+    } else if (industry == 'Pharmaceuticals') {
+      return ['Select Category', 'General', 'Prescription', 'Other'];
+    } else if (industry == 'Retail') {
+      return [
+        'Select Category',
+        'Tshirts',
+        'Pants',
+        'Jeans',
+        'Shirts',
+        'Inners',
+        'Jackets',
+        'Accessories',
+        'Socks and shoes',
+        'Other'
+      ];
+    } else if (industry == 'Stationary') {
+      return [
+        'Select Category',
+        'Paper',
+        'Envelopes',
+        'Chart Paper',
+        'Books',
+        'Study Material',
+        'Stapler',
+        'Notepads',
+        'Notebooks',
+        'Pens/Pencils',
+        'Journal Sheets',
+        'Other'
+      ];
+    } else if (industry == 'Textile') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Vegetables and Fruits') {
+      return ['Select Category', 'Vegetables', 'Fruits', 'Extras', 'Other'];
     } else {
-      return ['Select Category','Other'];
+      return ['Select Category', 'Other'];
     }
   }
 
@@ -143,8 +205,93 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
               List<DocumentSnapshot> filterList = snapshot.data.documents;
               if (filterList.length < 1) {
                 return Center(
-                  child: Text("You do not have any products.",
-                      style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "You do not have any products.\nAdd your products using the '+' button at the bottom.",
+                          maxLines: 4,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            new SizedBox(
+                              height: 10.0,
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: new Center(
+                                child: new Container(
+                                  margin: new EdgeInsetsDirectional.only(
+                                      start: 1.0, end: 1.0),
+                                  height: 2.0,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            Text("OR"),
+                            new SizedBox(
+                              height: 10.0,
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: new Center(
+                                child: new Container(
+                                  margin: new EdgeInsetsDirectional.only(
+                                      start: 1.0, end: 1.0),
+                                  height: 2.0,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
+                        child: Text(
+                          "Add items to your inventory from our pre-defined list of products.",
+                          maxLines: 4,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        child: Center(
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(
+                                  color: Theme.of(context).accentColor,
+                                )),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StandardInventory(industry: widget.userData.data['industry'],),
+                                ),
+                              );
+                            },
+                            color: Theme.of(context).accentColor,
+                            textColor: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Add Pre-defined items"),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               } else {
                 return SizedBox(
