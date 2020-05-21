@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class ItemVariantDialog extends StatefulWidget {
   final String industry;
+  final String buttonName;
 
-  ItemVariantDialog({Key key, this.industry});
+  ItemVariantDialog({Key key, this.industry, this.buttonName});
   @override
   State createState() => new _ItemVariantDialogState();
 }
@@ -181,7 +182,7 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Add variant",
+              widget.buttonName == null ? "Add Variant" : widget.buttonName,
               style: TextStyle(
                 fontSize: 14,
               ),

@@ -142,6 +142,63 @@ class _AddInventoryState extends State<AddInventory> {
         });
   }
 
+  _showOnRemoveDialog(BuildContext parentContext, String size, String quantity,
+      String unit, String price) {
+    return showDialog(
+        context: parentContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Remove this Variant?',
+            ),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  for (Widget element in itemVariants) {
+                    if (element.key ==
+                        buildVariant(
+                          size: size,
+                          unit: unit,
+                          quantity: quantity,
+                          price: price,
+                        ).key) {
+                      setState(() {
+                        itemVariants.remove(element);
+                      });
+                      items.remove({
+                        "size": size,
+                        "unit": unit,
+                        "quantity": quantity,
+                        "price": price,
+                      });
+                      break;
+                    }
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Remove",
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   _showErrorDialog(BuildContext context) {
     return showDialog(
         context: context,
@@ -152,15 +209,11 @@ class _AddInventoryState extends State<AddInventory> {
             ),
             actions: <Widget>[
               FlatButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
                 child: Text(
-                  'Try Again',
-                ),
-              ),
-              FlatButton(
-                onPressed: () {},
-                child: Text(
-                  'Back',
+                  'Okay',
                 ),
               ),
             ],
@@ -307,7 +360,7 @@ class _AddInventoryState extends State<AddInventory> {
       {enabled = true, keyType = TextInputType.text, validate = true}) {
     return Container(
       height: 96.0,
-      margin: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 8.0),
+      margin: EdgeInsets.fromLTRB(12.0, 2.0, 12.0, 8.0),
       child: new Container(
         padding: const EdgeInsets.only(left: 8, right: 5),
         width: MediaQuery.of(context).size.width * .90,
@@ -378,8 +431,11 @@ class _AddInventoryState extends State<AddInventory> {
         context: parentContext,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
             title: Text(
-              'Edit or Remove the variant...',
+              'Edit or Remove the variant',
               style: TextStyle(fontFamily: AppFontFamilies.mainFont),
             ),
             content: SingleChildScrollView(
@@ -393,51 +449,61 @@ class _AddInventoryState extends State<AddInventory> {
                     ),
                     leading: Icon(Icons.edit),
                     onTap: () async {
-                      itemVariants.forEach((element) async {
-                        if (element.key ==
-                            buildVariant(
-                              size: size,
-                              unit: unit,
-                              quantity: quantity,
-                              price: price,
-                            ).key) {
-                          var data = await showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            child: ItemVariantDialog(),
-                          );
-                          if (data != null) {
-                            setState(() {
-                              itemVariants.remove(element);
-                              itemVariants.add(buildVariant(
-                                size: data[0],
-                                unit: data[1],
-                                quantity: data[2],
-                                price: data[3],
-                              ));
-                            });
-                            items.remove({
-                              "size": size,
-                              "unit": unit,
-                              "quantity": quantity,
-                              "price": price,
-                            });
+                      try {
+                        itemVariants.forEach((element) async {
+                          if (element.key ==
+                              buildVariant(
+                                size: size,
+                                unit: unit,
+                                quantity: quantity,
+                                price: price,
+                              ).key) {
+                            Navigator.pop(context);
+                            var data = await showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              child: ItemVariantDialog(
+                                buttonName: "Edit Variant",
+                              ),
+                            );
+                            if (data != null) {
+                              setState(() {
+                                itemVariants.remove(element);
+                                itemVariants.add(buildVariant(
+                                  size: data[0],
+                                  unit: data[1],
+                                  quantity: data[2],
+                                  price: data[3],
+                                ));
+                              });
+                              items.remove({
+                                "size": size,
+                                "unit": unit,
+                                "quantity": quantity,
+                                "price": price,
+                              });
+                            }
                           }
-                        }
-                      });
+                        });
+                      } catch (e) {
+                        _showErrorDialog(context);
+                      }
                     },
                   ),
                   ListTile(
                     title: Text(
                       'Remove Variant',
-                      style: TextStyle(
-                          fontFamily: AppFontFamilies.mainFont, fontSize: 18.0),
+                      style: TextStyle(fontSize: 18.0),
                     ),
                     leading: Icon(Icons.delete),
                     onTap: () async {
-                      await getCameraImage();
-                      await _cropImage(_image);
-                      Navigator.pop(context);
+                      try {
+                        Navigator.pop(context);
+                        _showOnRemoveDialog(
+                            context, size, quantity, unit, price);
+                      } catch (e) {
+                        _showErrorDialog(context);
+                      }
                     },
                   ),
                 ],
@@ -647,8 +713,22 @@ class _AddInventoryState extends State<AddInventory> {
                     ),
                   ),
                 ),
+          itemVariants.length == 0
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 4.0),
+                  child: Text(
+                    "Tap on the variant bubbles to edit or remove the variant",
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(32, 0, 16, 12),
@@ -660,7 +740,9 @@ class _AddInventoryState extends State<AddInventory> {
                     var data = await showDialog(
                       context: context,
                       barrierDismissible: false,
-                      child: ItemVariantDialog(),
+                      child: ItemVariantDialog(
+                        buttonName: "Add Variant",
+                      ),
                     );
                     if (data != null) {
                       setState(() {
@@ -683,11 +765,12 @@ class _AddInventoryState extends State<AddInventory> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Add a variant",
+                      "Add a Variant",
                     ),
                   ),
                 ),
               ),
+              /*
               Padding(
                 padding: EdgeInsets.fromLTRB(8, 0, 16, 12),
                 child: RaisedButton(
@@ -710,6 +793,7 @@ class _AddInventoryState extends State<AddInventory> {
                   ),
                 ),
               ),
+              */
             ],
           ),
           customLargeTextField(
@@ -719,7 +803,7 @@ class _AddInventoryState extends State<AddInventory> {
             validate: false,
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 16),
             child: Center(
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
