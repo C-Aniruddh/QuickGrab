@@ -588,82 +588,38 @@ class _ShopPageState extends State<ShopPage> {
         });
   }
 
-  List<String> categoriesByIndustry(String industry) {
-    if (industry == 'Agriculure') {
+  List<String> categoriesByIndustry(String industry){
+    if (industry == 'Agriculure'){
       return ['Pesticides', 'Grains', 'Seeds', 'Other'];
-    } else if (industry == 'Consurmer durables') {
+    } else if (industry == 'Consurmer durables'){
       return ['Other'];
-    } else if (industry == 'Education') {
+    } else if (industry == 'Education'){
       return ['Other'];
-    } else if (industry == 'Engineering and capital goods') {
-      return ['Electronic Parts', 'Electronic gadgets', 'Other'];
-    } else if (industry == 'Gems and Jwellery') {
-      return ['Ring', 'Necklace', 'Pendant', 'Gold', 'Silver', 'Other'];
+    } else if (industry == 'Engineering and capital goods'){
+      return ['Electronic Parts', 'Electronic gadgets',  'Other'];
+    } else if (industry == 'Gems and Jwellery'){
+      return ['Ring', 'Necklace', 'Pendant', 'Gold', 'Silver',  'Other'];
     } else if (industry == 'Grocery') {
-      return [
-        'Beverages',
-        'Bread/Bakery',
-        'Canned/Jarred Goods',
-        'Dairy',
-        'Baking Goods',
-        'Frozen Goods',
-        'Snacks',
-        'Spices',
-        'Meat',
-        'Milk Produce',
-        'Grains',
-        'Cleaners',
-        'Paper Goods',
-        'Personal Care',
-        'Other'
-      ];
-    } else if (industry == 'Liquor') {
-      return [
-        'Whiskey',
-        'Beer',
-        'Brandy',
-        'Vodka',
-        'Rum',
-        'Gin',
-        'Tequila',
-        'Other'
-      ];
-    } else if (industry == 'Manufacturing') {
+      return ['Beverages', 'Rice', 'Atta', 'Bread', 'Canned/Jarred Goods', 'Dairy/Tea', 'Baking Goods',
+        'Frozen Goods', 'Snacks', 'Spices', 'Meat', 'Milk Produce', 'Grains', 'Cleaners', 'Spreads and sauces', 'Sweets'
+        'Paper Goods', 'Personal Care', 'Other'];
+    } else if (industry == 'Liquor'){
+      return ['Whiskey', 'Beer', 'Brandy', 'Vodka', 'Rum', 'Gin', 'Tequila', 'Wine', 'Other'];
+    } else if (industry == 'Manufacturing'){
       return ['Other'];
-    } else if (industry == 'Oil and Gas') {
-      return ['Petrol', 'Diesel', 'CNG', 'Other'];
-    } else if (industry == 'Pharmaceuticals') {
+    } else if (industry == 'Oil and Gas'){
+      return ['Petrol/Diesel/CNG', 'Other'];
+    } else if (industry == 'Pharmaceuticals'){
       return ['General', 'Prescription', 'Other'];
-    } else if (industry == 'Retail') {
-      return [
-        'Tshirts',
-        'Pants',
-        'Jeans',
-        'Shirts',
-        'Inners',
-        'Jackets',
-        'Accessories',
-        'Socks and shoes',
-        'Other'
-      ];
-    } else if (industry == 'Stationary') {
-      return [
-        'Paper',
-        'Envelopes',
-        'Chart Paper',
-        'Books',
-        'Study Material',
-        'Stapler',
-        'Notepads',
-        'Notebooks',
-        'Pens/Pencils',
-        'Journal Sheets',
-        'Other'
-      ];
-    } else if (industry == 'Textile') {
+    } else if (industry == 'Retail'){
+      return ['Clothing', 'Socks and shoes',  'Other'];
+    } else if (industry == 'Stationary'){
+      return ['Paper', 'Envelopes', 'Chart Paper', 'Books', 'Study Material', 'Stapler',
+        'Notepads', 'Notebooks', 'Pens/Pencils', 'Journal Sheets', 'Other'];
+    } else if (industry == 'Textile'){
       return ['Other'];
-    } else if (industry == 'Vegetables and Fruits') {
-      return ['Vegetables', 'Fruits', 'Extras', 'Other'];
+    } else if (industry == 'Vegetables and Fruits'){
+      return ['Vegetables', 'Fruits', 'Extras',  'Other'];
     } else {
       return ['Other'];
     }
