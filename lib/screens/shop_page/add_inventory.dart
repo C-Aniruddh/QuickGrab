@@ -396,16 +396,6 @@ class _AddInventoryState extends State<AddInventory> {
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Text(
-              "Quantity: " + quantity,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 15.0,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
               "Price: " + price,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -654,7 +644,6 @@ class _AddInventoryState extends State<AddInventory> {
                         if (items.length != 0) {
                           _showDialog(context);
                           String itemPrice = "NA";
-                          // TODO: Handle adding to firebase
                           itemPrice = itemPriceController.text.toString();
                           String _url;
                           if (_image == null) {
@@ -673,31 +662,35 @@ class _AddInventoryState extends State<AddInventory> {
                                 widget.shopData['uid'] +
                                     itemNameController.text);
                           }
-                          Firestore.instance.collection('products').add({
-                            "shop_uid": widget.shopData['uid'],
-                            "item_name": itemNameController.text,
-                            "item_price": itemPrice,
-                            "item_quantity": itemQuantityController.text,
-                            "item_description": itemDescriptionController.text,
-                            "item_category": _categorySelect,
-                            "shop_industry": widget.shopData['industry'],
-                            "img_url": _url
-                          }).then((result) {
-                            Firestore.instance
-                                .collection('shops')
-                                .document(widget.shopData.documentID)
-                                .get()
-                                .then((doc) {
-                              List<dynamic> inventory = doc.data['inventory'];
-                              inventory.add(result.documentID);
+
+                          for (var i = 0; i < items.length; i++){
+                            var item = items[i];
+                            Firestore.instance.collection('products').add({
+                              "shop_uid": widget.shopData['uid'],
+                              "item_name": itemNameController.text,
+                              "item_price": item['price'],
+                              "item_quantity": item['size'].toString() + item['unit'],
+                              "item_description": itemDescriptionController.text,
+                              "item_category": _categorySelect,
+                              "shop_industry": widget.shopData['industry'],
+                              "img_url": _url
+                            }).then((result) {
                               Firestore.instance
                                   .collection('shops')
                                   .document(widget.shopData.documentID)
-                                  .updateData({'inventory': inventory});
-                            });
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          }).catchError((err) => print(err));
+                                  .get()
+                                  .then((doc) {
+                                List<dynamic> inventory = doc.data['inventory'];
+                                inventory.add(result.documentID);
+                                Firestore.instance
+                                    .collection('shops')
+                                    .document(widget.shopData.documentID)
+                                    .updateData({'inventory': inventory});
+                              });
+                            }).catchError((err) => print(err));
+                          }
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         } else {
                           _showInfoDialog(
                             context,

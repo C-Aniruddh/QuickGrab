@@ -324,6 +324,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                       'title': title,
                       'body': body,
                       'read': false,
+                      'timestamp': DateTime.now()
                     });
                   });
 

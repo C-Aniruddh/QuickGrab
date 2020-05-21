@@ -686,6 +686,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                     'title': title,
                                     'body': body,
                                     'read': false,
+                                    'timestamp': DateTime.now()
                                   });
 
                                   await Firestore.instance

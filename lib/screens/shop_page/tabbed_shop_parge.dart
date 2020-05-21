@@ -63,7 +63,6 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   void setup() async {
-    setupMap();
     setState(() {
       mapLoaded = true;
     });

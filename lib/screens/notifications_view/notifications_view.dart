@@ -43,6 +43,7 @@ class _NotificationsViewState extends State<NotificationsView> {
           stream: Firestore.instance
               .collection('notifications')
               .where("receiver_uid", isEqualTo: widget.userData.documentID)
+              .orderBy('timestamp', descending: true)
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return new Text('Error: ${snapshot.error}');

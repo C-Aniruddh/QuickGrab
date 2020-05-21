@@ -99,6 +99,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                           'title': title,
                           'body': body,
                           'read': false,
+                          'timestamp': DateTime.now()
                         });
                       });
                     });
@@ -238,6 +239,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                                 'title': title,
                                 'body': body,
                                 'read': false,
+                                'timestamp': DateTime.now()
                               });
                             });
                           });

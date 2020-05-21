@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../fonts.dart';
+
 class VerifyShop extends StatefulWidget {
   VerifyShop({Key key, this.shopData}) : super(key: key);
   final DocumentSnapshot shopData;
@@ -216,6 +218,34 @@ class _VerifyShopState extends State<VerifyShop> {
         });
   }
 
+  showAlertDialog(BuildContext context, String title, String content) {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+      content: Text(content, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Widget buildBody() {
     return Form(
       key: _formKey,
@@ -379,60 +409,35 @@ class _VerifyShopState extends State<VerifyShop> {
                 onPressed: () async {
                   if (_image != null) {
                     // only image needed
+                    _url = await uploadFile(
+                        _image,
+                        widget.shopData['uid']);
+                    Firestore.instance.collection('verification_requests')
+                        .document(widget.shopData.documentID)
+                        .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
+                    showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
                   } else if (gstController.text.isEmpty) {
                     if (vatController.text.isEmpty) {
                       _showErrorDialog(context, "If no image is uploaded, then at least GST or VAT must be provided");
+                    } else {
+                      Firestore.instance.collection('verification_requests')
+                          .document(widget.shopData.documentID)
+                          .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
+                      showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
                     }
                     // supply vat
                   } else if (vatController.text.isEmpty) {
                     if (gstController.text.isEmpty) {
                       _showErrorDialog(context, "If no image is uploaded, then at least GST or VAT must be provided");
+                    } else {
+                      Firestore.instance.collection('verification_requests')
+                          .document(widget.shopData.documentID)
+                          .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
+                      showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
                     }
                     // supply gst
                   }
-                  /*
-                  if (_formKey.currentState.validate()) {
-                    _showLoadingDialog(context, "Submitting...");
-                    if (_image != null) {
-                      _url = await uploadFile(
-                        _image,
-                        widget.shopData['uid'] + shopNameController.text,
-                      );
-                    }
-                    Firestore.instance
-                        .collection('shops')
-                        .where('uid', isEqualTo: widget.shopData.documentID)
-                        .limit(1)
-                        .getDocuments()
-                        .then((doc) {
-                          if (_image == null) {
-                            Firestore.instance
-                                .collection('shops')
-                                .document(doc.documents[0].documentID)
-                                .updateData({
-                              "shop_name": shopNameController.text,
-                              "shop_contact_name": shopContactController.text,
-                              "phone_number": shopNumberController.text,
-                            });
-                          } else {
-                            Firestore.instance
-                                .collection('shops')
-                                .document(doc.documents[0].documentID)
-                                .updateData({
-                              "shop_name": shopNameController.text,
-                              "shop_contact_name": shopContactController.text,
-                              "phone_number": shopNumberController.text,
-                              "shop_image": _url
-                            });
-                          }
-                        })
-                        .catchError((err) => print(err))
-                        .then((value) {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        });
-                  }
-                  */
+
                 },
                 color: Theme.of(context).accentColor,
                 textColor: Colors.white,

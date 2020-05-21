@@ -180,6 +180,7 @@ class CancelReasonState extends State<CancelReason> {
                               'receiver_uid': widget.appointmentDetails.data['shopper_uid'],
                               'sender_type': 'shops',
                               'read': false,
+                              'timestamp': DateTime.now()
                             });
 
                             Navigator.pop(context);
@@ -201,6 +202,7 @@ class CancelReasonState extends State<CancelReason> {
                                 'receiver_uid': widget.appointmentDetails.data['shopper_uid'],
                                 'sender_type': 'shops',
                                 'read': false,
+                                'timestamp': DateTime.now()
                               });
 
                               Navigator.pop(context);

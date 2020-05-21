@@ -135,7 +135,7 @@ class _UserHomePageState extends State<UserHomePage> {
     });
 
     await Firestore.instance.collection('offers').getDocuments().then((docs) {
-      offers = docs.documents;
+      offers = filterByDistance(docs.documents);
     });
 
     await Firestore.instance
@@ -715,16 +715,20 @@ class _UserHomePageState extends State<UserHomePage> {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () {
+                    print(offers[index].data['shop_uid']);
                     Firestore.instance
                         .collection('shops')
                         .document(offers[index].data['shop_uid'])
                         .get()
                         .then((doc) {
+                          print(doc.documentID);
+                          print(doc.data['shop_name']);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ShopPage(
-                                  shopDetails: doc, userDetails: userData)));
+                                  shopDetails: doc,
+                                  userDetails: userData)));
                     });
                   },
                   child: Card(
@@ -1722,6 +1726,7 @@ class _UserHomePageState extends State<UserHomePage> {
                           'title': title,
                           'body': body,
                           'read': false,
+                          'timestamp': DateTime.now()
                         });
                       });
                     });

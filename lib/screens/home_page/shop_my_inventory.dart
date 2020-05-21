@@ -128,6 +128,7 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
         stream: Firestore.instance
             .collection('products')
             .where('shop_uid', isEqualTo: widget.userData.documentID)
+            .orderBy('item_name', descending: false)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');

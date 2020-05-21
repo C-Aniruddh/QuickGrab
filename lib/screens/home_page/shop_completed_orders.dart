@@ -71,6 +71,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                               'title': title,
                               'body': body,
                               'read': false,
+                              'timestamp': DateTime.now()
                             });
                           });
                         });

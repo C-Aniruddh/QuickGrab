@@ -259,12 +259,6 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
                 )
               : Container(),
           customTextField(
-            Icons.local_grocery_store,
-            "Quantity",
-            quantityController,
-            keyType: TextInputType.number,
-          ),
-          customTextField(
             Icons.local_offer,
             "Price",
             priceController,

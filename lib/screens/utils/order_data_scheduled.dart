@@ -211,6 +211,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                         var body = "Your appointment at " +
                             doc['shop_name'] +
                             " was marked completed";
+
                         await Firestore.instance
                             .collection('notifications')
                             .add({
@@ -219,6 +220,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                           'title': title,
                           'body': body,
                           'read': false,
+                          'timestamp': DateTime.now()
                         });
                       });
                     });
