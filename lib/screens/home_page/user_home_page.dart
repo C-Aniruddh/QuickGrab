@@ -1040,8 +1040,11 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
               child: Hero(
                 tag: item.documentID,
-                child: Image.network(
-                  item.data['shop_image'],
+                child: SizedBox(
+                  height: 130,
+                  child: Image.network(
+                    item.data['shop_image'],
+                  ),
                 ),
               ),
             ),

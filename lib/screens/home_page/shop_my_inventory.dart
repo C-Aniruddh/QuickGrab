@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/services.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 import '../../fonts.dart';
 
@@ -229,7 +230,7 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => StandardInventory(industry: widget.userData.data['industry'],),
+                                  builder: (context) => StandardInventory(industry: widget.userData.data['industry'], shopDetails: widget.userData,),
                                 ),
                               );
                             },
@@ -248,11 +249,20 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
               } else {
                 return SizedBox(
                   height: MediaQuery.of(context).size.height * 0.9,
-                  child: ListView.builder(
-                    itemCount: filterList.length,
+                  child: GroupedListView(
+                    useStickyGroupSeparators: false,
+                    elements: filterList,
+                    groupBy: (element) => element['item_category'],
+                    order: GroupedListOrder.ASC,
+                    groupSeparatorBuilder: (groupByValue){
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('$groupByValue'),
+                      );
+                    },
                     //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     //    crossAxisCount: 2, childAspectRatio: (3 / 4)),
-                    itemBuilder: (BuildContext context, int index) {
+                    itemBuilder: (BuildContext context, element) {
                       return InkWell(
                           onTap: () {},
                           child: Card(
@@ -263,19 +273,19 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                                     icon: Icon(Icons.delete),
                                     onPressed: () {
                                       _showConfirmationDialog(
-                                          context, filterList[index]);
+                                          context, element);
                                     }),
                                 leading: CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                        filterList[index].data['img_url'])),
-                                title: Text(filterList[index].data['item_name'],
+                                        element.data['img_url'])),
+                                title: Text(element.data['item_name'],
                                     style: TextStyle(
                                         fontFamily: AppFontFamilies.mainFont)),
                                 subtitle: Text(
                                   "₹" +
-                                      filterList[index].data['item_price'] +
+                                      element.data['item_price'] +
                                       "  |  Size: " +
-                                      filterList[index]
+                                      element
                                           .data['item_quantity']
                                           .toString(),
                                   style: TextStyle(

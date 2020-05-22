@@ -194,6 +194,7 @@ class _ShopPageState extends State<ShopPage> {
             ? Firestore.instance
                 .collection('products')
                 .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
+                .limit(30)
                 .snapshots()
             : Firestore.instance
                 .collection('products')
@@ -330,10 +331,11 @@ class _ShopPageState extends State<ShopPage> {
   Widget productGridView(String category) {
     return Container(
       child: StreamBuilder<QuerySnapshot>(
-        stream: category == "All Products"
+        stream: category == "Popular Products"
             ? Firestore.instance
                 .collection('products')
                 .where('shop_uid', isEqualTo: widget.shopDetails.documentID)
+                .limit(30)
                 .snapshots()
             : Firestore.instance
                 .collection('products')
@@ -380,8 +382,11 @@ class _ShopPageState extends State<ShopPage> {
                                     topLeft: Radius.circular(12.0),
                                     topRight: Radius.circular(12.0),
                                   ),
-                                  child: Image.network(
-                                    item.data['img_url'],
+                                  child: SizedBox(
+                                    height: 160,
+                                    child: Image.network(
+                                      item.data['img_url'],
+                                    ),
                                   ),
                                 ),
                                 Padding(
@@ -627,7 +632,7 @@ class _ShopPageState extends State<ShopPage> {
 
   getCategories() {
     categories = categoriesByIndustry(widget.shopDetails['industry']);
-    categories.insert(0, "All Products");
+    categories.insert(0, "Popular Products");
   }
 
   Widget tabWidget(String category) {

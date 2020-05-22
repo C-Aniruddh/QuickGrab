@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class StandardInventory extends StatefulWidget {
-  StandardInventory({Key key, this.industry}) : super(key: key);
+  StandardInventory({Key key, this.industry, this.shopDetails}) : super(key: key);
   final String industry;
+  final DocumentSnapshot shopDetails;
 
   @override
   _StandardInventoryState createState() => _StandardInventoryState();
@@ -117,7 +119,26 @@ class _StandardInventoryState extends State<StandardInventory> {
                   side: BorderSide(color: Colors.orangeAccent)),
               onPressed: () {
                 // TODO: Add logic
+                var batch = Firestore.instance.batch();
+                var uuid = Uuid();
+                int added = 0;
                 List<bool> selectedList = source.returnBooleanList();
+                for (var i = 0; i < selectedList.length; i++){
+                  var items = itemData.data['items'];
+                  var item = items[i];
+                  if (selectedList[i]){
+                    var product = {'shop_industry': widget.industry, 'shop_uid': widget.shopDetails.documentID,
+                        'img_url': item['img_url'], 'item_category': item['item_category'], 'item_price': item['item_price'],
+                        'item_description': item['item_description'], 'item_quantity': item['item_quantity'], 'item_name': item['item_name']};
+                    String document_id = uuid.v4();
+                    if (added < 500){
+                      added = added + 1;
+                      batch.setData(Firestore.instance.collection('products')
+                          .document(document_id), product);
+                    }
+                  }
+                }
+                batch.commit();
               },
               color: Colors.orangeAccent,
               textColor: Colors.white,
