@@ -215,7 +215,7 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
       assert(user.uid == currentUser.uid);
       //Navigator.pushAndRemoveUntil(
       //    context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      showAlertDialog(context, "Sign up complete", "You have successfully signed up. Continue to your account.");
     }
 
     return 'signInWithGoogle succeeded: ';

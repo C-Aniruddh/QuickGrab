@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app/screens/appointment_details.dart';
+import 'package:app/screens/home_page/shop_home_page.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';
@@ -106,7 +107,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                     Navigator.pop(context);
                   } else {
                     Navigator.pop(context);
-                    _showInfoDialog(context, "The entered OTP is wrong");
+                    _showInfoDialog(context, "The entered Token is wrong");
                   }
                 },
                 child: Text(
@@ -154,7 +155,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
         child: OrderDataNew(
           document: document,
           total: total,
-          displayOTP: false,
+          displayOTP: true,
           isInvoice: true,
           isExpanded: true,
           isShop: true,
@@ -215,7 +216,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
                             side: BorderSide(color: Colors.orangeAccent)),
-                        onPressed: () {
+                        onPressed: () async {
                           startTime = valueDrop.split('--')[0];
                           endTime = valueDrop.split('--')[1];
                           Firestore.instance
@@ -236,13 +237,17 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                               await Firestore.instance.collection('notifications').add({
                                 'sender_type': "shops",
                                 'receiver_uid': doc['shopper_uid'],
+                                'receiver_uid': doc['shopper_uid'],
                                 'title': title,
                                 'body': body,
                                 'read': false,
                                 'timestamp': DateTime.now()
                               });
+                              print("Pushing");
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => ShopHomePage()), (route) => false);
                             });
                           });
+
                         },
                         color: Colors.orangeAccent,
                         textColor: Colors.white,
@@ -317,6 +322,32 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
             actions: <Widget>[
               FlatButton(
                 onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  _showPendingDialog(BuildContext context, String text) {
+    print(text);
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: Text(

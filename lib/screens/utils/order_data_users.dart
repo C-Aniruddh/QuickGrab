@@ -36,13 +36,17 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
                   : Icon(Icons.close)
             ),
             DataCell(
-              Text(
-                content['product']['item_name'].toString(),
-                style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont,
-                  color: Colors.black87,
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: Text(
+                  content['product']['item_name'].toString(),
+                  style: TextStyle(
+                    fontFamily: AppFontFamilies.mainFont,
+                    color: Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
@@ -77,7 +81,9 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
             ),
           ),
           DataCell(
-            Container()
+            Container(
+                width: MediaQuery.of(context).size.width * 0.20
+            )
           ),
           DataCell(
             Text(
@@ -137,7 +143,7 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
               widget.displayOTP ?
               Chip(
                 backgroundColor: Theme.of(context).accentColor,
-                label: Text("OTP : " + document.data['otp'], style: TextStyle(color: Colors.white)),
+                label: Text("Token : " + document.data['otp'], style: TextStyle(color: Colors.white)),
               ) :
                   SizedBox(width: 1)
             ],
@@ -369,7 +375,7 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                               child: Text(
-                                "OTP:",
+                                "Token:",
                                 style: TextStyle(fontSize: 16.0),
                               ),
                             ),

@@ -181,6 +181,7 @@ class _SignUpShopperGoogleState extends State<SignUpShopperGoogle> {
             }
       });
       assert(user.uid == currentUser.uid);
+      showAlertDialog(context, "Sign up complete", "You have successfully signed up. Continue to your account.");
     }
 
     return 'signInWithGoogle succeeded: ';

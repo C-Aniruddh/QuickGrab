@@ -74,6 +74,8 @@ class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
       child: Text("OK"),
       onPressed: () {
         Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+            context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
       },
     );
 
@@ -179,9 +181,12 @@ class _SignUpShopperFacebookState extends State<SignUpShopperFacebook> {
       });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushAndRemoveUntil(
-          context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      //Navigator.pushAndRemoveUntil(
+      //    context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      //
       //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+
+      showAlertDialog(context, "Sign up complete", "You have successfully signed up. Continue to your account.");
     }
 
     return 'signInWithGoogle succeeded: ';

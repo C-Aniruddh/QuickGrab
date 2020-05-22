@@ -65,13 +65,17 @@ class _OrderDataPendingState extends State<OrderDataPending> {
           },
           cells: [
             DataCell(
-              Text(
-                content['product']['item_name'].toString(),
-                style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont,
-                  color: Colors.black87,
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: Text(
+                  content['product']['item_name'].toString(),
+                  style: TextStyle(
+                    fontFamily: AppFontFamilies.mainFont,
+                    color: Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
@@ -103,7 +107,9 @@ class _OrderDataPendingState extends State<OrderDataPending> {
       DataRow(
         cells: [
           DataCell(
-            Container()
+            Container(
+              width: MediaQuery.of(context).size.width * 0.20,
+            )
           ),
           DataCell(
             Text(
@@ -156,14 +162,13 @@ class _OrderDataPendingState extends State<OrderDataPending> {
               widget.isInvoice ?
               InkWell(
                 onTap: (){
-
                 },
                   child: Chip(backgroundColor: Theme.of(context).accentColor,
-                      label: Icon(Icons.mail, color: Colors.white))) :
+                      label: Icon(Icons.mail, color: Colors.white))) : SizedBox(height: 1),
               widget.displayOTP ?
               Chip(
                 backgroundColor: Theme.of(context).accentColor,
-                label: Text("OTP : " + document.data['otp'], style: TextStyle(color: Colors.white)),
+                label: Text("Token : " + document.data['otp'], style: TextStyle(color: Colors.white)),
               ) :
                   SizedBox(width: 1)
             ],
@@ -376,7 +381,7 @@ class _OrderDataPendingState extends State<OrderDataPending> {
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                               child: Text(
-                                "OTP:",
+                                "Token:",
                                 style: TextStyle(fontSize: 16.0),
                               ),
                             ),

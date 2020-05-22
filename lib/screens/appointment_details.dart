@@ -203,7 +203,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     return OrderDataPending(
       document: widget.appointmentData,
       total: total,
-      displayOTP: false,
+      displayOTP: true,
       isInvoice: true,
       isExpanded: true,
       isShop: true,
@@ -236,6 +236,32 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
         print(selectedDate.toString());
         datePicked = true;
       });
+  }
+
+  _showPendingDialog(BuildContext context, String text) {
+    print(text);
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
   }
 
   Widget confirmView(BuildContext context) {
@@ -328,8 +354,11 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     });
                   });
 
-                  Navigator.pushAndRemoveUntil(
-                      context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+
+                  _showPendingDialog(context, "Appointment has been scheduled.");
+
+                  //Navigator.pushAndRemoveUntil(
+                   //   context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                 }
               },
               color: Colors.orangeAccent,

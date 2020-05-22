@@ -61,7 +61,7 @@ class _SearchPageState extends State<SearchPage> {
       double addLon = widget.userData['lon'];
       print(addLat);
       print(addLon);
-      num queryDistance = 200000.round();
+      num queryDistance = 8000.round();
 
       final Distance distance = const Distance();
       //final num query_distance = (EARTH_RADIUS * PI / 4).round();

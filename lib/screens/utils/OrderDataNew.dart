@@ -137,11 +137,11 @@ class _OrderDataNewState extends State<OrderDataNew> {
 
                 },
                   child: Chip(backgroundColor: Theme.of(context).accentColor,
-                      label: Icon(Icons.mail, color: Colors.white))) :
+                      label: Icon(Icons.mail, color: Colors.white))) : SizedBox(height: 1),
               widget.displayOTP ?
               Chip(
                 backgroundColor: Theme.of(context).accentColor,
-                label: Text("OTP : " + document.data['otp'], style: TextStyle(color: Colors.white)),
+                label: Text("Token : " + document.data['otp'], style: TextStyle(color: Colors.white)),
               ) :
                   SizedBox(width: 1)
             ],

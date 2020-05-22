@@ -251,7 +251,7 @@ class _UserHomePageState extends State<UserHomePage> {
       double addLon = userData['lon'];
       print(addLat);
       print(addLon);
-      num queryDistance = 200000.round();
+      num queryDistance = 8000.round();
 
       final Distance distance = const Distance();
       //final num query_distance = (EARTH_RADIUS * PI / 4).round();
@@ -323,7 +323,7 @@ class _UserHomePageState extends State<UserHomePage> {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
       if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
-          200000) {
+          15000) {
         toReturn.add(allDocs[i]);
       } else {
         // do nothing
@@ -341,7 +341,7 @@ class _UserHomePageState extends State<UserHomePage> {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
       if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
-          200000) {
+          10000) {
         toReturn.add(allDocs[i]);
       } else {
         // do nothing
@@ -1117,6 +1117,7 @@ class _UserHomePageState extends State<UserHomePage> {
       ));
     }
 
+<<<<<<< HEAD
     children.add(InkWell(
       onTap: () {
         Navigator.push(
@@ -1147,10 +1148,37 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             ),
           ],
-        ),
-      ),
-    ));
+=======
+    if (children.length == 5){
+      children.add(InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AllShopsTabbed(userDetails: userData,)));
+        },
+        child: Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 230,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                    child: Text(
+                      "View More Shops",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),),
 
+            ],
+          ),
+>>>>>>> d27cf01cc86ec83b715a80b15215f0ec7af76123
+        ),
+      ));
+    }
     return children;
   }
 
