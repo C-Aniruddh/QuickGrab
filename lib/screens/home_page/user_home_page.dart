@@ -9,6 +9,7 @@ import 'package:app/screens/notifications_view/notifications_view.dart';
 import 'package:app/screens/search_page.dart';
 import 'package:app/screens/shop_page/all_shops_tabbed.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
+import 'package:app/screens/user_options/suggestion_dialog.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
 import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:app/screens/utils/custom_responsive_grid.dart';
@@ -159,7 +160,8 @@ class _UserHomePageState extends State<UserHomePage> {
   versionCheck(context) async {
     //Get Current installed version of app
     final PackageInfo info = await PackageInfo.fromPlatform();
-    double currentVersion = double.parse(info.version.trim().replaceAll(".", ""));
+    double currentVersion =
+        double.parse(info.version.trim().replaceAll(".", ""));
 
     //Get Latest version info from firebase config
     final RemoteConfig remoteConfig = await RemoteConfig.instance;
@@ -170,17 +172,15 @@ class _UserHomePageState extends State<UserHomePage> {
       await remoteConfig.activateFetched();
 
       String updateString = "force_update_current_version";
-      if(UniversalPlatform.isAndroid) {
+      if (UniversalPlatform.isAndroid) {
         updateString = "force_update_current_version_android";
       } else {
         updateString = "force_update_current_version_ios";
       }
 
       remoteConfig.getString(updateString);
-      double newVersion = double.parse(remoteConfig
-          .getString(updateString)
-          .trim()
-          .replaceAll(".", ""));
+      double newVersion = double.parse(
+          remoteConfig.getString(updateString).trim().replaceAll(".", ""));
       if (newVersion > currentVersion) {
         _showVersionDialog(context);
       }
@@ -194,7 +194,6 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   _showVersionDialog(context) async {
-
     await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -205,28 +204,29 @@ class _UserHomePageState extends State<UserHomePage> {
         String btnLabel = "Update Now";
         return Platform.isIOS
             ? new CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            FlatButton(
-              child: Text(btnLabel),
-              onPressed: () => _launchURL(APP_STORE_URL),
-            ),
-          ],
-        )
+                title: Text(title),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(btnLabel),
+                    onPressed: () => _launchURL(APP_STORE_URL),
+                  ),
+                ],
+              )
             : new AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            FlatButton(
-              child: Text(btnLabel),
-              onPressed: () => _launchURL(PLAY_STORE_URL),
-            ),
-          ],
-        );
+                title: Text(title),
+                content: Text(message),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text(btnLabel),
+                    onPressed: () => _launchURL(PLAY_STORE_URL),
+                  ),
+                ],
+              );
       },
     );
   }
+
   _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -336,7 +336,8 @@ class _UserHomePageState extends State<UserHomePage> {
     return toReturn;
   }
 
-  List<DocumentSnapshot> filterByDistanceLimited(List<DocumentSnapshot> allDocs) {
+  List<DocumentSnapshot> filterByDistanceLimited(
+      List<DocumentSnapshot> allDocs) {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
       if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
@@ -350,12 +351,11 @@ class _UserHomePageState extends State<UserHomePage> {
     toReturn.sort((a, b) => distanceBetweenDouble(a['shop_geohash'])
         .compareTo(distanceBetweenDouble(b['shop_geohash'])));
 
-    if (toReturn.length > 5){
+    if (toReturn.length > 5) {
       return toReturn.sublist(0, 5);
     } else {
       return toReturn;
     }
-
   }
 
   String getCity(String address) {
@@ -550,23 +550,30 @@ class _UserHomePageState extends State<UserHomePage> {
                           date.day - 1, date.hour, date.minute);
 
                       if (!doc.exists) {
-                        if (UniversalPlatform.isWeb){
+                        if (UniversalPlatform.isWeb) {
                           Prediction p = await PlacesAutocomplete.show(
                               location: Location(19.074376, 72.871137),
-                              proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                              proxyBaseUrl:
+                                  "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
                               context: context,
                               apiKey: apiKey,
                               mode: Mode.overlay, // Mode.fullscreen
                               language: "en",
-                              components: [new Component(Component.country, "in")]);
+                              components: [
+                                new Component(Component.country, "in")
+                              ]);
 
-                          var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
-                          var place = await places.getDetailsByPlaceId(p.placeId);
+                          var places = new GoogleMapsPlaces(
+                              apiKey: apiKey,
+                              baseUrl:
+                                  "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                          var place =
+                              await places.getDetailsByPlaceId(p.placeId);
                           GeoHasher geoHasher = GeoHasher();
                           String userGeoHash = geoHasher.encode(
-                              place.result.geometry.location.lng, place.result.geometry.location.lat,
+                              place.result.geometry.location.lng,
+                              place.result.geometry.location.lat,
                               precision: 8);
-
 
                           Firestore.instance
                               .collection('users')
@@ -583,8 +590,11 @@ class _UserHomePageState extends State<UserHomePage> {
                               .setData({'last_change': date}, merge: true);
 
                           Navigator.pushAndRemoveUntil(
-                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
-
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      LandingPage(title: 'Landing Page')),
+                              (route) => false);
                         } else {
                           LocationResult result = await showLocationPicker(
                               context, apiKey,
@@ -611,9 +621,12 @@ class _UserHomePageState extends State<UserHomePage> {
                               .setData({'last_change': date}, merge: true);
 
                           Navigator.pushAndRemoveUntil(
-                              context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      LandingPage(title: 'Landing Page')),
+                              (route) => false);
                         }
-
                       } else {
                         DateTime lastChange = doc.data['last_change'].toDate();
                         Jiffy lastChangeJ = new Jiffy(lastChange);
@@ -622,23 +635,30 @@ class _UserHomePageState extends State<UserHomePage> {
                             lastChangeJ.add(duration: Duration(hours: 24)));
 
                         if (currentTime.isAfter(newTime)) {
-                          if (UniversalPlatform.isWeb){
+                          if (UniversalPlatform.isWeb) {
                             Prediction p = await PlacesAutocomplete.show(
                                 location: Location(19.074376, 72.871137),
-                                proxyBaseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
+                                proxyBaseUrl:
+                                    "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api",
                                 context: context,
                                 apiKey: apiKey,
                                 mode: Mode.overlay, // Mode.fullscreen
                                 language: "en",
-                                components: [new Component(Component.country, "in")]);
+                                components: [
+                                  new Component(Component.country, "in")
+                                ]);
 
-                            var places = new GoogleMapsPlaces(apiKey: apiKey, baseUrl: "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
-                            var place = await places.getDetailsByPlaceId(p.placeId);
+                            var places = new GoogleMapsPlaces(
+                                apiKey: apiKey,
+                                baseUrl:
+                                    "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api");
+                            var place =
+                                await places.getDetailsByPlaceId(p.placeId);
                             GeoHasher geoHasher = GeoHasher();
                             String userGeoHash = geoHasher.encode(
-                                place.result.geometry.location.lng, place.result.geometry.location.lat,
+                                place.result.geometry.location.lng,
+                                place.result.geometry.location.lat,
                                 precision: 8);
-
 
                             Firestore.instance
                                 .collection('users')
@@ -655,12 +675,16 @@ class _UserHomePageState extends State<UserHomePage> {
                                 .setData({'last_change': date}, merge: true);
 
                             Navigator.pushAndRemoveUntil(
-                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
-
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LandingPage(title: 'Landing Page')),
+                                (route) => false);
                           } else {
                             LocationResult result = await showLocationPicker(
                                 context, apiKey,
-                                initialCenter: gmfp.LatLng(19.074376, 72.871137));
+                                initialCenter:
+                                    gmfp.LatLng(19.074376, 72.871137));
                             print(result.address);
                             print(result.latLng);
                             GeoHasher geoHasher = GeoHasher();
@@ -683,7 +707,11 @@ class _UserHomePageState extends State<UserHomePage> {
                                 .setData({'last_change': date}, merge: true);
 
                             Navigator.pushAndRemoveUntil(
-                                context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LandingPage(title: 'Landing Page')),
+                                (route) => false);
                           }
                         } else {
                           _showInfoDialog(context,
@@ -745,14 +773,13 @@ class _UserHomePageState extends State<UserHomePage> {
                         .document(offers[index].data['shop_uid'])
                         .get()
                         .then((doc) {
-                          print(doc.documentID);
-                          print(doc.data['shop_name']);
+                      print(doc.documentID);
+                      print(doc.data['shop_name']);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ShopPage(
-                                  shopDetails: doc,
-                                  userDetails: userData)));
+                                  shopDetails: doc, userDetails: userData)));
                     });
                   },
                   child: Card(
@@ -1025,12 +1052,12 @@ class _UserHomePageState extends State<UserHomePage> {
 
   String titleString(String s) => s[0].toUpperCase() + s.substring(1);
 
-  List<Widget> getNearbyChildren(List<DocumentSnapshot> filteredList){
+  List<Widget> getNearbyChildren(List<DocumentSnapshot> filteredList) {
     List<Widget> children = [];
-    for (var item in filteredList){
+    for (var item in filteredList) {
       children.add(Card(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         child: Column(
           children: [
             ClipRRect(
@@ -1049,8 +1076,7 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  8.0, 12.0, 8.0, 4.0),
+              padding: const EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 4.0),
               child: Text(
                 titleString(item.data['shop_name']),
                 style: TextStyle(fontSize: 16.0),
@@ -1058,11 +1084,9 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  8.0, 0.0, 8.0, 0.0),
+              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
               child: Text(
-                distanceBetween(
-                    item.data['shop_geohash']).toString(),
+                distanceBetween(item.data['shop_geohash']).toString(),
                 style: TextStyle(fontSize: 16.0),
                 maxLines: 2,
               ),
@@ -1080,14 +1104,11 @@ class _UserHomePageState extends State<UserHomePage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 onPressed: () {
-
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => ShopPage(
-                              shopDetails: item,
-                              userDetails: userData)));
-
+                              shopDetails: item, userDetails: userData)));
                 },
               ),
             ),
@@ -1097,28 +1118,34 @@ class _UserHomePageState extends State<UserHomePage> {
     }
 
     children.add(InkWell(
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => AllShopsTabbed(userDetails: userData,)));
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AllShopsTabbed(
+                      userDetails: userData,
+                    )));
       },
       child: Card(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 230,
-            child: Align(
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                child: Text(
-                  "View More Shops",
-                  overflow: TextOverflow.ellipsis,
+            SizedBox(
+              height: 230,
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                  child: Text(
+                    "View More Shops",
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
-            ),),
-
+            ),
           ],
         ),
       ),
@@ -1127,7 +1154,6 @@ class _UserHomePageState extends State<UserHomePage> {
     return children;
   }
 
-
   Widget buildNearby() {
     List<String> upperLower = calculateFilter();
     String upper = upperLower[0];
@@ -1135,15 +1161,15 @@ class _UserHomePageState extends State<UserHomePage> {
 
     return Container(
         child: StreamBuilder<QuerySnapshot>(
-          stream: userData.data['is21']
-              ? Firestore.instance
+      stream: userData.data['is21']
+          ? Firestore.instance
               .collection('shops')
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
               .where("shop_geohash", isLessThanOrEqualTo: upper)
               .where('paymentHold', isEqualTo: false)
               .where('verificationHold', isEqualTo: false)
               .snapshots()
-              : Firestore.instance
+          : Firestore.instance
               .collection('shops')
               .where('industry', whereIn: _industryListNoLiqour)
               .where("shop_geohash", isGreaterThanOrEqualTo: lower)
@@ -1151,32 +1177,31 @@ class _UserHomePageState extends State<UserHomePage> {
               .where('paymentHold', isEqualTo: false)
               .where('verificationHold', isEqualTo: false)
               .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return new Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Theme.of(context).accentColor,
-                  ),
-                );
-              default:
-                List<DocumentSnapshot> filterList =
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Theme.of(context).accentColor,
+              ),
+            );
+          default:
+            List<DocumentSnapshot> filterList =
                 filterByDistanceLimited(snapshot.data.documents);
-                if (filterList.length < 1) {
-                  return Center(
-                    child: Text("There are no shops around you."),
-                  );
-                } else {
-                  return ResponsiveGridList(
-                    desiredItemWidth: 150,
-                    minSpacing: 8,
-                    children: getNearbyChildren(filterList)
-                  );
-                }
+            if (filterList.length < 1) {
+              return Center(
+                child: Text("There are no shops around you."),
+              );
+            } else {
+              return ResponsiveGridList(
+                  desiredItemWidth: 150,
+                  minSpacing: 8,
+                  children: getNearbyChildren(filterList));
             }
-          },
-        ));
+        }
+      },
+    ));
   }
 
   Widget buildNearbyGrid() {
@@ -1787,20 +1812,18 @@ class _UserHomePageState extends State<UserHomePage> {
     return column;
   }
 
-  String totalAmount(var items){
+  String totalAmount(var items) {
     double total = 0;
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      if(item['available']){
-        if (item['cost'] == "NA"){
+      if (item['available']) {
+        if (item['cost'] == "NA") {
           return "NA";
         }
 
         total = total +
-            (int.parse(item['cost']) *
-                int.parse(
-                    item['quantity'].toString()));
+            (int.parse(item['cost']) * int.parse(item['quantity'].toString()));
       }
     }
 
@@ -2188,23 +2211,13 @@ class _UserHomePageState extends State<UserHomePage> {
                 Divider(),
                 InkWell(
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => CustomDialog(
-                        title: "Suggestions",
-                        description: "Type in your suggestions here.",
-                        buttonText: "Okay",
-                        hint: "Type in your suggestions here.",
-                        formkey: suggestionformKey,
-                        textController: suggestionTextController,
-                      ),
-                    );
+                    showDialog(context: context, child: SuggestionsDialog(userData: userData,));
                   },
                   child: ListTile(
                       leading: Icon(Icons.edit),
-                      title: Text("Make a suggestion",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      title: Text(
+                        "Make a suggestion",
+                      ),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 ),
               ],
