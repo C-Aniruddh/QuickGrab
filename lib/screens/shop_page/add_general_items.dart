@@ -85,6 +85,32 @@ class _StandardInventoryState extends State<StandardInventory> {
     ));
   }
 
+  _showPendingDialog(BuildContext context, String text) {
+    print(text);
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget addView() {
     return Column(
       children: [
@@ -139,7 +165,8 @@ class _StandardInventoryState extends State<StandardInventory> {
                   }
                 }
                 batch.commit();
-                Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                _showPendingDialog(context, "Items have been added to your inventory!");
               },
               color: Colors.orangeAccent,
               textColor: Colors.white,

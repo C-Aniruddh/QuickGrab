@@ -238,6 +238,32 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
       });
   }
 
+  _showPendingDialog(BuildContext context, String text) {
+    print(text);
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget confirmView(BuildContext context) {
     return Column(
       children: [
@@ -328,8 +354,11 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
                     });
                   });
 
-                  Navigator.pushAndRemoveUntil(
-                      context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+
+                  _showPendingDialog(context, "Appointment has been scheduled.");
+
+                  //Navigator.pushAndRemoveUntil(
+                   //   context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                 }
               },
               color: Colors.orangeAccent,

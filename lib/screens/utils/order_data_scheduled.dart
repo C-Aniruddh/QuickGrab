@@ -147,6 +147,31 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
     return rows;
   }
 
+  _showCompletedDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Container(
+                child: Text(text),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OKAY',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
   _showInfoDialog(BuildContext context, String text) {
     return showDialog(
         context: context,
@@ -197,6 +222,8 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
               FlatButton(
                 onPressed: () async {
                   if (otpController.text == otp) {
+                    Navigator.pop(context);
+                    _showCompletedDialog(context, "The order has been marked completed!");
                     await Firestore.instance
                         .collection('appointments')
                         .document(documentID)
@@ -224,8 +251,9 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                         });
                       });
                     });
-                    Navigator.pushAndRemoveUntil(
-                        context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+
+                    //Navigator.pushAndRemoveUntil(
+                     //   context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                   } else {
                     Navigator.pop(context);
                     _showInfoDialog(context, "The entered OTP is wrong");
