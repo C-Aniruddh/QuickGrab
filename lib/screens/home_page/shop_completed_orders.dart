@@ -78,7 +78,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                     Navigator.pop(context);
                   } else {
                     Navigator.pop(context);
-                    _showInfoDialog(context, "The entered OTP is wrong");
+                    _showInfoDialog(context, "The entered Token Number is wrong");
                   }
                 },
                 child: Text(
@@ -177,7 +177,7 @@ class _ShopCompletedOrdersState extends State<ShopCompletedOrders> {
                                                               .accentColor,
                                                           child: Icon(Icons.lock),
                                                         ),
-                                                        title: Text("OTP"),
+                                                        title: Text("Token"),
                                                         subtitle:
                                                         Text(document['otp']),
                                                       ))),

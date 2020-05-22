@@ -107,7 +107,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
                     Navigator.pop(context);
                   } else {
                     Navigator.pop(context);
-                    _showInfoDialog(context, "The entered OTP is wrong");
+                    _showInfoDialog(context, "The entered Token is wrong");
                   }
                 },
                 child: Text(
@@ -155,7 +155,7 @@ class _ShopPendingOrdersState extends State<ShopPendingOrders> {
         child: OrderDataNew(
           document: document,
           total: total,
-          displayOTP: false,
+          displayOTP: true,
           isInvoice: true,
           isExpanded: true,
           isShop: true,

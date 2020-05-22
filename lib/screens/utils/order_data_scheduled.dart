@@ -74,13 +74,17 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
           },
           cells: [
             DataCell(
-              Text(
-                content['product']['item_name'].toString(),
-                style: TextStyle(
-                  fontFamily: AppFontFamilies.mainFont,
-                  color: Colors.black87,
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: Text(
+                  content['product']['item_name'].toString(),
+                  style: TextStyle(
+                    fontFamily: AppFontFamilies.mainFont,
+                    color: Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
             DataCell(
@@ -210,7 +214,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                     controller: otpController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'OTP',
+                      labelText: 'Token',
                     ),
                   )
                   //PhoneAuthWidgets.subTitle("Enter OTP"),
@@ -256,7 +260,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                      //   context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
                   } else {
                     Navigator.pop(context);
-                    _showInfoDialog(context, "The entered OTP is wrong");
+                    _showInfoDialog(context, "The entered Token is wrong");
                   }
                 },
                 child: Text(
@@ -371,11 +375,22 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                     children: [
                       Icon(Icons.account_circle),
                       SizedBox(width: 10),
+                      widget.displayOTP ?
+                      Chip(
+                        backgroundColor: Theme.of(context).accentColor,
+                        label: Text("Token : " + document.data['otp'], style: TextStyle(color: Colors.white)),
+                      ) :
+                      SizedBox(width: 1),
+                      SizedBox(width: 10),
                       widget.isShop
-                          ? Text(document.data['shopper_name'],
-                              style: TextStyle(color: Colors.black))
-                          : Text(document.data['shop_name'],
+                          ? SizedBox(
+                            width: 100,
+                            child: Text(document.data['shopper_name'], overflow: TextOverflow.ellipsis, maxLines: 2,
+                                style: TextStyle(color: Colors.black)),
+                          )
+                          : Text(document.data['shop_name'], overflow: TextOverflow.ellipsis, maxLines: 2,
                               style: TextStyle(color: Colors.black)),
+
                     ],
                   ),
                 ),

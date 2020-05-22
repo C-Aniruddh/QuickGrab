@@ -35,6 +35,7 @@ class _OrderDataState extends State<OrderData> {
                     color: Colors.black87,
                   ),
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
                 ),
               ),
             ),
@@ -323,7 +324,7 @@ class _OrderDataState extends State<OrderData> {
                             Padding(
                               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                               child: Text(
-                                "OTP:",
+                                "Token:",
                                 style: TextStyle(fontSize: 16.0),
                               ),
                             ),

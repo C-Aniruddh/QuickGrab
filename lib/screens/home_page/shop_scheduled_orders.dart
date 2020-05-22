@@ -152,7 +152,7 @@ class _ShopScheduledOrdersState extends State<ShopScheduledOrders> {
                       total: total,
                       isInvoice: false,
                       isExpanded: false,
-                      displayOTP: false,
+                      displayOTP: true,
                       isShop: true,
                       items: document['items'],
                     );

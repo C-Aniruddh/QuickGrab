@@ -203,7 +203,7 @@ class _AppointmentDetailsState extends State<AppointmentDetails> {
     return OrderDataPending(
       document: widget.appointmentData,
       total: total,
-      displayOTP: false,
+      displayOTP: true,
       isInvoice: true,
       isExpanded: true,
       isShop: true,
