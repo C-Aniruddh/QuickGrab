@@ -139,6 +139,7 @@ class _StandardInventoryState extends State<StandardInventory> {
                   }
                 }
                 batch.commit();
+                Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
               },
               color: Colors.orangeAccent,
               textColor: Colors.white,
