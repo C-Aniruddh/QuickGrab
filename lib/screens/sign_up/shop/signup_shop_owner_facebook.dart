@@ -213,9 +213,9 @@ class _SignUpShopOwnerFacebookState extends State<SignUpShopOwnerFacebook> {
       });
 
       assert(user.uid == currentUser.uid);
-      Navigator.pushAndRemoveUntil(
-          context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
-      //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      //Navigator.pushAndRemoveUntil(
+      //    context, MaterialPageRoute(builder: (context) => LandingPage(title: 'Landing Page')), (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';

@@ -216,7 +216,7 @@ class _SignUpShopOwnerGoogleState extends State<SignUpShopOwnerGoogle> {
           }
       });
 
-      // Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
 
     return 'signInWithGoogle succeeded: ';
