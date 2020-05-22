@@ -1117,19 +1117,25 @@ class _UserHomePageState extends State<UserHomePage> {
       ));
     }
 
-    if (children.length == 5){
+    if (children.length == 5) {
       children.add(InkWell(
-        onTap: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AllShopsTabbed(userDetails: userData,)));
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AllShopsTabbed(
+                        userDetails: userData,
+                      )));
         },
         child: Card(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 230,
+              SizedBox(
+                height: 230,
                 child: Align(
                   alignment: Alignment.center,
                   child: Padding(
@@ -1139,8 +1145,8 @@ class _UserHomePageState extends State<UserHomePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),),
-
+                ),
+              ),
             ],
           ),
         ),
@@ -1996,40 +2002,42 @@ class _UserHomePageState extends State<UserHomePage> {
     _dataController.text = oldData;
     String newData = "";
     String result = await showDialog(
-        context: context,
-        builder: (context) => StatefulBuilder(
-            builder: (BuildContext context, StateSetter setStateSheet) =>
-                AlertDialog(
-                  title: Text('Change your $dataType'),
-                  content: TextField(
-                    controller: _dataController,
-                    cursorColor: Theme.of(context).accentColor,
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text(
-                        'Save',
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                      ),
-                      onPressed: () async {
-                        if (_dataController.text != oldData) {
-                          // Data changed
-                          newData = _dataController.text;
-                        }
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: Theme.of(context).accentColor),
-                      ),
-                      onPressed: () async {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                )));
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setStateSheet) =>
+            AlertDialog(
+          title: Text('Change your $dataType'),
+          content: TextField(
+            controller: _dataController,
+            cursorColor: Theme.of(context).accentColor,
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Save',
+                style: TextStyle(color: Theme.of(context).accentColor),
+              ),
+              onPressed: () async {
+                if (_dataController.text != oldData) {
+                  // Data changed
+                  newData = _dataController.text;
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Theme.of(context).accentColor),
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
     return newData;
   }
 
@@ -2055,6 +2063,78 @@ class _UserHomePageState extends State<UserHomePage> {
               print("onAlternativePressed: do something");
               // TODO: maybe you want the user to contact you instead of rating a bad review
             },
+          );
+        });
+  }
+
+  _showCustomerSupportDialog(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                new Text("Contact Us"),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  ListTile(
+                    title: Text(
+                      'Email Us',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    leading: Icon(Icons.mail),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      final Uri params = Uri(
+                        scheme: 'mailto',
+                        path: 'quickgrabofficial@gmail.com',
+                      );
+                      String url = params.toString();
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        print('Could not launch $url');
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Call Us',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    leading: Icon(Icons.phone),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      String url = "tel:+919930533637";
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        print('Could not launch $url');
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
           );
         });
   }
@@ -2173,16 +2253,7 @@ class _UserHomePageState extends State<UserHomePage> {
                 Divider(),
                 InkWell(
                   onTap: () async {
-                    final Uri params = Uri(
-                      scheme: 'mailto',
-                      path: 'adityachakraborti14@gmail.com',
-                    );
-                    String url = params.toString();
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      print('Could not launch $url');
-                    }
+                    _showCustomerSupportDialog(context);
                   },
                   child: ListTile(
                       leading: Icon(Icons.headset_mic),
@@ -2206,7 +2277,11 @@ class _UserHomePageState extends State<UserHomePage> {
                 Divider(),
                 InkWell(
                   onTap: () {
-                    showDialog(context: context, child: SuggestionsDialog(userData: userData,));
+                    showDialog(
+                        context: context,
+                        child: SuggestionsDialog(
+                          userData: userData,
+                        ));
                   },
                   child: ListTile(
                       leading: Icon(Icons.edit),
