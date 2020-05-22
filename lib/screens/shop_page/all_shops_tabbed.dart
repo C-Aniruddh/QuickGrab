@@ -134,7 +134,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
     List<DocumentSnapshot> toReturn = [];
     for (var i = 0; i < allDocs.length; i++) {
       if (double.parse(distanceBetweenNumber(allDocs[i]['shop_geohash'])) <
-          200000) {
+          10000) {
         toReturn.add(allDocs[i]);
       } else {
         // do nothing
@@ -196,7 +196,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
       double addLon = widget.userDetails['lon'];
       print(addLat);
       print(addLon);
-      num queryDistance = 200000.round();
+      num queryDistance = 8000.round();
 
       final Distance distance = const Distance();
       //final num query_distance = (EARTH_RADIUS * PI / 4).round();
