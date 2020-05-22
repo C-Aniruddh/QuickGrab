@@ -1117,38 +1117,6 @@ class _UserHomePageState extends State<UserHomePage> {
       ));
     }
 
-<<<<<<< HEAD
-    children.add(InkWell(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AllShopsTabbed(
-                      userDetails: userData,
-                    )));
-      },
-      child: Card(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 230,
-              child: Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                  child: Text(
-                    "View More Shops",
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ),
-          ],
-=======
     if (children.length == 5){
       children.add(InkWell(
         onTap: (){
@@ -1175,7 +1143,6 @@ class _UserHomePageState extends State<UserHomePage> {
 
             ],
           ),
->>>>>>> d27cf01cc86ec83b715a80b15215f0ec7af76123
         ),
       ));
     }
