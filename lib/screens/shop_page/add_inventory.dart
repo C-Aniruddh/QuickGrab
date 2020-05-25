@@ -482,6 +482,12 @@ class _AddInventoryState extends State<AddInventory> {
                                 "quantity": quantity,
                                 "price": price,
                               });
+                              items.add({
+                                size: data[0],
+                                unit: data[1],
+                                quantity: data[2],
+                                price: data[3],
+                              });
                             }
                           }
                         });
