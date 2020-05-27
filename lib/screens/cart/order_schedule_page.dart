@@ -117,6 +117,9 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
     int currentHour = 0;
     int currentMinute = 0;
 
+    DateTime now = DateTime.now();
+    Jiffy jiffyNow = new Jiffy({"hour": now.hour, "minute": now.minute});
+
     List<String> slots = [];
     Jiffy previousTime = startTime;
 
@@ -125,7 +128,12 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
       Jiffy newTime = Jiffy(tempTime.add(duration: Duration(minutes: 30)));
       currentHour = newTime.hour;
       currentMinute = newTime.minute;
-      slots.add(previousTime.format("HH:mm") + "--" + newTime.format("HH:mm"));
+      print(jiffyNow);
+      print(newTime);
+      if(jiffyNow.isBefore(previousTime)){
+        print("is before");
+        slots.add(previousTime.format("HH:mm") + "--" + newTime.format("HH:mm"));
+      }
       previousTime = newTime;
     }
     // print(slots);
@@ -248,7 +256,9 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
               top: false,
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.4,
-                child: SingleChildScrollView(
+                child: labels.length == 0 ?
+                    Center(child: Text("No slots available today. Please check back tomorrow."))
+                : SingleChildScrollView(
                   child: RadioButtonGroup(
                     labels: labels,
                     onSelected: (String selected) {

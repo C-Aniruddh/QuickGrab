@@ -2195,27 +2195,6 @@ class _UserHomePageState extends State<UserHomePage> {
                       MaterialPageRoute(
                         builder: (context) => AppointmentList(
                           userData: userData,
-                          title: "Pending Orders",
-                          appointmentStatus: "pending",
-                        ),
-                      ),
-                    );
-                  },
-                  child: ListTile(
-                      leading: Icon(Icons.access_time),
-                      title: Text("Pending Orders",
-                          style:
-                              TextStyle(fontFamily: AppFontFamilies.mainFont)),
-                      trailing: Icon(Icons.arrow_forward_ios)),
-                ),
-                Divider(),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AppointmentList(
-                          userData: userData,
                           title: "Completed Orders",
                           appointmentStatus: "completed",
                         ),
