@@ -377,6 +377,7 @@ class _EditShopProfileState extends State<EditShopProfile> {
     shopNameController.text = widget.shopData['shop_name'];
     shopContactController.text = widget.shopData['shop_contact_name'];
     shopNumberController.text = widget.shopData['phone_number'];
+
   }
 
   @override

@@ -26,7 +26,6 @@ class AllShopsTabbed extends StatefulWidget {
 }
 
 class _AllShopsTabbedState extends State<AllShopsTabbed> {
-
   final TextEditingController _textEditingController =
       new TextEditingController();
 
@@ -45,7 +44,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
     'Vegetables and Fruits',
     'Other'
   ];
-
 
   @override
   void initState() {
@@ -78,6 +76,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
           );
         });
   }
+
   _showInfoDialog(BuildContext context, String text) {
     return showDialog(
         context: context,
@@ -147,9 +146,9 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
     return toReturn;
   }
 
-  getStream(category, lower, upper){
-    if (widget.userDetails['is21']){
-      if (category == "All Shops"){
+  getStream(category, lower, upper) {
+    if (widget.userDetails['is21']) {
+      if (category == "All Shops") {
         return Firestore.instance
             .collection('shops')
             .where("shop_geohash", isGreaterThanOrEqualTo: lower)
@@ -158,9 +157,9 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
             .where('verificationHold', isEqualTo: false)
             .snapshots();
       } else {
-          return Firestore.instance
+        return Firestore.instance
             .collection('shops')
-              .where('industry', isEqualTo: category)
+            .where('industry', isEqualTo: category)
             .where("shop_geohash", isGreaterThanOrEqualTo: lower)
             .where("shop_geohash", isLessThanOrEqualTo: upper)
             .where('paymentHold', isEqualTo: false)
@@ -168,7 +167,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
             .snapshots();
       }
     } else {
-      if (category == "All Shops"){
+      if (category == "All Shops") {
         return Firestore.instance
             .collection('shops')
             .where('industry', whereIn: _industryListNoLiqour)
@@ -303,14 +302,15 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
                                   padding: const EdgeInsets.fromLTRB(
                                       8.0, 0.0, 8.0, 0.0),
                                   child: Text(
-                                    distanceBetween(
-                                        item.data['shop_geohash']).toString(),
+                                    distanceBetween(item.data['shop_geohash'])
+                                        .toString(),
                                     style: TextStyle(fontSize: 16.0),
                                     maxLines: 2,
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      8.0, 0.0, 8.0, 8.0),
                                   child: OutlineButton(
                                     // icon: Icon(Icons.add_shopping_cart),
                                     shape: StadiumBorder(),
@@ -327,7 +327,8 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
                                           MaterialPageRoute(
                                               builder: (context) => ShopPage(
                                                   shopDetails: item,
-                                                  userDetails: widget.userDetails)));
+                                                  userDetails:
+                                                      widget.userDetails)));
                                     },
                                   ),
                                 ),
@@ -344,7 +345,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
       ),
     );
   }
-
 
   Widget cartIcon(BuildContext context) {
     return StreamBuilder(
@@ -395,9 +395,8 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
         });
   }
 
-
   getCategories() {
-    if (widget.userDetails['is21']){
+    if (widget.userDetails['is21']) {
       return <String>[
         'All Shops',
         'Grocery',
@@ -425,7 +424,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
         'Other'
       ];
     }
-
   }
 
   Widget tabWidget(String category) {
@@ -467,6 +465,12 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
+                      Image(
+                          image:
+                              NetworkImage("https://imgur.com/gallery/WBOhWuy"),
+                          height: 250,
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover),
                       Container(
                         height: 250,
                         width: MediaQuery.of(context).size.width,

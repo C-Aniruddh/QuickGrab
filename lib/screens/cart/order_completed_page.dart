@@ -13,9 +13,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class OrderCompletedPage extends StatefulWidget {
-  OrderCompletedPage({Key key, this.appointmentData}) : super(key: key);
+  OrderCompletedPage({Key key, this.appointmentData, this.appointments}) : super(key: key);
 
   final DocumentSnapshot appointmentData;
+  final List<DocumentSnapshot> appointments;
 
   @override
   _OrderCompletedPageState createState() => _OrderCompletedPageState();
@@ -94,8 +95,9 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
+
     showAd();
+    super.initState();
   }
 
   String totalAmount(var items){
@@ -118,8 +120,25 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
     return total.toString();
   }
 
+  List<Widget> getAllAppointments(){
+    List<Widget> apps = [];
+    for (var i = 0; i < widget.appointments.length; i++){
+      String total = totalAmount(widget.appointments[i].data['items']);
+      apps.add(
+        OrderDataUsers(
+            document: widget.appointments[i],
+            isInvoice: false,
+            displayOTP: true,
+            total: total,
+            isExpanded: true,
+            isShop: false
+        ),
+      );
+    }
+    return apps;
+  }
+
   Widget showCompletedOrder(){
-    String total = totalAmount(widget.appointmentData.data['items']);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -130,14 +149,10 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
               Container(child: Icon(Icons.check, size: 128, color: Colors.green)),
             ],
           ),
-        OrderDataUsers(
-          document: widget.appointmentData,
-          isInvoice: false,
-          displayOTP: true,
-          total: total,
-          isExpanded: true,
-          isShop: false
-        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: getAllAppointments(),
+        )
       ],
     );
   }
@@ -147,10 +162,6 @@ class _OrderCompletedPageState extends State<OrderCompletedPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: Icon(Icons.close), color: Colors.black,
-            onPressed:(){
-              Navigator.pop(context);
-            }),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
