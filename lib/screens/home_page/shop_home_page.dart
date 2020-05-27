@@ -408,7 +408,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
                 ],
               )),
             ),
-            Card(
+            /*Card(
               child: Container(
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -454,7 +454,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
                   ),
                 ],
               )),
-            ),
+            ),*/
             Card(
               child: Container(
                 child: Column(

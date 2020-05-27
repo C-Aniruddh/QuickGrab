@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:app/notificationHandler.dart';
 import 'package:app/screens/cart/order_completed_page.dart';
+import 'package:app/screens/cart/order_schedule_page.dart';
 import 'package:app/screens/home_page/shop_completed_orders.dart';
 import 'package:app/screens/home_page/shop_pending_orders.dart';
 import 'package:app/screens/home_page/shop_scheduled_orders.dart';
@@ -595,7 +596,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
             }),
         title: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Text("Payment",
+          child: Text("Confirm details",
               style: TextStyle(
                   fontFamily: AppFontFamilies.mainFont, color: Colors.black)),
         ),
@@ -630,7 +631,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                         ),
                         onPressed: () async {
                           if (!isOverflow && !hasOrderedIn24Hours) {
-                            _showInfoDialog(
+                            /*_showInfoDialog(
                                 context, "Your order is being placed");
                             var rng = new Random();
                             var now = new DateTime.now();
@@ -699,13 +700,14 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                                     .document(value.documentID)
                                     .get()
                                     .then((DocumentSnapshot document){
-                                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => OrderCompletedPage(appointmentData: document)), (route) => false);
+
                                   });
 
                                 });
                               });
 
-                            }
+                            } */
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrderSchedulePage(items: widget.items, userData: widget.userData, shopDetails: widget.shopDetails,)));
                           } else {
                             _showInfoDialog(context,
                                 "There is a problem with your order. Please check.");
@@ -714,7 +716,7 @@ class _OrderPaymentPageState extends State<OrderPaymentPage> {
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPaymentPage(items: cartItems)));
                         },
                         child: ListTile(
-                            title: Text("Complete Order",
+                            title: Text("Schedule Order",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontFamily: AppFontFamilies.mainFont)),
