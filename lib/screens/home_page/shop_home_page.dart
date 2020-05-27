@@ -59,7 +59,6 @@ class _ShopHomePageState extends State<ShopHomePage> {
   String profilePicUrl;
   String userEmail;
 
-
   DocumentSnapshot userData;
 
   GeoHasher gH = GeoHasher();
@@ -268,9 +267,7 @@ class _ShopHomePageState extends State<ShopHomePage> {
             child: ListTile(
                 trailing: FlatButton(
                   child: Text("MORE INFO"),
-                  onPressed: () {
-
-                  },
+                  onPressed: () {},
                 ),
                 title: Text(
                   "There is a problem with your payments.",
@@ -323,6 +320,78 @@ class _ShopHomePageState extends State<ShopHomePage> {
         ),
       ),
     );
+  }
+
+  _showCustomerSupportDialog(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                new Text("Contact Us"),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  ListTile(
+                    title: Text(
+                      'Email Us',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    leading: Icon(Icons.mail),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      final Uri params = Uri(
+                        scheme: 'mailto',
+                        path: 'c.aniruddh98@gmail.com',
+                      );
+                      String url = params.toString();
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        print('Could not launch $url');
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Call Us',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    leading: Icon(Icons.phone),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      String url = "tel:+919930533637";
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        print('Could not launch $url');
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   Widget buildHomeShop() {
@@ -616,7 +685,55 @@ class _ShopHomePageState extends State<ShopHomePage> {
                   ],
                 ),
               ),
-            )
+            ),
+            Card(
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("Contact Us",
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontFamily: AppFontFamilies.mainFont)),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                        child: RaisedButton(
+                          color: Theme.of(context).accentColor,
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0),
+                          ),
+                          onPressed: () {
+                            _showCustomerSupportDialog(context);
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text("",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: AppFontFamilies.mainFont)),
+                              ),
+                              Icon(Icons.arrow_forward_ios, color: Colors.white)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

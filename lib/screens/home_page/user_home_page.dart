@@ -2085,7 +2085,7 @@ class _UserHomePageState extends State<UserHomePage> {
                     onTap: () async {
                       final Uri params = Uri(
                         scheme: 'mailto',
-                        path: 'quickgrabofficial@gmail.com',
+                        path: 'c.aniruddh98@gmail.com',
                       );
                       String url = params.toString();
                       if (await canLaunch(url)) {
