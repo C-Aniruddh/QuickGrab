@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app/screens/shop_page/add_general_items.dart';
 import 'package:app/screens/shop_page/add_inventory.dart';
+import 'package:app/screens/shop_page/edit_items.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -109,26 +110,68 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
         'Other'
       ];
     } else if (industry == 'Grocery') {
-      return ['Select Category','Beverages', 'Rice', 'Atta', 'Bread', 'Canned/Jarred Goods', 'Dairy/Tea', 'Baking Goods',
-        'Frozen Goods', 'Snacks', 'Spices', 'Meat', 'Milk Produce', 'Grains', 'Cleaners', 'Spreads and sauces', 'Sweets'
-        'Paper Goods', 'Personal Care', 'Other'];
-    } else if (industry == 'Liquor'){
-      return ['Select Category','Whiskey', 'Beer', 'Brandy', 'Vodka', 'Rum', 'Gin', 'Tequila', 'Wine', 'Other'];
-    } else if (industry == 'Manufacturing'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Oil and Gas'){
-      return ['Select Category','Petrol/Diesel/CNG', 'Other'];
-    } else if (industry == 'Pharmaceuticals'){
-      return ['Select Category','General', 'Prescription', 'Other'];
-    } else if (industry == 'Retail'){
-      return ['Select Category','Clothing', 'Socks and shoes',  'Other'];
-    } else if (industry == 'Stationary'){
-      return ['Select Category','Paper', 'Envelopes', 'Chart Paper', 'Books', 'Study Material', 'Stapler',
-        'Notepads', 'Notebooks', 'Pens/Pencils', 'Journal Sheets', 'Other'];
-    } else if (industry == 'Textile'){
-      return ['Select Category','Other'];
-    } else if (industry == 'Vegetables and Fruits'){
-      return ['Select Category','Vegetables', 'Fruits', 'Extras',  'Other'];
+      return [
+        'Select Category',
+        'Beverages',
+        'Rice',
+        'Atta',
+        'Bread',
+        'Canned/Jarred Goods',
+        'Dairy/Tea',
+        'Baking Goods',
+        'Frozen Goods',
+        'Snacks',
+        'Spices',
+        'Meat',
+        'Milk Produce',
+        'Grains',
+        'Cleaners',
+        'Spreads and sauces',
+        'Sweets'
+            'Paper Goods',
+        'Personal Care',
+        'Other'
+      ];
+    } else if (industry == 'Liquor') {
+      return [
+        'Select Category',
+        'Whiskey',
+        'Beer',
+        'Brandy',
+        'Vodka',
+        'Rum',
+        'Gin',
+        'Tequila',
+        'Wine',
+        'Other'
+      ];
+    } else if (industry == 'Manufacturing') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Oil and Gas') {
+      return ['Select Category', 'Petrol/Diesel/CNG', 'Other'];
+    } else if (industry == 'Pharmaceuticals') {
+      return ['Select Category', 'General', 'Prescription', 'Other'];
+    } else if (industry == 'Retail') {
+      return ['Select Category', 'Clothing', 'Socks and shoes', 'Other'];
+    } else if (industry == 'Stationary') {
+      return [
+        'Select Category',
+        'Paper',
+        'Envelopes',
+        'Chart Paper',
+        'Books',
+        'Study Material',
+        'Stapler',
+        'Notepads',
+        'Notebooks',
+        'Pens/Pencils',
+        'Journal Sheets',
+        'Other'
+      ];
+    } else if (industry == 'Textile') {
+      return ['Select Category', 'Other'];
+    } else if (industry == 'Vegetables and Fruits') {
+      return ['Select Category', 'Vegetables', 'Fruits', 'Extras', 'Other'];
     } else {
       return ['Select Category', 'Other'];
     }
@@ -230,7 +273,10 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => StandardInventory(industry: widget.userData.data['industry'], shopDetails: widget.userData,),
+                                  builder: (context) => StandardInventory(
+                                    industry: widget.userData.data['industry'],
+                                    shopDetails: widget.userData,
+                                  ),
                                 ),
                               );
                             },
@@ -254,14 +300,12 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                     elements: filterList,
                     groupBy: (element) => element['item_category'],
                     order: GroupedListOrder.ASC,
-                    groupSeparatorBuilder: (groupByValue){
+                    groupSeparatorBuilder: (groupByValue) {
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text('$groupByValue'),
                       );
                     },
-                    //gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    //    crossAxisCount: 2, childAspectRatio: (3 / 4)),
                     itemBuilder: (BuildContext context, element) {
                       return InkWell(
                           onTap: () {},
@@ -269,15 +313,33 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                               child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
-                                trailing: IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () {
-                                      _showConfirmationDialog(
-                                          context, element);
-                                    }),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                        icon: Icon(Icons.edit),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditInventory(
+                                                itemData: element,
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                    IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () {
+                                          _showConfirmationDialog(
+                                              context, element);
+                                        }),
+                                  ],
+                                ),
                                 leading: CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        element.data['img_url'])),
+                                    backgroundImage:
+                                        NetworkImage(element.data['img_url'])),
                                 title: Text(element.data['item_name'],
                                     style: TextStyle(
                                         fontFamily: AppFontFamilies.mainFont)),
@@ -285,9 +347,7 @@ class _ShopMyInventoryState extends State<ShopMyInventory> {
                                   "₹" +
                                       element.data['item_price'] +
                                       "  |  Size: " +
-                                      element
-                                          .data['item_quantity']
-                                          .toString(),
+                                      element.data['item_quantity'].toString(),
                                   style: TextStyle(
                                       fontFamily: AppFontFamilies.mainFont),
                                 )),

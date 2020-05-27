@@ -160,7 +160,7 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
         child: RaisedButton(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18.0),
-              side: BorderSide(color: Colors.orangeAccent)),
+              side: BorderSide(color: Theme.of(context).accentColor)),
           onPressed: () async {
             if (_formKey.currentState.validate()) {
               if (_selectedUnit != null) {
@@ -177,7 +177,7 @@ class _ItemVariantDialogState extends State<ItemVariantDialog> {
               }
             }
           },
-          color: Colors.orangeAccent,
+          color: Theme.of(context).accentColor,
           textColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(8.0),

@@ -589,11 +589,11 @@ class _AddInventoryState extends State<AddInventory> {
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.orangeAccent)),
+                    side: BorderSide(color: Theme.of(context).accentColor)),
                 onPressed: () async {
                   _showUploadChoiceDialog(context);
                 },
-                color: Colors.orangeAccent,
+                color: Theme.of(context).accentColor,
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -741,7 +741,7 @@ class _AddInventoryState extends State<AddInventory> {
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
-                      side: BorderSide(color: Colors.orangeAccent)),
+                      side: BorderSide(color: Theme.of(context).accentColor)),
                   onPressed: () async {
                     var data = await showDialog(
                       context: context,
@@ -766,7 +766,7 @@ class _AddInventoryState extends State<AddInventory> {
                       });
                     }
                   },
-                  color: Colors.orangeAccent,
+                  color: Theme.of(context).accentColor,
                   textColor: Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -776,30 +776,6 @@ class _AddInventoryState extends State<AddInventory> {
                   ),
                 ),
               ),
-              /*
-              Padding(
-                padding: EdgeInsets.fromLTRB(8, 0, 16, 12),
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      side: BorderSide(color: Colors.orangeAccent)),
-                  onPressed: () async {
-                    setState(() {
-                      itemVariants.clear();
-                    });
-                    items.clear();
-                  },
-                  color: Colors.orangeAccent,
-                  textColor: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Remove all variants",
-                    ),
-                  ),
-                ),
-              ),
-              */
             ],
           ),
           customLargeTextField(
@@ -814,7 +790,7 @@ class _AddInventoryState extends State<AddInventory> {
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.orangeAccent)),
+                    side: BorderSide(color: Theme.of(context).accentColor)),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     if (itemNameController.text.isNotEmpty) {
@@ -890,7 +866,7 @@ class _AddInventoryState extends State<AddInventory> {
                         context, "Please check the form for errors.");
                   }
                 },
-                color: Colors.orangeAccent,
+                color: Theme.of(context).accentColor,
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
