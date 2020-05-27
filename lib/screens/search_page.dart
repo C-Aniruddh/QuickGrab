@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
+import 'package:app/screens/shop_page/tabbed_shop_page.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_geohash/dart_geohash.dart';

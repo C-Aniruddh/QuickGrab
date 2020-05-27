@@ -1,15 +1,12 @@
-import 'dart:async';
 import 'dart:core';
-import 'dart:math';
 
 import 'package:app/screens/cart/cart_page.dart';
-import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
+import 'package:app/screens/shop_page/tabbed_shop_page.dart';
 import 'package:badges/badges.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/screens/home_page/user_home_page.dart';
 import 'package:app/screens/utils/custom_sliver_appbar_delegate.dart';
 import 'package:app/screens/utils/custom_responsive_grid.dart';
 import 'package:latlong/latlong.dart';
@@ -51,55 +48,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
       categories = getCategories();
     });
     super.initState();
-  }
-
-  _showInformationDialog(BuildContext context, String text) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: Container(
-                child: Text(text),
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Okay',
-                ),
-              ),
-            ],
-          );
-        });
-  }
-
-  _showInfoDialog(BuildContext context, String text) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: Container(
-                child: Text(text,
-                    style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'OKAY',
-                ),
-              ),
-            ],
-          );
-        });
   }
 
   String distanceBetweenNumber(String shopGeoHash) {
@@ -193,8 +141,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
     if (userLoaded) {
       double addLat = widget.userDetails['lat'];
       double addLon = widget.userDetails['lon'];
-      print(addLat);
-      print(addLon);
       num queryDistance = 8000.round();
 
       final Distance distance = const Distance();
@@ -203,9 +149,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
       final p1 = new LatLng(addLat, addLon);
       final upperP = distance.offset(p1, queryDistance, 45);
       final lowerP = distance.offset(p1, queryDistance, 220);
-
-      print(upperP);
-      print(lowerP);
 
       GeoHasher geoHasher = GeoHasher();
 
@@ -226,7 +169,6 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
     GeoHasher geoHasher = GeoHasher();
     List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
     List<double> userCoordinates = geoHasher.decode(userGeoHash);
-    print(userCoordinates);
     Distance distance = new Distance();
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
@@ -258,7 +200,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
                 ),
               );
             default:
-              List<DocumentSnapshot> filterList = snapshot.data.documents;
+              List<DocumentSnapshot> filterList = filterByDistance(snapshot.data.documents);
               if (filterList.length < 1) {
                 return Center(
                   child: Padding(
@@ -467,7 +409,7 @@ class _AllShopsTabbedState extends State<AllShopsTabbed> {
                     children: [
                       Image(
                           image:
-                              NetworkImage("https://imgur.com/gallery/WBOhWuy"),
+                              NetworkImage("https://i.imgur.com/MSDZ864.jpg"),
                           height: 250,
                           width: MediaQuery.of(context).size.width,
                           fit: BoxFit.cover),

@@ -11,12 +11,10 @@ import 'package:app/screens/shop_page/all_shops_tabbed.dart';
 import 'package:app/screens/user_options/cancel_order.dart';
 import 'package:app/screens/user_options/suggestion_dialog.dart';
 import 'package:app/screens/utils/OrderDataNew.dart';
-import 'package:app/screens/utils/custom_dialog.dart';
 import 'package:app/screens/utils/custom_responsive_grid.dart';
 import 'package:app/screens/utils/order_data_users.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cuberto_bottom_bar/cuberto_bottom_bar.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -24,7 +22,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:flutter_native_admob/native_admob_controller.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:google_map_location_picker/google_map_location_picker.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
@@ -36,13 +33,10 @@ import 'package:latlong/latlong.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:share/share.dart';
-import 'package:app/screens/user_options/rate_app.dart' as rateApp;
 import 'package:app/screens/utils/fab_bottom_app_bar.dart';
-import 'package:app/screens/shop_page/tabbed_shop_parge.dart';
-import 'package:app/screens/utils/order_data_card.dart';
+import 'package:app/screens/shop_page/tabbed_shop_page.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class MapUtils {
@@ -118,7 +112,7 @@ class _UserHomePageState extends State<UserHomePage> {
       'https://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id=YOUR-APP-ID&mt=8';
 
   static const PLAY_STORE_URL =
-      'https://play.google.com/store/apps/details?id=YOUR-APP-ID';
+      'https://play.google.com/store/apps/details?id=com.quickgrab.app';
 
   void setUserData(String uid) async {
     if (UniversalPlatform.isIOS || UniversalPlatform.isAndroid) {
@@ -249,8 +243,6 @@ class _UserHomePageState extends State<UserHomePage> {
     if (userLoaded) {
       double addLat = userData['lat'];
       double addLon = userData['lon'];
-      print(addLat);
-      print(addLon);
       num queryDistance = 8000.round();
 
       final Distance distance = const Distance();
@@ -259,9 +251,6 @@ class _UserHomePageState extends State<UserHomePage> {
       final p1 = new LatLng(addLat, addLon);
       final upperP = distance.offset(p1, queryDistance, 45);
       final lowerP = distance.offset(p1, queryDistance, 220);
-
-      print(upperP);
-      print(lowerP);
 
       GeoHasher geoHasher = GeoHasher();
 
@@ -282,7 +271,6 @@ class _UserHomePageState extends State<UserHomePage> {
     GeoHasher geoHasher = GeoHasher();
     List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
     List<double> userCoordinates = geoHasher.decode(userGeoHash);
-    print(userCoordinates);
     Distance distance = new Distance();
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
@@ -295,7 +283,6 @@ class _UserHomePageState extends State<UserHomePage> {
     GeoHasher geoHasher = GeoHasher();
     List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
     List<double> userCoordinates = geoHasher.decode(userGeoHash);
-    print(userCoordinates);
     Distance distance = new Distance();
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
@@ -308,7 +295,6 @@ class _UserHomePageState extends State<UserHomePage> {
     GeoHasher geoHasher = GeoHasher();
     List<double> shopCoordinates = geoHasher.decode(shopGeoHash);
     List<double> userCoordinates = geoHasher.decode(userGeoHash);
-    print(userCoordinates);
     Distance distance = new Distance();
     double meter = distance(new LatLng(shopCoordinates[1], shopCoordinates[0]),
         new LatLng(userCoordinates[1], userCoordinates[0]));
@@ -1361,7 +1347,6 @@ class _UserHomePageState extends State<UserHomePage> {
                                 padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                                 icon: Icon(Icons.map),
                                 onPressed: () {
-                                  print("Open");
                                   MapUtils.openMap(document['shop_lat'],
                                       document['shop_lon']);
                                 },
@@ -1492,9 +1477,7 @@ class _UserHomePageState extends State<UserHomePage> {
     List<Widget> columnContent = [];
 
     for (dynamic content in invoiceData) {
-      print(content);
       List product_data = content['product'].values.toList();
-      print(product_data);
       columnContent.add(
         Padding(
           padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
