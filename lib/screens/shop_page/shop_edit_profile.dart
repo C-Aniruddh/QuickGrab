@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/screens/utils/timePickerDialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
 class EditShopProfile extends StatefulWidget {
   EditShopProfile({Key key, this.shopData}) : super(key: key);
@@ -24,6 +23,9 @@ class _EditShopProfileState extends State<EditShopProfile> {
   TextEditingController shopNameController = new TextEditingController();
   TextEditingController shopContactController = new TextEditingController();
   TextEditingController shopNumberController = new TextEditingController();
+
+  String openingTime;
+  String closingTime;
 
   Future getGalleryImage() async {
     var image = await ImagePicker.pickImage(
@@ -62,6 +64,316 @@ class _EditShopProfileState extends State<EditShopProfile> {
     final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
     final String url = (await downloadUrl.ref.getDownloadURL());
     return url;
+  }
+
+  _showSelectTimeDialog(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusDirectional.circular(16.0),
+            ),
+            title: Text(
+              'Please select both opening and closing timings',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Okay",
+                    style: TextStyle(fontSize: 16.0),
+                  ))
+            ],
+          );
+        });
+  }
+
+  buildTimeOpening(String hourValue, String minuteValue) {
+    String am_pm = "AM";
+    int hour;
+    String hr;
+
+    if (hourValue != "" && minuteValue != "") {
+      hour = int.parse(hourValue);
+      if (hour > 12) {
+        am_pm = "PM";
+        hour = hour - 12;
+      }
+      if (hour == 12) {
+        am_pm = "PM";
+      }
+      if (hour == 0 && am_pm == "AM") {
+        hour = 12;
+      }
+      if (hour < 10) {
+        hr = "0" + hour.toString();
+      } else {
+        hr = hour.toString();
+      }
+    }
+
+    return Container(
+      height: 56.0,
+      margin: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 8.0),
+      child: new Container(
+        padding: const EdgeInsets.only(left: 8, right: 5),
+        width: MediaQuery.of(context).size.width * .88,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black38,
+              blurRadius: 1.0,
+              spreadRadius: 0.0,
+              offset: Offset(
+                0.0,
+                0.0,
+              ),
+            )
+          ],
+        ),
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 14.0),
+                  child: Text(
+                    "Opening",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Text(
+                    hourValue == ""
+                        ? "Not Set"
+                        : hr + " : " + minuteValue + " " + am_pm,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Center(
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side:
+                              BorderSide(color: Theme.of(context).accentColor)),
+                      onPressed: () async {
+                        var data = await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          child: TimePickerDialog(),
+                        );
+                        if (data != null) {
+                          if (data[0] < 10) {
+                            if (data[1] == 0) {
+                              setState(() {
+                                openingTime = "0" +
+                                    data[0].toString() +
+                                    ":" +
+                                    data[1].toString() +
+                                    "0";
+                              });
+                            } else {
+                              setState(() {
+                                openingTime = "0" +
+                                    data[0].toString() +
+                                    ":" +
+                                    data[1].toString();
+                              });
+                            }
+                          } else {
+                            if (data[1] == 0) {
+                              setState(() {
+                                openingTime = data[0].toString() +
+                                    ":" +
+                                    data[1].toString() +
+                                    "0";
+                              });
+                            } else {
+                              setState(() {
+                                openingTime = data[0].toString() +
+                                    ":" +
+                                    data[1].toString();
+                              });
+                            }
+                          }
+                        }
+                      },
+                      color: Theme.of(context).accentColor,
+                      textColor: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Set Time",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  buildTimeClosing(String hourValue, String minuteValue) {
+    String am_pm = "AM";
+    int hour;
+    String hr;
+
+    if (hourValue != "" && minuteValue != "") {
+      hour = int.parse(hourValue);
+      if (hour > 12) {
+        am_pm = "PM";
+        hour = hour - 12;
+      }
+      if (hour == 12) {
+        am_pm = "PM";
+      }
+      if (hour == 0 && am_pm == "AM") {
+        hour = 12;
+      }
+      if (hour < 10) {
+        hr = "0" + hour.toString();
+      } else {
+        hr = hour.toString();
+      }
+    }
+
+    return Container(
+      height: 56.0,
+      margin: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 8.0),
+      child: new Container(
+        padding: const EdgeInsets.only(left: 8, right: 5),
+        width: MediaQuery.of(context).size.width * .88,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black38,
+              blurRadius: 1.0,
+              spreadRadius: 0.0,
+              offset: Offset(
+                0.0,
+                0.0,
+              ),
+            )
+          ],
+        ),
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 14.0),
+                  child: Text(
+                    "Closing",
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Text(
+                    hourValue == ""
+                        ? "Not Set"
+                        : hr.toString() + " : " + minuteValue + " " + am_pm,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Center(
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side:
+                              BorderSide(color: Theme.of(context).accentColor)),
+                      onPressed: () async {
+                        var data = await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          child: TimePickerDialog(),
+                        );
+                        if (data != null) {
+                          if (data[0] < 10) {
+                            if (data[1] == 0) {
+                              setState(() {
+                                closingTime = "0" +
+                                    data[0].toString() +
+                                    ":" +
+                                    data[1].toString() +
+                                    "0";
+                              });
+                            } else {
+                              setState(() {
+                                closingTime = "0" +
+                                    data[0].toString() +
+                                    ":" +
+                                    data[1].toString();
+                              });
+                            }
+                          } else {
+                            if (data[1] == 0) {
+                              setState(() {
+                                closingTime = data[0].toString() +
+                                    ":" +
+                                    data[1].toString() +
+                                    "0";
+                              });
+                            } else {
+                              setState(() {
+                                closingTime = data[0].toString() +
+                                    ":" +
+                                    data[1].toString();
+                              });
+                            }
+                          }
+                        }
+                      },
+                      color: Theme.of(context).accentColor,
+                      textColor: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Set Time",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   _showUploadChoiceDialog(BuildContext parentContext) {
@@ -220,6 +532,9 @@ class _EditShopProfileState extends State<EditShopProfile> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.0),
+            ),
             content: Row(
               children: [
                 Padding(
@@ -259,11 +574,11 @@ class _EditShopProfileState extends State<EditShopProfile> {
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.orangeAccent)),
+                    side: BorderSide(color: Theme.of(context).accentColor)),
                 onPressed: () async {
                   _showUploadChoiceDialog(context);
                 },
-                color: Colors.orangeAccent,
+                color: Theme.of(context).accentColor,
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -302,12 +617,30 @@ class _EditShopProfileState extends State<EditShopProfile> {
             keyType: TextInputType.number,
           ),
           Padding(
+            padding: const EdgeInsets.fromLTRB(48.0, 16.0, 0.0, 0.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Set Shop Timings",
+                style: TextStyle(fontSize: 15.0),
+              ),
+            ),
+          ),
+          openingTime != null
+              ? buildTimeOpening(
+                  openingTime.substring(0, 2), openingTime.substring(3))
+              : buildTimeOpening("", ""),
+          closingTime != null
+              ? buildTimeClosing(
+                  closingTime.substring(0, 2), closingTime.substring(3))
+              : buildTimeClosing("", ""),
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
             child: Center(
               child: RaisedButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.orangeAccent)),
+                    side: BorderSide(color: Theme.of(context).accentColor)),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     _showLoadingDialog(context, "Submitting...");
@@ -323,35 +656,64 @@ class _EditShopProfileState extends State<EditShopProfile> {
                         .limit(1)
                         .getDocuments()
                         .then((doc) {
-                          if (_image == null) {
-                            Firestore.instance
-                                .collection('shops')
-                                .document(doc.documents[0].documentID)
-                                .updateData({
-                              "shop_name": shopNameController.text,
-                              "shop_contact_name": shopContactController.text,
-                              "phone_number": shopNumberController.text,
-                            });
-                          } else {
-                            Firestore.instance
-                                .collection('shops')
-                                .document(doc.documents[0].documentID)
-                                .updateData({
-                              "shop_name": shopNameController.text,
-                              "shop_contact_name": shopContactController.text,
-                              "phone_number": shopNumberController.text,
-                              "shop_image": _url
-                            });
-                          }
-                        })
-                        .catchError((err) => print(err))
-                        .then((value) {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        });
+                      if (openingTime != null && closingTime != null) {
+                        if (_image == null) {
+                          Firestore.instance
+                              .collection('shops')
+                              .document(doc.documents[0].documentID)
+                              .updateData({
+                            "shop_name": shopNameController.text,
+                            "shop_contact_name": shopContactController.text,
+                            "phone_number": shopNumberController.text,
+                            "start_time": openingTime,
+                            "end_time": closingTime
+                          });
+                        } else {
+                          Firestore.instance
+                              .collection('shops')
+                              .document(doc.documents[0].documentID)
+                              .updateData({
+                            "shop_name": shopNameController.text,
+                            "shop_contact_name": shopContactController.text,
+                            "phone_number": shopNumberController.text,
+                            "shop_image": _url,
+                            "start_time": openingTime,
+                            "end_time": closingTime
+                          });
+                        }
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      } else if (openingTime == null && closingTime == null) {
+                        if (_image == null) {
+                          Firestore.instance
+                              .collection('shops')
+                              .document(doc.documents[0].documentID)
+                              .updateData({
+                            "shop_name": shopNameController.text,
+                            "shop_contact_name": shopContactController.text,
+                            "phone_number": shopNumberController.text,
+                          });
+                        } else {
+                          Firestore.instance
+                              .collection('shops')
+                              .document(doc.documents[0].documentID)
+                              .updateData({
+                            "shop_name": shopNameController.text,
+                            "shop_contact_name": shopContactController.text,
+                            "phone_number": shopNumberController.text,
+                            "shop_image": _url
+                          });
+                        }
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pop(context);
+                        _showSelectTimeDialog(context);
+                      }
+                    }).catchError((err) => print(err));
                   }
                 },
-                color: Colors.orangeAccent,
+                color: Theme.of(context).accentColor,
                 textColor: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -372,12 +734,12 @@ class _EditShopProfileState extends State<EditShopProfile> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     shopNameController.text = widget.shopData['shop_name'];
     shopContactController.text = widget.shopData['shop_contact_name'];
     shopNumberController.text = widget.shopData['phone_number'];
-
+    openingTime = widget.shopData['start_time'];
+    closingTime = widget.shopData['end_time'];
   }
 
   @override

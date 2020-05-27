@@ -204,7 +204,7 @@ class _OrderSchedulePageState extends State<OrderSchedulePage> {
 
     for (var i = 0; i <allStartTimes.length; i++){
       if(startTimes.contains(allStartTimes[i])){
-        if (shopData['limits'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i]) > 0){
+        if (shopData['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i]) > 0){
           slotData.add({'shop_name': shopData.data['shop_name'], 'start_time': getStartTime(shopTimeLimits[i]),
             'end_time': getEndTime(shopTimeLimits[i]), 'remaning_slots': shopData.data['limit'] - countOccurrencesUsingWhereMethod(startTimes, allStartTimes[i])});
         }
