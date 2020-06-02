@@ -503,7 +503,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                       _showCompleteDialog(
                           context, document.documentID, document['otp']);
                     },
-                    color: Colors.orangeAccent,
+                    color: Theme.of(context).accentColor,
                     textColor: Colors.white,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -525,7 +525,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
                     onPressed: () {
                       _showShopRescheduleCancelDialog(context, document);
                     },
-                    color: Colors.orangeAccent,
+                    color: Theme.of(context).accentColor,
                     textColor: Colors.white,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
