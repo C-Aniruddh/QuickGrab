@@ -21,7 +21,7 @@ class OrderTable extends StatelessWidget {
           cells: [
             DataCell(
               Container(
-                width: MediaQuery.of(context).size.width * 0.25,
+                width: MediaQuery.of(context).size.width * 0.3,
                 child: Text(
                   content['product']['item_name'].toString(),
                   style: TextStyle(
@@ -29,6 +29,7 @@ class OrderTable extends StatelessWidget {
                     color: Colors.black87,
                   ),
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
                 ),
               ),
             ),
@@ -99,6 +100,7 @@ class OrderTable extends StatelessWidget {
   Widget orderCardTable(var document, String total, BuildContext context) {
     return DataTable(
       dividerThickness: 0.0,
+      columnSpacing: 48.0,
       columns: [
         DataColumn(
           label: Text(

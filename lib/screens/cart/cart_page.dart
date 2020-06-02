@@ -181,11 +181,13 @@ class _CartPageState extends State<CartPage> {
                     );
                   } else {
                     return new Container(
-                        child: ListView.builder(
-                            itemCount: items.length,
-                            itemBuilder: (BuildContext ctxt, int index) {
-                              return singleItem(items, index);
-                            }));
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          return singleItem(items, index);
+                        },
+                      ),
+                    );
                   }
               }
             },
@@ -256,7 +258,8 @@ class _CartPageState extends State<CartPage> {
                               ),
                             );
                           } else {
-                            _showEmptyCartDialog(context, "Oops! Your Cart is Empty.");
+                            _showEmptyCartDialog(
+                                context, "Oops! Your Cart is Empty.");
                           }
                         },
                         child: ListTile(

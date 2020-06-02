@@ -545,6 +545,7 @@ class _OrderDataScheduledState extends State<OrderDataScheduled> {
   Widget orderCardTable(DocumentSnapshot document, String total) {
     return DataTable(
       showCheckboxColumn: true,
+      columnSpacing: 36.0,
       dividerThickness: 0.0,
       columns: [
         DataColumn(

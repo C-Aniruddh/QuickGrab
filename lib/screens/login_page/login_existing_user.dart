@@ -194,7 +194,7 @@ class _LoginPageExistingUserState extends State<LoginPageExistingUser> {
                   padding: const EdgeInsets.all(8.0),
                   child: ListTile(title: Text("Create a new account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       leading: Hero(tag: "sign_up", child: Image(image: AssetImage('assets/images/existing_user.png'), height: 48, width: 48,)),
-                      subtitle: Text("Sign up using your mobile number or google account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+                      subtitle: Text("Sign up using your facebook or google account", style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
                       trailing: Icon(Icons.arrow_forward_ios)),
                 )),
               ),

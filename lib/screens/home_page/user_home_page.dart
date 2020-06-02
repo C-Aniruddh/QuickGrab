@@ -2040,7 +2040,8 @@ class _UserHomePageState extends State<UserHomePage> {
             accentColor: Colors.red,
             onSubmitPressed: (int rating) {
               print("onSubmitPressed: rating = $rating");
-              // TODO: open the app's page on Google Play / Apple App Store
+              const url = "https://play.google.com/store/apps/details?id=com.quickgrab.app";
+              launch(url);
             },
             onAlternativePressed: () {
               print("onAlternativePressed: do something");
@@ -2421,7 +2422,7 @@ class _UserHomePageState extends State<UserHomePage> {
         notchedShape: CircularNotchedRectangle(),
         centerItemText: '',
         color: Colors.grey,
-        selectedColor: Colors.orange[600],
+        selectedColor: Theme.of(context).accentColor,
         items: [
           FABBottomAppBarItem(
             iconData: Icons.home,

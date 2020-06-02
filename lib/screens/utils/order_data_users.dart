@@ -32,12 +32,12 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
           cells: [
             DataCell(
               content['available'] ?
-              Icon(Icons.check)
-                  : Icon(Icons.close)
+              Icon(Icons.check, size: 20.0,)
+                  : Icon(Icons.close, size: 20.0,)
             ),
             DataCell(
               Container(
-                width: MediaQuery.of(context).size.width * 0.25,
+                width: MediaQuery.of(context).size.width * 0.2275,
                 child: Text(
                   content['product']['item_name'].toString(),
                   style: TextStyle(
@@ -237,7 +237,7 @@ class _OrderDataUsersState extends State<OrderDataUsers> {
 
   Widget orderCardTable(DocumentSnapshot document, String total) {
     return DataTable(
-      columnSpacing: 36,
+      columnSpacing: 34,
       dividerThickness: 0.0,
       columns: [
         DataColumn(

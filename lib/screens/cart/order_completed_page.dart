@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:app/fonts.dart';
-import 'package:app/screens/cart/order_payment_page.dart';
 import 'package:app/screens/login_page/landing_page.dart';
 import 'package:app/screens/utils/order_data_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_admob/firebase_admob.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
