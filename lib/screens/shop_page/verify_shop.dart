@@ -230,8 +230,10 @@ class _VerifyShopState extends State<VerifyShop> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text(title, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
-      content: Text(content, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+      title:
+          Text(title, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
+      content:
+          Text(content, style: TextStyle(fontFamily: AppFontFamilies.mainFont)),
       actions: [
         okButton,
       ],
@@ -409,35 +411,63 @@ class _VerifyShopState extends State<VerifyShop> {
                 onPressed: () async {
                   if (_image != null) {
                     // only image needed
-                    _url = await uploadFile(
-                        _image,
-                        widget.shopData['uid']);
-                    Firestore.instance.collection('verification_requests')
+                    _url = await uploadFile(_image, widget.shopData['uid']);
+                    Firestore.instance
+                        .collection('verification_requests')
                         .document(widget.shopData.documentID)
-                        .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
-                    showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
+                        .setData({
+                      'image': _url,
+                      'gst': gstController.text,
+                      'vat': vatController.text
+                    });
+                    showAlertDialog(context, "Verification Request Received",
+                        "Please wait a few hours for verification or contact us if urgent.");
                   } else if (gstController.text.isEmpty) {
                     if (vatController.text.isEmpty) {
-                      _showErrorDialog(context, "If no image is uploaded, then at least GST or VAT must be provided");
+                      _showErrorDialog(context,
+                          "If no image is uploaded, then at least GST or VAT must be provided");
                     } else {
-                      Firestore.instance.collection('verification_requests')
+                      Firestore.instance
+                          .collection('verification_requests')
                           .document(widget.shopData.documentID)
-                          .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
-                      showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
+                          .setData({
+                        'image': _url,
+                        'gst': gstController.text,
+                        'vat': vatController.text
+                      });
+                      showAlertDialog(context, "Verification Request Received",
+                          "Please wait a few hours for verification or contact us if urgent.");
                     }
                     // supply vat
                   } else if (vatController.text.isEmpty) {
                     if (gstController.text.isEmpty) {
-                      _showErrorDialog(context, "If no image is uploaded, then at least GST or VAT must be provided");
+                      _showErrorDialog(context,
+                          "If no image is uploaded, then at least GST or VAT must be provided");
                     } else {
-                      Firestore.instance.collection('verification_requests')
+                      Firestore.instance
+                          .collection('verification_requests')
                           .document(widget.shopData.documentID)
-                          .setData({'image': _url, 'gst': gstController.text, 'vat': vatController.text});
-                      showAlertDialog(context, "Verification Request Received", "Please wait a few hours for verification or contact us if urgent.");
+                          .setData({
+                        'image': _url,
+                        'gst': gstController.text,
+                        'vat': vatController.text
+                      });
+                      showAlertDialog(context, "Verification Request Received",
+                          "Please wait a few hours for verification or contact us if urgent.");
                     }
                     // supply gst
+                  } else {
+                    Firestore.instance
+                        .collection('verification_requests')
+                        .document(widget.shopData.documentID)
+                        .setData({
+                      'image': _url,
+                      'gst': gstController.text,
+                      'vat': vatController.text
+                    });
+                    showAlertDialog(context, "Verification Request Received",
+                        "Please wait a few hours for verification or contact us if urgent.");
                   }
-
                 },
                 color: Theme.of(context).accentColor,
                 textColor: Colors.white,
